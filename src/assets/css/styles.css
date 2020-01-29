@@ -44,16 +44,6 @@ p {
     color: #7e7e7e;
 }
 
-.match-parent{
-	width: 100%;
-	height: 100%;
-}
-
-.center-content{
-  	display: flex;
-  	align-items: center;
-  	justify-content: center;
-}
 
 /* THE ENTIRE APP CONTAINER STYLE*/
 .app-container {
@@ -93,4 +83,62 @@ p {
 	position: absolute;
 	top: 8em; /* Since height is 4em */
 	bottom: 0; left: 0; right: 0;
+}
+
+
+
+
+/***********************
+ *     COMPONENTS      *
+ ***********************/
+ /*NICE MENU CARD (Cards displayed on the home screen)*/
+ .nice-menu-card{
+	 width: 300px;
+	 height: 250px;
+	 display: flex;
+	 justify-content: center;
+	 align-items: center;
+	 flex-direction: column;
+	 margin: 20px !important;
+	 cursor: pointer;
+	 user-select: none;
+ }
+
+.nice-menu-card .nmc-icon {
+	font-size: 30px;
+	margin-bottom: 10px;
+}
+
+.nice-menu-card .nmc-text {
+	font-size: 20px;
+	font-family: "Josefin Sans";
+} 
+
+
+/**************
+ *   UTILS    *
+ **************/
+ .match-parent{
+	width: 100%;
+	height: 100%;
+}
+
+.center-content{
+  	display: flex;
+  	align-items: center;
+  	justify-content: center;
+}
+
+.center-content-col{
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-direction: column;
+}
+
+.d-flex {
+	-webkit-display: flex;
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
 }
