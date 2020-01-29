@@ -93,13 +93,21 @@ p {
 	flex-direction: column;
 }
 
-.upload-screen .upload-view {
-	flex: 1;
-}
-
 .upload-screen .uploaded-view {
 	flex: 1;
-	border-top: 1px solid #ddd;
+	display: flex;
+	flex-direction: column;
+	padding-top: 25px;
+}
+
+.uploaded-view>h4{
+	font-size: 25px;
+	margin-bottom: 5px;
+	font-weight: "500";
+}
+
+.upload-screen .upload-view {
+	flex: 1;
 }
 
 .upload-view .content {
@@ -123,7 +131,40 @@ p {
 	flex: 1;
 	border: 2px dashed #ccc;
 	margin-bottom: 10px;
-	
+
+}
+
+.upload-zone .drop-zone{
+	position: relative;
+}
+
+.drop-zone .input {
+	position: absolute; 
+	top: 50%; left: 50%; 
+	transform: translate(-50%, -50%);
+}
+
+.drop-zone .desc {
+	position: absolute; 
+	bottom:0; 
+	left:0;
+	right:0; 
+	margin-bottom:10px; 
+	text-align: center
+}
+
+.drop-zone .drag-over-desc{
+	position: absolute; 
+	top: 50%; left: 50%; 
+	transform: translate(-50%, -50%);
+	font-size: 20px;
+	transition: all .5s;
+	color: #004D40;
+}
+
+.drop-zone.drag-over {
+	background-color: #B2DFDB;
+	transition: all .5s;
 }
 
 
@@ -180,4 +221,10 @@ p {
 	display: flex;
 	align-items: center;
 	flex-wrap: wrap;
+}
+
+.absolute-content{
+	position: absolute;
+	top: 0; left: 0; bottom: 0; right: 0;
+	overflow-y: auto;
 }
