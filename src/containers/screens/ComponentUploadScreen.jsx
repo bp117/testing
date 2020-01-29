@@ -4,6 +4,7 @@ import Dropzone from "react-dropzone";
 import * as actions from "../../actions/componentActions";
 import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
+import EditJSONModal from "../../components/modals/EditJSONModal";
 
 function mapStateToProps(state){
     return {
@@ -66,7 +67,7 @@ class ComponentUploadScreen extends React.Component{
                 if(success){
                     this.setState({compsToUpload:this.state.compsToUpload.filter(item=>item.id !== compDefinition.id)}, ()=>{
                         this.loadComponentDefinitions();
-                        alert("GOOD") //HANLE THIS PROPERLY
+                        //alert("GOOD") //HANLE THIS PROPERLY
                     })
                 }else{  
                     console.log(data);
@@ -75,14 +76,18 @@ class ComponentUploadScreen extends React.Component{
             })
         });
     }
-    handleDeleteComponentDefinition = (item)=>{
+    handleDeleteComponentDefinition = (item, callback=()=>{})=>{
         this.props.deleteComponentDefinition(item._id, (success, err)=>{
             if(success){
                 this.loadComponentDefinitions()
             }else{
                 //TODO: HANDLE ERROR, COULD NOT DELETE COMPONENT DEFINITION
             }
+            callback(success);
         })
+    }
+    setEditData = (item)=>{
+        this.setState({editComponentData:item})
     }
     loadComponentDefinitions = ()=>{
         this.props.getComponentDefinition((success, data)=>{
@@ -126,7 +131,7 @@ class ComponentUploadScreen extends React.Component{
                                                                         this.state.compsToUpload.map((item, indx)=>(
                                                                             <div style={{padding:"5px 10px"}}>
                                                                                 <span style={{marginRight:20}}>{item.name}</span>
-                                                                                <Icon name="trash" style={{fontSize:16}} color="red" onClick={()=>this.removeFileFromUploadList(item)}/>
+                                                                                <Icon name="trash" style={{fontSize:16, cursor:"pointer"}} color="red" onClick={()=>this.removeFileFromUploadList(item)}/>
                                                                             </div>
                                                                         ))
                                                                     }
@@ -179,7 +184,7 @@ class ComponentUploadScreen extends React.Component{
                                                 <Table.Cell>{item.metadata && item.metadata.version||"N/A"}</Table.Cell>
                                                 <Table.Cell>{item.category||"N/A"}</Table.Cell>
                                                 <Table.Cell textAlign="right">
-                                                    <Button size="large" primary><Icon name="eye" />View </Button>
+                                                    <Button size="large" primary onClick={()=>this.setEditData(item)}><Icon name="eye" />View </Button>
                                                     <Button size="large" negative onClick={()=>this.handleDeleteComponentDefinition(item)}><Icon name="trash" />Delete</Button>
                                                 </Table.Cell>
                                             </Table.Row>
@@ -194,6 +199,14 @@ class ComponentUploadScreen extends React.Component{
                         </div>
                     </div>
                 </div>
+                <EditJSONModal 
+                    open={!!this.state.editComponentData} 
+                    data={this.state.editComponentData}
+                    onClose={()=>this.setState({editComponentData:null})}
+                    onDelete={()=>{this.handleDeleteComponentDefinition(this.state.editComponentData, ()=>{
+                        this.setState({editComponentData:null})
+                    })}}
+                    onEdit={()=>alert("To be handled")} />
             </div>
         )
     }
