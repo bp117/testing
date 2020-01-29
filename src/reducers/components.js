@@ -5,13 +5,17 @@ import{
     UPLOAD_COMPONENT_DEFINITION_FAILURE,
     FETCH_COMPONENT_DEFINITION_REQUEST,
     FETCH_COMPONENT_DEFINITION_SUCCESS,
-    FETCH_COMPONENT_DEFINITION_FAILURE
+    FETCH_COMPONENT_DEFINITION_FAILURE,
+    DELETE_COMPONENT_DEFINITION_REQUEST,
+    DELETE_COMPONENT_DEFINITION_SUCCESS,
+    DELETE_COMPONENT_DEFINITION_FAILURE
 } from "../constants/action_types";
 
 const initialState = {
     isUploadingComponent: false,
     isUploadedComponent: false,
     isFetchingComponent: false,
+    isDeletingId: null,
     isLoadedComponent: false,
     components: []
 }
@@ -47,5 +51,17 @@ export default createReducer(initialState, {
         ...state,
         isFetchingComponent: false,
         isLoadedComponent: false
+    }),
+    [DELETE_COMPONENT_DEFINITION_REQUEST]: (state, id)=>({
+        ...state,
+        isDeletingId: id
+    }),
+    [DELETE_COMPONENT_DEFINITION_SUCCESS]: (state, data=[])=>({
+        ...state,
+        isDeletingId: null
+    }),
+    [DELETE_COMPONENT_DEFINITION_FAILURE]: (state)=>({
+        ...state,
+        isDeletingId: null
     })
 });

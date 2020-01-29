@@ -102,8 +102,9 @@ p {
 
 .uploaded-view>h4{
 	font-size: 25px;
-	margin-bottom: 5px;
+	padding-bottom: 5px;
 	font-weight: "500";
+	border-bottom: 1px solid #ddd;
 }
 
 .upload-screen .upload-view {

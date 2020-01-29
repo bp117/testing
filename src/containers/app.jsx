@@ -7,6 +7,9 @@ import AppRoutes from './routes.jsx';
 import { HOME_ROUTE } from '../constants/app_routes.js';
 
 class App extends Component{
+    constructor(props){
+        super(props);
+    }
     render(){
         return(
             <div className="match-parent">

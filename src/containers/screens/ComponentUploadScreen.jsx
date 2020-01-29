@@ -65,7 +65,7 @@ class ComponentUploadScreen extends React.Component{
             this.props.uploadComponentDefinition(compDefinition, (success, data)=>{
                 if(success){
                     this.setState({compsToUpload:this.state.compsToUpload.filter(item=>item.id !== compDefinition.id)}, ()=>{
-                        this.props.getComponentDefinition();
+                        this.loadComponentDefinitions();
                         alert("GOOD") //HANLE THIS PROPERLY
                     })
                 }else{  
@@ -75,7 +75,16 @@ class ComponentUploadScreen extends React.Component{
             })
         });
     }
-    componentDidMount(){
+    handleDeleteComponentDefinition = (item)=>{
+        this.props.deleteComponentDefinition(item._id, (success, err)=>{
+            if(success){
+                this.loadComponentDefinitions()
+            }else{
+                //TODO: HANDLE ERROR, COULD NOT DELETE COMPONENT DEFINITION
+            }
+        })
+    }
+    loadComponentDefinitions = ()=>{
         this.props.getComponentDefinition((success, data)=>{
             if(!success){
                 console.log(data);
@@ -83,13 +92,15 @@ class ComponentUploadScreen extends React.Component{
             }
         });
     }
+    componentDidMount(){
+        this.loadComponentDefinitions()
+    }
     render(){
-        
         return (
             <div className="match-parent upload-screen">
                 <div className="upload-view">
                     <div className="match-parent content">
-                        <h4>Upload Component Definition File</h4>
+                        <h4>Upload Component Definition File</h4> 
                         <div className="upload-zone-container">
                             <div className="upload-zone">
                                 <Dropzone 
@@ -134,7 +145,12 @@ class ComponentUploadScreen extends React.Component{
                                 </Dropzone>
                             </div>
                             <div style={{width:"100%"}}>
-                                <Button style={{width:"100%"}} color="teal" size="big" onClick={this.handleUploadComponentDefinitions} disabled={this.state.compsToUpload.length===0}>
+                                <Button 
+                                    style={{width:"100%"}} 
+                                    color="teal" size="big" 
+                                    onClick={this.handleUploadComponentDefinitions} 
+                                    disabled={this.state.compsToUpload.length===0} 
+                                    loading={this.props.isUploading}>
                                     <Icon name="upload" />Upload File{this.state.compsToUpload.length>0?"s":""}
                                 </Button>
                             </div>
@@ -142,33 +158,39 @@ class ComponentUploadScreen extends React.Component{
                     </div>
                 </div>
                 <div className="uploaded-view">
-                    <h4>Component Definition files</h4>
-                    <div style={{position:"relative", flex:1}}>
+                    <h4 className="title">Component Definition files</h4>
+                    <div style={{position:"relative", flex:1, marginTop:10}}>
                         <div className="absolute-content">
-                            <Table striped selectable>
-                                <Table.Header>
-                                    <Table.Row>
-                                        <Table.HeaderCell>Component</Table.HeaderCell>
-                                        <Table.HeaderCell>Version</Table.HeaderCell>
-                                        <Table.HeaderCell>Catergory</Table.HeaderCell>
-                                        <Table.HeaderCell textAlign="right"></Table.HeaderCell>
-                                    </Table.Row>
-                                </Table.Header>
-
-                                <Table.Body>
-                                    {this.props.components.map(item=>(
+                            {this.props.components && this.props.components.length>0 ?
+                                <Table striped selectable>
+                                    <Table.Header>
                                         <Table.Row>
-                                            <Table.Cell>{item.name}</Table.Cell>
-                                            <Table.Cell>{item.metadata && item.metadata.version||"N/A"}</Table.Cell>
-                                            <Table.Cell>{item.category||"N/A"}</Table.Cell>
-                                            <Table.Cell textAlign="right">
-                                                <Button size="large" primary><Icon name="eye" />View </Button>
-                                                <Button size="large" negative><Icon name="trash" />Delete</Button>
-                                            </Table.Cell>
+                                            <Table.HeaderCell>Component</Table.HeaderCell>
+                                            <Table.HeaderCell>Version</Table.HeaderCell>
+                                            <Table.HeaderCell>Catergory</Table.HeaderCell>
+                                            <Table.HeaderCell textAlign="right"></Table.HeaderCell>
                                         </Table.Row>
-                                    ))}
-                                </Table.Body>
-                            </Table>
+                                    </Table.Header>
+
+                                    <Table.Body>
+                                        {this.props.components.map(item=>(
+                                            <Table.Row>
+                                                <Table.Cell>{item.name}</Table.Cell>
+                                                <Table.Cell>{item.metadata && item.metadata.version||"N/A"}</Table.Cell>
+                                                <Table.Cell>{item.category||"N/A"}</Table.Cell>
+                                                <Table.Cell textAlign="right">
+                                                    <Button size="large" primary><Icon name="eye" />View </Button>
+                                                    <Button size="large" negative onClick={()=>this.handleDeleteComponentDefinition(item)}><Icon name="trash" />Delete</Button>
+                                                </Table.Cell>
+                                            </Table.Row>
+                                        ))}
+                                    </Table.Body>
+                                </Table>
+                                :
+                                <div style={{color:"#880E4F", fontSize:17}}>
+                                    None Available
+                                </div>
+                            }
                         </div>
                     </div>
                 </div>
