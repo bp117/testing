@@ -5,14 +5,12 @@ import PropTypes from "prop-types";
 
 export default function NiceMenuCard(props){
     return (
-            <Segment className="nice-menu-card">
-                <RippleEffect className="nice-menu-card">
-                    <div className="match-parent center-content-col">
-                        <div className="nmc-icon">{props.icon}</div>
-                        <div className="nmc-text">{props.text}</div>
-                    </div>
-                </RippleEffect>
-            </Segment>
+        <Segment className="nice-menu-card" as="div" >
+            <div className="match-parent center-content-col" onClick={props.onItemClick}>
+                <div className="nmc-icon">{props.icon}</div>
+                <div className="nmc-text">{props.text}</div>
+            </div>
+        </Segment>
     )
 }
 

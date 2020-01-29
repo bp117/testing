@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
-import { Switch } from "react-router-dom";
+import { Switch, Redirect } from "react-router-dom";
 import Header from "../components/Header.jsx";
 import "../assets/css/styles.css";
 import BreadcrumbNav from '../components/BreadcrumbNav.jsx';
 import AppRoutes from './routes.jsx';
+import { HOME_ROUTE } from '../constants/app_routes.js';
 
 class App extends Component{
     render(){

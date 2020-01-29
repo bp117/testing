@@ -6,27 +6,27 @@ const menuItems = [
     {
         name: "Component Definition",
         iconName: "check",
-        route: "/"
+        route: "/home/upload-component"
     },{
         name: "Environment Config",
         iconName: "check",
-        route: "/"
+        route: "/home/upload-environment"
     },{
         name: "Create Experiment",
         iconName: "check",
-        route: "/"
+        route: "/home/create-experiment"
     },{
         name: "Run Experiment",
         iconName: "check",
-        route: "/"
+        route: "/home/run-experiment"
     },{
         name: "Run History",
         iconName: "check",
-        route: "/"
+        route: "/home/run-history"
     },{
         name: "Schedules",
         iconName: "check",
-        route: "/"
+        route: "/home/schedules"
     }
 ]
 
@@ -43,7 +43,7 @@ export default class HomeScreen extends React.Component {
                             <NiceMenuCard 
                                 text={item.name} 
                                 icon={<Icon name="accessible" />}
-                                onClick={()=>this.handleDispatchRoute(item.route)}/>
+                                onItemClick={()=>this.handleDispatchRoute(item.route)}/>
                         ))
                     }
                 </div>
