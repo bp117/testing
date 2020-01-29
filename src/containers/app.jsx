@@ -17,7 +17,7 @@ class App extends Component{
                 </Header>
                 <BreadcrumbNav />
 				<div className="app-content">
-                    <div className="container">
+                    <div className="container" style={{height:"100%"}}>
                         <Switch>
                             <AppRoutes />
                         </Switch>

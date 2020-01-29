@@ -36,7 +36,7 @@ export default class HomeScreen extends React.Component {
     }
     render(){
         return(
-            <div className="match-parent" style={{paddingTop:25}}>
+            <div style={{paddingTop:25}}>
                 <div className="d-flex match-parent center-content">
                     {
                         menuItems.map(item=>(

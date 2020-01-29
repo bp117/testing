@@ -1,6 +1,5 @@
 import React from 'react';
 import { Segment } from 'semantic-ui-react';
-import RippleEffect from "react-ripples";
 import PropTypes from "prop-types";
 
 export default function NiceMenuCard(props){
