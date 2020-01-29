@@ -1,0 +1,96 @@
+@import "../../../node_modules/semantic-ui-css/semantic.min.css";
+@import "../../../node_modules/bootstrap/dist/css/bootstrap.min.css";
+
+html,
+body {
+    width: 100%;
+    height: 100%;
+    margin: 0px;
+    padding: 0px;
+    font-family: "Muli", sans-serif;
+    scroll-behavior: smooth;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-family: "Josefin Sans", sans-serif;
+    margin: 0;
+}
+
+h2 {
+    font-size: 50px;
+}
+
+h3 {
+    font-size: 35px;
+}
+
+h4 {
+    font-size: 30px;
+}
+
+h6 {
+    font-size: 18px;
+}
+
+p {
+    line-height: 1.8;
+    margin: 0;
+    font-size: 16px;
+    color: #7e7e7e;
+}
+
+.match-parent{
+	width: 100%;
+	height: 100%;
+}
+
+.center-content{
+  	display: flex;
+  	align-items: center;
+  	justify-content: center;
+}
+
+/* THE ENTIRE APP CONTAINER STYLE*/
+.app-container {
+	position: relative;
+	flex-direction: column;
+}
+
+/* APP HEADER */
+.app-header {
+	position: absolute;
+	top: 0; left: 0; right: 0; 
+	height: 4em;
+	background-color: black;
+	color: white;
+	-webkit-display: flex;
+	display: flex;
+	align-items: center;
+}
+
+.app-header .brand-name {
+	display: inline-block;
+	font-size: 24px;
+	font-weight: bold;
+}
+
+.breadcrumb-nav-container{
+	position: absolute;
+	top: 4em; /* TO SKIP THE HEADER*/
+	height: 4em;
+	width: 100%;
+	display: flex;
+	align-items: center;
+}
+
+/* THE APP CONTENT (APP CONTAINER MINUS THE HEADER and BREADCRUMB NAVIGATION)*/
+.app-content {
+	position: absolute;
+	top: 8em; /* Since height is 4em */
+	bottom: 0; left: 0; right: 0;
+}
