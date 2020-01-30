@@ -5,6 +5,7 @@ import * as actions from "../../actions/componentActions";
 import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
 import EditJSONModal from "../../components/modals/EditJSONModal";
+import { confirmationAlert } from "../../components/utils/alerts";
 
 function mapStateToProps(state){
     return {
@@ -77,14 +78,16 @@ class ComponentUploadScreen extends React.Component{
         });
     }
     handleDeleteComponentDefinition = (item, callback=()=>{})=>{
-        this.props.deleteComponentDefinition(item._id, (success, err)=>{
-            if(success){
-                this.loadComponentDefinitions()
-            }else{
-                //TODO: HANDLE ERROR, COULD NOT DELETE COMPONENT DEFINITION
-            }
-            callback(success);
-        })
+        confirmationAlert(`Delete ${item.name} component definition?`, ()=>{
+            this.props.deleteComponentDefinition(item._id, (success, err)=>{
+                if(success){
+                    this.loadComponentDefinitions()
+                }else{
+                    //TODO: HANDLE ERROR, COULD NOT DELETE COMPONENT DEFINITION
+                }
+                callback(success);
+            })
+        }, {okBtnText:"Yes, Delete", cancelBtnText:"Cancel"})
     }
     handleUpdateComponentDefinition = (data)=>{
         this.props.updateComponentDefinition(data, (success, err)=>{

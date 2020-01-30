@@ -1,5 +1,6 @@
 @import "../../../node_modules/semantic-ui-css/semantic.min.css";
 @import "../../../node_modules/bootstrap/dist/css/bootstrap.min.css";
+@import "../../../node_modules/react-confirm-alert/src/react-confirm-alert.css";
 
 html,
 body {
@@ -221,6 +222,30 @@ p {
 	font-size: 20px;
 	font-family: "Josefin Sans";
 } 
+
+.confirm-alert-dialog{
+	padding: 20px;
+	border: 1px solid #ddd;
+	box-shadow: 0 0 35px rgba(56, 26, 26, 0.18);
+	border-radius: 5px;
+}
+
+.confirm-alert-dialog .title{
+font-size: 22px;
+color: #0D47A1;
+}
+
+.confirm-alert-dialog .message{
+	border-bottom: 1px solid #ddd;
+	margin-bottom: 10px;
+	padding-bottom: 20px;
+	color: #333;
+}
+
+.confirm-alert-dialog .actions {
+	width: 100%;
+	text-align: right;
+}
 
 
 /**************
