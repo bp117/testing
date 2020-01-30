@@ -1,12 +1,13 @@
 import React from "react";
 import NiceMenuCard from "../../components/widgets/NiceMenuCard";
 import { Icon } from "semantic-ui-react";
+import { UPLOAD_COMPONENT_ROUTE, CREATE_EXPERIMENT_ROUTE } from "../../constants/app_routes";
 
 const menuItems = [
     {
         name: "Component Definition",
         iconName: "check",
-        route: "/home/upload-component"
+        route: UPLOAD_COMPONENT_ROUTE
     },{
         name: "Environment Config",
         iconName: "check",
@@ -14,7 +15,7 @@ const menuItems = [
     },{
         name: "Create Experiment",
         iconName: "check",
-        route: "/home/create-experiment"
+        route: CREATE_EXPERIMENT_ROUTE
     },{
         name: "Run Experiment",
         iconName: "check",

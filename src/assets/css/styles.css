@@ -198,6 +198,44 @@ p {
 }
 
 
+/**  CREATE EXPERIMENT SCREEN **/
+.create-experiment-screen{
+	border: 1px solid red;
+	padding-top: 30px;
+	display: flex;
+}
+
+.create-experiment-screen .sidebar-palette {
+	position: relative;
+	min-width: 250px;
+	border: 1px solid green;
+}
+
+.create-experiment-screen .main-content {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+}
+
+.create-experiment-screen .main-content .stepper-container{
+	border: 1px solid blue;
+	text-align: center;
+	padding: 10px 0;
+}
+
+.create-experiment-screen .main-content .current-display{
+	flex: 1;
+	position: relative;
+	border: 1px solid yellow;
+}
+
+.create-experiment-screen .main-content .content-footer{
+	width: 100%;
+	text-align: center;
+	padding: 10px 0;
+}
+
+
 /***********************
  *     COMPONENTS      *
  ***********************/
@@ -232,8 +270,8 @@ p {
 }
 
 .confirm-alert-dialog .title{
-font-size: 22px;
-color: #0D47A1;
+	font-size: 22px;
+	color: #0D47A1;
 }
 
 .confirm-alert-dialog .message{
