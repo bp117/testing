@@ -28,12 +28,9 @@ export default class EditJSONModal extends React.Component {
                         </div>
                     </div>
                     <div className="app-modal-footer">
-                        <div className="match-parent" style={{display:"flex", justifyContent:"space-between"}}>
-                            <Button negative size="large" onClick={this.props.onDelete}><Icon name="trash" /> Delete Component</Button>
-                            <div>
-                                <Button color="orange" size="large" onClick={this.props.onClose}><Icon name="remove" /> Cancel</Button>
-                                <Button positive size="large" onClick={()=>this.props.onEdit(this.state.editData)}><Icon name="check" /> Update</Button>
-                            </div>
+                        <div className="match-parent" style={{textAlign:"right"}}>
+                            <Button color="orange" size="large" onClick={this.props.onClose}><Icon name="remove" /> Cancel</Button>
+                            <Button positive size="large" onClick={()=>this.props.onEdit(this.state.editData)}><Icon name="check" /> Update</Button>
                         </div>
                     </div>
                 </div>
