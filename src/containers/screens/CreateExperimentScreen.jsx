@@ -1,6 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import { Button, Step, Icon } from "semantic-ui-react";
+import { Button, Step, Icon, Input } from "semantic-ui-react";
 import { Switch, Route } from "react-router-dom";
 import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
 import { showWarningNotification, showErrorNotification, confirmationAlert } from "../../components/utils/alerts";
@@ -22,18 +22,23 @@ function mapDispatchToProps(dispatch){
 
 
 const DraggablePaletteMenuItem = (props)=>(
-    <Draggable draggableId={props.id+" "+props.index} index={props.index}>
+    <Draggable draggableId={getCompId(props)} index={props.index}>
         {(provided, snapshot) => (
-            <div
-                ref={provided.innerRef}
-                {...provided.draggableProps}
-                {...provided.dragHandleProps}
-                onDoubleClick={() => {
-                    props.onEditTaskItem();
-                }}
-            >
-                <PaletteMenuItem {...props}/>
-            </div>
+            <React.Fragment>
+                <div
+                    ref={provided.innerRef}
+                    {...provided.draggableProps}
+                    {...provided.dragHandleProps}
+                    onDoubleClick={() => {
+                        props.onEditTaskItem();
+                    }}
+                >
+                    <PaletteMenuItem {...props}/>
+                </div>
+                {snapshot.isDragging &&
+                    <PaletteMenuItem {...props} />
+                }
+            </React.Fragment>
         )}
     </Draggable>
 )
@@ -53,7 +58,7 @@ const ConfigComponentItem = (props)=>{
                 <h4>{props.name}</h4>
             </div>
             <div className="controls">
-                <Button negative onClick={()=>props.onRemove(props._id)}><Icon name="trash" /> Remove</Button>
+                <Button negative onClick={()=>props.onRemove(props)}><Icon name="trash" /> Remove</Button>
             </div>
         </div>
     )
@@ -75,11 +80,11 @@ const ConfigureComponentView = (props)=>(
                             {props.componentNodes.map(item=>(
                                 <ConfigComponentItem 
                                     {...item} 
-                                    key={item._id} 
-                                    itemRef={props.nodeRefList[item._id]} 
-                                    onRemove={props.onRemoveCompConfig} />
+                                    key={getCompId(item)} 
+                                    itemRef={props.nodeRefList[getCompId(item)]} 
+                                    onRemove={props.onRemoveCompConfig}
+                                    compId={getCompId(item)} />
                             ))}
-                            {provided.placeholder}
                         </div>
                     )}
                     </Droppable>
@@ -94,6 +99,11 @@ const ConfigureExperimentView = (props)=>(
         EXPERIMENT VIEW
     </div>
 )
+
+const specialChars = "£$%^&*-+=!";
+const getCompId = (component)=>{
+    return component._id + specialChars + component.name
+}
 
 class CreateExperimentScreen extends React.Component{
     constructor(props){
@@ -124,25 +134,39 @@ class CreateExperimentScreen extends React.Component{
         //     showWarningNotification("You cannot add more than two components to the canvas");
         // }
         if(data.destination && data.destination.droppableId != data.source.droppableId){
-            let draggedCompId = data.draggableId.substring(0, data.draggableId.lastIndexOf(" ")).trim(); 
-            let draggedComp = this.props.components.find(item=>item.id===draggedCompId);
-            if(draggedComp && !this.state.componentNodes.find(item=>item.id==draggedCompId)){
-                this.nodeRefs = {...this.nodeRefs, [draggedComp._id]:React.createRef()}
-                this.setState({componentNodes:[
-                    ...this.state.componentNodes, 
-                    draggedComp
-                ]});
-            }else{
-                showWarningNotification(data.draggableId+" is already added to the component canvas")
-            }
+            let draggedComp = this.props.components.find(item=>getCompId(item)===data.draggableId);
+            this.setState({tempCompName:draggedComp.name}, ()=>{
+                confirmationAlert(
+                    <div style={{display:"flex", alignItems:"center", marginTop:10}}>
+                        <span style={{marginRight:10}}>Name:</span>
+                        <Input defaultValue={this.state.tempCompName} onChange={(elt)=>this.setState({tempCompName:elt.target.value})} />
+                    </div>,
+                    ()=>{
+                        draggedComp = {...draggedComp, name: this.state.tempCompName}
+                        if(draggedComp && !this.state.componentNodes.find( item => getCompId(item) === getCompId(draggedComp) )){
+                            this.nodeRefs = {...this.nodeRefs, [getCompId(draggedComp)]:React.createRef()}
+                            this.setState({componentNodes:[
+                                ...this.state.componentNodes, 
+                                draggedComp
+                            ]});
+                        }
+                        else if(draggedComp){
+                            showWarningNotification(draggedComp.name+" is already added to the component canvas")
+                        }
+                    },
+                    {isPositiveBtn:true, okBtnText:"Set Name", cancelBtnText:"Cancel", title:"Edit component name"}
+                )
+            })
         }
     }
-    handleRemoveComponentConfig = (compId)=>{
+    
+    handleRemoveComponentConfig = (component)=>{
         confirmationAlert("Are you sure you want to remove this component?", ()=>{
+            let compId = getCompId(component)
             let domNode = ReactDOM.findDOMNode(this.nodeRefs[compId].current)
             this.jsPlumb.remove(domNode)
             delete this.nodeRefs[compId]
-            this.setState({componentNodes:this.state.componentNodes.filter(item=>item._id!==compId)}, ()=>{
+            this.setState({componentNodes:this.state.componentNodes.filter(item => getCompId(item) !== getCompId(component))}, ()=>{
                 this.jsPlumb.repaintEverything(false)
             });
         })
@@ -167,7 +191,7 @@ class CreateExperimentScreen extends React.Component{
     }
     componentDidUpdate(){
         this.state.componentNodes.forEach(node=>{
-            let domNode = ReactDOM.findDOMNode(this.nodeRefs[node._id].current)
+            let domNode = ReactDOM.findDOMNode(this.nodeRefs[getCompId(node)].current)
             this.jsPlumb.addEndpoint(domNode, {anchor:"RightMiddle"}, {isSource:true, isTarget:true});
         })
     }
@@ -183,9 +207,9 @@ class CreateExperimentScreen extends React.Component{
                                 {(provided, snapshot) => (
                                     <div ref={provided.innerRef}>
                                         {this.props.components.map((item,index)=>(
-                                            <DraggablePaletteMenuItem index={index} {...item} key={item._id}/>
+                                            <DraggablePaletteMenuItem index={index} {...item} key={getCompId(item)}/>
                                         ))}
-                                        {provided.placeholder}
+                                        {/* {provided.placeholder} */}
                                     </div>
                                 )}
                                 </Droppable>

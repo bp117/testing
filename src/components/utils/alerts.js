@@ -6,7 +6,7 @@ import { store } from 'react-notifications-component';
 export const confirmationAlert = (message, successCallback, options)=>{
     options = options || {okBtnText:"YES", cancelBtnText:"NO"}
     confirmAlert({
-        title: 'Confirm Action',
+        title: options.title || 'Confirm Action',
         message: message,
         customUI: ({ onClose, message, title }) => {
             return (
@@ -24,7 +24,7 @@ export const confirmationAlert = (message, successCallback, options)=>{
                           onClose();
                       }}
                       size="big"
-                      negative
+                      color={options.isPositiveBtn?"green":"red"}
                     >
                       <Icon name="check" /> {options.okBtnText || "YES"}
                     </Button>
@@ -32,7 +32,7 @@ export const confirmationAlert = (message, successCallback, options)=>{
               </div>
             );
         }
-      });
+    });
 }
 
 export const showSuccessNotification = (message, duration)=>{
