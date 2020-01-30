@@ -305,11 +305,25 @@ p {
 	width: 100%;
 	padding: 10px;
 	display: flex;
+	justify-content: space-between;
 	transition: all .3s;
 }
 
+
 .create-experiment-screen .configure-comp-container:hover {
 	background-color: rgba(66, 66, 66, 0.233);
+	transition: all .3s;
+}
+
+.configure-comp-container .controls{
+	opacity: 0;
+	transform: translateX(-20px);
+	transition: all .3s;
+}
+
+.create-experiment-screen .configure-comp-container:hover .controls{
+	opacity: 1;
+	transform: translateX(0px);
 	transition: all .3s;
 }
 
