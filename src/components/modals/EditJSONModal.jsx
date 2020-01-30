@@ -32,7 +32,7 @@ export default class EditJSONModal extends React.Component {
                             <Button negative size="large" onClick={this.props.onDelete}><Icon name="trash" /> Delete Component</Button>
                             <div>
                                 <Button color="orange" size="large" onClick={this.props.onClose}><Icon name="remove" /> Cancel</Button>
-                                <Button positive size="large" onClick={this.props.onEdit}><Icon name="check" /> Update</Button>
+                                <Button positive size="large" onClick={()=>this.props.onEdit(this.state.editData)}><Icon name="check" /> Update</Button>
                             </div>
                         </div>
                     </div>

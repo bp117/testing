@@ -1,7 +1,20 @@
 import { genericRequest } from "./__utils__";
 import { apiHttpPOST, apiHttpGET } from "../utils/request_helper";
-import { UPLOAD_COMPONENT_DEFINITION_REQUEST, UPLOAD_COMPONENT_DEFINITION_SUCCESS, UPLOAD_COMPONENT_DEFINITION_FAILURE, FETCH_COMPONENT_DEFINITION_REQUEST, FETCH_COMPONENT_DEFINITION_SUCCESS, FETCH_COMPONENT_DEFINITION_FAILURE, DELETE_COMPONENT_DEFINITION_REQUEST, DELETE_COMPONENT_DEFINITION_SUCCESS, DELETE_COMPONENT_DEFINITION_FAILURE } from "../constants/action_types";
-import { UPLOAD_COMPONENT_DEFINITION_URL, COMPONENT_DEFINITION_DATA_URL, DELETE_COMPONENT_DEFINITION_DATA_URL } from "../constants/api_endpoints";
+import { 
+    UPLOAD_COMPONENT_DEFINITION_REQUEST, 
+    UPLOAD_COMPONENT_DEFINITION_SUCCESS, 
+    UPLOAD_COMPONENT_DEFINITION_FAILURE, 
+    FETCH_COMPONENT_DEFINITION_REQUEST, 
+    FETCH_COMPONENT_DEFINITION_SUCCESS, 
+    FETCH_COMPONENT_DEFINITION_FAILURE, 
+    DELETE_COMPONENT_DEFINITION_REQUEST, 
+    DELETE_COMPONENT_DEFINITION_SUCCESS, 
+    DELETE_COMPONENT_DEFINITION_FAILURE,
+    UPDATE_COMPONENT_DEFINITION_REQUEST,
+    UPDATE_COMPONENT_DEFINITION_SUCCESS,
+    UPDATE_COMPONENT_DEFINITION_FAILURE 
+} from "../constants/action_types";
+import { UPLOAD_COMPONENT_DEFINITION_URL, COMPONENT_DEFINITION_DATA_URL, DELETE_COMPONENT_DEFINITION_DATA_URL, UPDATE_COMPONENT_DEFINITION_DATA_URL } from "../constants/api_endpoints";
 
 export const uploadComponentDefinition = (data, callback=()=>{})=>{
     return genericRequest({
@@ -35,5 +48,17 @@ export const deleteComponentDefinition = (deleteId, callback=()=>{})=>{
         requestMethod: apiHttpGET,
         dynamicParams: { id: deleteId },
         endpoint: DELETE_COMPONENT_DEFINITION_DATA_URL
+    });
+}
+
+export const updateComponentDefinition = (data, callback=()=>{})=>{
+    return genericRequest({
+        request_action: UPDATE_COMPONENT_DEFINITION_REQUEST,
+        success_action: UPDATE_COMPONENT_DEFINITION_SUCCESS,
+        failure_action: UPDATE_COMPONENT_DEFINITION_FAILURE,
+        callback: callback,
+        requestMethod: apiHttpPOST,
+        requestBody: data,
+        endpoint: UPDATE_COMPONENT_DEFINITION_DATA_URL
     });
 }

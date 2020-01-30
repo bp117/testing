@@ -86,6 +86,16 @@ class ComponentUploadScreen extends React.Component{
             callback(success);
         })
     }
+    handleUpdateComponentDefinition = (data)=>{
+        this.props.updateComponentDefinition(data, (success, err)=>{
+            this.setState({editComponentData:null});
+            if(success){
+                this.loadComponentDefinitions()
+            }else {
+                //TODO: HANDLE ERROR, COULD NOT UPDATE COMPONENT DEFINITION
+            }
+        });
+    }
     setEditData = (item)=>{
         this.setState({editComponentData:item})
     }
@@ -206,7 +216,7 @@ class ComponentUploadScreen extends React.Component{
                     onDelete={()=>{this.handleDeleteComponentDefinition(this.state.editComponentData, ()=>{
                         this.setState({editComponentData:null})
                     })}}
-                    onEdit={()=>alert("To be handled")} />
+                    onEdit={this.handleUpdateComponentDefinition} />
             </div>
         )
     }
