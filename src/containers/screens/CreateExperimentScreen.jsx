@@ -137,25 +137,31 @@ const StepperComponent = (props)=>(
 const ConfigureExperimentView = (props)=>(
     <div className={"match-parent center-content "+(props.isActive?"":"hidden")}>
         <div className="match-parent configure-exp-container">
-            {Object.keys(props.kanbanStates).map(kanbanState=>(
-                <div className="kanban-board">
-                    <div className="header">{kanbanState}</div>
-                    <div className="body">
-                        <div className="absolute-content">
-                            <Droppable droppableId="#droppable-kanban-board">
-                                {(provided, snapshot) => (
-                                    <div ref={provided.innerRef}>
-                                        {(props.kanbanStates[kanbanState]||[]).map((item,index)=>(
-                                            <div>asdsad</div>
-                                        ))}
-                                        {provided.placeholder}
-                                    </div>
-                                )}
-                            </Droppable>
+            <div style={{display:"flex", alignItems:"center", width:"90%", justifyContent:"center", marginBottom:15}}>
+                <span style={{marginRight:10, fontFamily:"Josefin Sans", fontSize:15}}>Experiment Name</span>
+                <Input style={{flex:1}} size="large" action={{content:"Create Experiment", color:"green", icon:"check", size:"large"}}/>
+            </div>
+            <div className="kanban-boards-container">
+                {Object.keys(props.kanbanStates).map(kanbanState=>(
+                    <div className="kanban-board">
+                        <div className="header">{kanbanState}</div>
+                        <div className="body">
+                            <div className="absolute-content">
+                                <Droppable droppableId="#droppable-kanban-board">
+                                    {(provided, snapshot) => (
+                                        <div ref={provided.innerRef}>
+                                            {(props.kanbanStates[kanbanState]||[]).map((item,index)=>(
+                                                <div>asdsad</div>
+                                            ))}
+                                            {provided.placeholder}
+                                        </div>
+                                    )}
+                                </Droppable>
+                            </div>
                         </div>
                     </div>
-                </div>
-            ))}
+                ))}
+            </div>
         </div>
     </div>
 )

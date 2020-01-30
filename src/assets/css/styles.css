@@ -348,11 +348,19 @@ p {
 /**  CONFIGURE EXPERIMENT ROUTE **/
 .configure-exp-container{
 	display: flex;
-	justify-content: space-between;
-	padding: 10px 5px;
+	flex-direction: column;
+	align-items: center;
+	padding: 20px 5px 10px 5px;
 }
 
-.configure-exp-container .kanban-board{
+.kanban-boards-container{
+	flex: 1;
+	display: flex;
+	width: 100%;
+	justify-content: space-between;
+}
+
+.kanban-boards-container .kanban-board{
 	border: 1px solid rgba(33, 46, 61, 0.507);
 	flex: 1;
 	margin: 0 5px;
