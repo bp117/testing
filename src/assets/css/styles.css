@@ -219,7 +219,7 @@ p {
 
 .create-experiment-screen .main-content .stepper-container{
 	text-align: center;
-	padding: 10px 0;
+	padding: 5px 0;
 }
 
 .create-experiment-screen .main-content .current-display{
@@ -303,7 +303,7 @@ p {
 
 .create-experiment-screen .configure-comp-container{
 	width: 100%;
-	padding: 10px;
+	padding: 5px 10px;
 	display: flex;
 	justify-content: space-between;
 	transition: all .3s;
@@ -342,6 +342,41 @@ p {
 
 .configure-comp-item > h4 {
 	font-size: 16px;
+}
+
+
+/**  CONFIGURE EXPERIMENT ROUTE **/
+.configure-exp-container{
+	display: flex;
+	justify-content: space-between;
+	padding: 10px 5px;
+}
+
+.configure-exp-container .kanban-board{
+	border: 1px solid rgba(33, 46, 61, 0.507);
+	flex: 1;
+	margin: 0 5px;
+	display: flex;
+	flex-direction: column;
+	border-radius: 5px;
+	box-shadow: 0px 0px 2px rgba(0,0,0,0.3);
+}
+
+.kanban-board .header{
+	width: 100%;
+	background-color: rgba(33, 46, 61, 0.856);
+	color: whitesmoke;
+	padding: 7px;
+	border-top-left-radius: 5px;
+	border-top-right-radius: 5px;
+	text-align: center;
+	font-weight: bold;
+	font-size: 16px;
+}
+
+.kanban-board .body{
+	flex: 1;
+	position: relative;
 }
 
 /***********************

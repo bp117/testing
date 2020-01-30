@@ -22,7 +22,7 @@ function mapDispatchToProps(dispatch){
 
 
 const DraggablePaletteMenuItem = (props)=>(
-    <Draggable draggableId={getCompId(props)} index={props.index}>
+    <Draggable draggableId={getCompId(props)} index={props.index} isDragDisabled={props.isDragDisabled}>
         {(provided, snapshot) => (
             <React.Fragment>
                 <div
@@ -94,9 +94,69 @@ const ConfigureComponentView = (props)=>(
     </div>
 )
 
+const SidebarPalette = (props)=>(
+    <div className="sidebar-palette">
+        <div className="header">Components Palette</div>
+        <div style={{flex:1, position:"relative"}}>
+            <div className="absolute-content">
+                <Droppable droppableId="#droppable-sidbar-palette" isDropDisabled={true}>
+                {(provided, snapshot) => (
+                    <div ref={provided.innerRef}>
+                        {props.components.map((item,index)=>(
+                            <DraggablePaletteMenuItem index={index} {...item} key={getCompId(item)} isDragDisabled={props.isDragDisabled}/>
+                        ))}
+                        {provided.placeholder}
+                    </div>
+                )}
+                </Droppable>
+            </div>
+        </div>
+    </div>
+)
+
+const StepperComponent = (props)=>(
+    <Step.Group style={{width:"80%", padding:0}}>
+        {props.stepperItems.map((item, indx)=>(
+            <Step  
+                active={item.active}
+                onClick={item.onClick}
+                key={item.key||""+indx}
+            >
+                <Icon name={item.icon} />
+                <Step.Content>
+                    <Step.Title style={{fontSize:16,}}>
+                        {item.text}
+                    </Step.Title>
+                </Step.Content>
+            </Step>
+        ))
+        }
+    </Step.Group>
+)
+
 const ConfigureExperimentView = (props)=>(
     <div className={"match-parent center-content "+(props.isActive?"":"hidden")}>
-        EXPERIMENT VIEW
+        <div className="match-parent configure-exp-container">
+            {Object.keys(props.kanbanStates).map(kanbanState=>(
+                <div className="kanban-board">
+                    <div className="header">{kanbanState}</div>
+                    <div className="body">
+                        <div className="absolute-content">
+                            <Droppable droppableId="#droppable-kanban-board">
+                                {(provided, snapshot) => (
+                                    <div ref={provided.innerRef}>
+                                        {(props.kanbanStates[kanbanState]||[]).map((item,index)=>(
+                                            <div>asdsad</div>
+                                        ))}
+                                        {provided.placeholder}
+                                    </div>
+                                )}
+                            </Droppable>
+                        </div>
+                    </div>
+                </div>
+            ))}
+        </div>
     </div>
 )
 
@@ -110,7 +170,8 @@ class CreateExperimentScreen extends React.Component{
         super(props);
         this.state = {
             componentNodes: [],
-            currentStep: "CONFIGURE_COMPONENT"
+            currentStep: "CONFIGURE_COMPONENT",
+            kanbanStates:{}
         }
         this.nodeRefs = {}
         this.jsPlumb = jsPlumb.getInstance({
@@ -130,9 +191,6 @@ class CreateExperimentScreen extends React.Component{
     }
 
     handleComponentDropped = (data)=>{
-        // if(this.state.componentNodes.length === 2){
-        //     showWarningNotification("You cannot add more than two components to the canvas");
-        // }
         if(data.destination && data.destination.droppableId != data.source.droppableId){
             let draggedComp = this.props.components.find(item=>getCompId(item)===data.draggableId);
             this.setState({tempCompName:draggedComp.name}, ()=>{
@@ -199,46 +257,25 @@ class CreateExperimentScreen extends React.Component{
         return (
             <div className="match-parent create-experiment-screen">
                 <DragDropContext onDragEnd={this.handleComponentDropped}>
-                    <div className="sidebar-palette">
-                        <div className="header">Components Palette</div>
-                        <div style={{flex:1, position:"relative"}}>
-                            <div className="absolute-content">
-                                <Droppable droppableId="#droppable-sidbar-palette">
-                                {(provided, snapshot) => (
-                                    <div ref={provided.innerRef}>
-                                        {this.props.components.map((item,index)=>(
-                                            <DraggablePaletteMenuItem index={index} {...item} key={getCompId(item)}/>
-                                        ))}
-                                        {/* {provided.placeholder} */}
-                                    </div>
-                                )}
-                                </Droppable>
-                            </div>
-                        </div>
-                    </div>
+                    <SidebarPalette components={this.props.components} isDragDisabled={this.state.componentNodes.length>0 && this.state.currentStep === "CONFIGURE_EXPERIMENT"}/>
                     <div className="main-content">
                         <div className="stepper-container">
-                            <Step.Group style={{width:"80%", padding:0}}>
-                                <Step  
-                                    active={this.state.currentStep === "CONFIGURE_COMPONENT"}
-                                    onClick={this.handleMoveToConfigureComp}
-                                >
-                                    <Icon name='configure' />
-                                    <Step.Content>
-                                        <Step.Title style={{fontSize:16,}}>
-                                            Configure Component
-                                        </Step.Title>
-                                    </Step.Content>
-                                </Step>
-                                <Step 
-                                    active={this.state.currentStep === "CONFIGURE_EXPERIMENT"}
-                                    onClick={this.handleMoveToConfigureExp}>
-                                    <Icon name='lab' />
-                                    <Step.Content>
-                                        <Step.Title style={{fontSize:16}}>Configure Experiment</Step.Title>
-                                    </Step.Content>
-                                </Step>
-                            </Step.Group>
+                            <StepperComponent 
+                                stepperItems = {[
+                                    {
+                                        text:"Configure Component", 
+                                        icon:"configure", 
+                                        onClick:this.handleMoveToConfigureComp,
+                                        active: this.state.currentStep === "CONFIGURE_COMPONENT"
+                                    },
+                                    {
+                                        text:"Configure Experiment", 
+                                        icon:"lab", 
+                                        onClick:this.handleMoveToConfigureExp,
+                                        active: this.state.currentStep === "CONFIGURE_EXPERIMENT"
+                                    }
+                                ]}
+                            />
                         </div>
                         <div className="current-display center-content">
                             <div className="absolute-content">
@@ -250,6 +287,7 @@ class CreateExperimentScreen extends React.Component{
                                 /> 
                                 <ConfigureExperimentView 
                                     isActive={this.state.currentStep === "CONFIGURE_EXPERIMENT"}
+                                    kanbanStates={/*this.state.kanbanStates*/ {"Steady State":[], "Chaos State":[], "Rollback State":[]}}
                                 />
                             </div>
                         </div>
