@@ -3963,6 +3963,11 @@ json5@^2.1.0:
   dependencies:
     minimist "^1.2.0"
 
+jsplumb@^2.12.9:
+  version "2.12.9"
+  resolved "https://registry.yarnpkg.com/jsplumb/-/jsplumb-2.12.9.tgz#9ec5ba871a91ab6e388e147a18c69b9c20cc331a"
+  integrity sha512-eCp8LirhrI0kDze9Y0cSyCB9LrR2/81J7Vz7ZSjNs/+oK7KR7MdcmabWgeGSBh0dxlPVgzmlq3ZwMATC4QlmVg==
+
 jsprim@^1.2.2:
   version "1.4.1"
   resolved "https://registry.yarnpkg.com/jsprim/-/jsprim-1.4.1.tgz#313e66bc1e5cc06e438bc1b7499c2e5c56acb6a2"

@@ -2,10 +2,25 @@ import React from "react";
 import { Button, Step, Icon } from "semantic-ui-react";
 import { Switch } from "react-router-dom";
 import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
+import { showWarningNotification, showErrorNotification } from "../../components/utils/alerts";
+import { connect } from "react-redux";
+import * as actions from "../../actions/componentActions";
+import {bindActionCreators} from "redux";
+import {jsPlumb} from "jsplumb"
+
+function mapStateToProps(state){
+    return {
+        components: state.components.components
+    }
+}
+
+function mapDispatchToProps(dispatch){
+    return bindActionCreators(actions, dispatch);
+}
 
 
 const DraggablePaletteMenuItem = (props)=>(
-    <Draggable draggableId={props.id} index={props.index}>
+    <Draggable draggableId={props.id+" "+props.index} index={props.index}>
         {(provided, snapshot) => (
             <div
                 ref={provided.innerRef}
@@ -24,16 +39,84 @@ const DraggablePaletteMenuItem = (props)=>(
 const PaletteMenuItem = (props)=>(
     <div className="palette-item-container">
         <div className="palette-item">
-            <h4>Item Name</h4>
+            <h4>{props.name}</h4>
         </div>
     </div>
 )
 
-export default class CreateExperimentScreen extends React.Component{
+const ConfigComponentItem = (props)=>(
+    <div className="configure-comp-container">
+        <div className="configure-comp-item" id={props.id}>
+            <h4>{props.name}</h4>
+        </div>
+    </div>
+)
+
+class CreateExperimentScreen extends React.Component{
+    constructor(props){
+        super(props);
+        this.state = {
+            componentNodes: [],
+            compNodes:[],
+            compConnections: []
+        }
+        this.jsPlumb = jsPlumb.getInstance({
+            
+            PaintStyle:{ 
+              strokeWidth:3, 
+              stroke:"#BF360C"
+            },
+            ConnectionOverlays: [["Arrow", {location: 0.5, width:15, length:15}]],
+            Connector:[ "Flowchart", { curviness: 100 } ],
+            Endpoint:[ "Rectangle", { radius:7 } ],
+            EndpointStyle : { fill: "#567567"  },
+            Anchor : [ "Continuous", {} ]
+          });
+    }
+    handleComponentDropped = (data)=>{
+        console.log("DATA ", data)
+        // if(this.state.componentNodes.length === 2){
+        //     showWarningNotification("You cannot add more than two components to the canvas");
+        // }
+        if(data.destination && data.destination.droppableId != data.source.droppableId){
+            let draggedCompId = data.draggableId.substring(0, data.draggableId.lastIndexOf(" ")).trim(); 
+            let draggedComp = this.props.components.find(item=>item.id===draggedCompId);
+            if(draggedComp && !this.state.componentNodes.find(item=>item.id==draggedCompId)){
+                this.setState({componentNodes:[
+                        ...this.state.componentNodes, 
+                        draggedComp
+                    ],
+                    compNodes: [...this.state.compNodes, {id:draggedComp.id}]
+            });
+            }else{
+                showWarningNotification(data.draggableId+" is already added to the component canvas")
+            }
+        }
+    }
+    handleMoveToCreateExp = ()=>{
+        let allConnections = this.jsPlumb.getAllConnections();
+        console.log("ALL CONNECTIONS ", this.jsPlumb.getAllConnections())
+    }
+    _loadComponentDefinitions = ()=>{
+        this.props.getComponentDefinition((success, error)=>{
+            if(!success){
+                showErrorNotification(`Something went wrong: "${error}"`)
+            }
+        });
+    }
+    componentDidMount(){
+        this._loadComponentDefinitions();
+        this.jsPlumb.setContainer("jsplumb-container")
+    }
+    componentDidUpdate(){
+        this.state.componentNodes.forEach(node=>{
+            this.jsPlumb.addEndpoint(node._id, {anchor:"RightMiddle"}, {isSource:true, isTarget:true});
+        })
+    }
     render(){
         return (
             <div className="match-parent create-experiment-screen">
-                <DragDropContext onDragEnd={this.handleTaskItemMoved}>
+                <DragDropContext onDragEnd={this.handleComponentDropped}>
                     <div className="sidebar-palette">
                         <div className="header">Components Palette</div>
                         <div style={{flex:1, position:"relative"}}>
@@ -41,11 +124,9 @@ export default class CreateExperimentScreen extends React.Component{
                                 <Droppable droppableId="#droppable-sidbar-palette">
                                 {(provided, snapshot) => (
                                     <div ref={provided.innerRef}>
-                                        <DraggablePaletteMenuItem id={"first"} index={1}/>
-                                        <DraggablePaletteMenuItem id={"second"} index={2}/>
-                                        <DraggablePaletteMenuItem id={"third"} index={3}/>
-                                        <DraggablePaletteMenuItem id={"fourth"} index={4}/>
-                                        <DraggablePaletteMenuItem id={"sixth"} index={5}/>
+                                        {this.props.components.map((item,index)=>(
+                                            <DraggablePaletteMenuItem index={index} {...item}/>
+                                        ))}
                                         {provided.placeholder}
                                     </div>
                                 )}
@@ -77,6 +158,7 @@ export default class CreateExperimentScreen extends React.Component{
                                         <div className="header">  Component Canvas  </div>
                                         <div className="body">
                                             <div className="absolute-content">
+                                            
                                                 <Droppable droppableId="#canvas-droppable-view">
                                                 {(provided, snapshot) => (
                                                     <div
@@ -84,6 +166,9 @@ export default class CreateExperimentScreen extends React.Component{
                                                         style={{ backgroundColor: snapshot.isDraggingOver && "#E3F2FD" }}
                                                         className="match-parent"
                                                     >
+                                                        {this.state.componentNodes.map(item=>(
+                                                            <ConfigComponentItem {...item} id={item._id}/>
+                                                        ))}
                                                         {provided.placeholder}
                                                     </div>
                                                 )}
@@ -95,7 +180,7 @@ export default class CreateExperimentScreen extends React.Component{
                             </div>
                         </div>
                         <div className="content-footer">
-                            <Button size="big" primary>NEXT <Icon name="arrow right" /> </Button>
+                            <Button size="big" primary onClick={this.handleMoveToCreateExp}>NEXT <Icon name="arrow right" /> </Button>
                         </div>
                     </div>
                 </DragDropContext>
@@ -103,3 +188,5 @@ export default class CreateExperimentScreen extends React.Component{
         )
     }
 }
+
+export default connect(mapStateToProps, mapDispatchToProps)(CreateExperimentScreen);

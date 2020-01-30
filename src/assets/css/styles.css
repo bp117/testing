@@ -270,7 +270,7 @@ p {
 }
 
 .palette-item>h4{
-	font-size: 20px;
+	font-size: 16px;
 	color: whitesmoke;
 }
 
@@ -299,6 +299,35 @@ p {
 .create-experiment-screen .canvas-view .body {
 	flex: 1;
 	position: relative;
+}
+
+.create-experiment-screen .configure-comp-container{
+	width: 100%;
+	padding: 10px;
+	display: flex;
+	transition: all .3s;
+}
+
+.create-experiment-screen .configure-comp-container:hover {
+	background-color: rgba(66, 66, 66, 0.233);
+	transition: all .3s;
+}
+
+.configure-comp-container .configure-comp-item{
+	flex: 0.6;
+	padding: 20px;
+	box-shadow: 0 2px 2px 0 rgba(34, 36, 38, 0.20);
+    border: 1px solid rgb(160, 158, 158);
+    border-radius: 5px;
+    cursor: default;
+	background-color: white;
+	border-left: 5px solid #333;
+    transition: all 0.3s;
+    user-select: none;
+}
+
+.configure-comp-item > h4 {
+	font-size: 16px;
 }
 
 /***********************
