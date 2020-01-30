@@ -1,6 +1,7 @@
 @import "../../../node_modules/semantic-ui-css/semantic.min.css";
 @import "../../../node_modules/bootstrap/dist/css/bootstrap.min.css";
 @import "../../../node_modules/react-confirm-alert/src/react-confirm-alert.css";
+@import "../../../node_modules/react-notifications-component/dist/theme.css";
 
 html,
 body {

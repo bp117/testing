@@ -5,7 +5,7 @@ import * as actions from "../../actions/componentActions";
 import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
 import EditJSONModal from "../../components/modals/EditJSONModal";
-import { confirmationAlert } from "../../components/utils/alerts";
+import { confirmationAlert, showWarningNotification, showErrorNotification, showSuccessNotification } from "../../components/utils/alerts";
 
 function mapStateToProps(state){
     return {
@@ -51,12 +51,13 @@ class ComponentUploadScreen extends React.Component{
                         if(!this.state.compsToUpload.some(item=>item.name===jsonData.name)){
                             this.setState({ compsToUpload: [ jsonData, ...this.state.compsToUpload ] });
                         }else{
-                            //TODO: JSON ALREADY ADDED
+                            showWarningNotification(`A Component defination with the name "${jsonData.name}" has already been added`);
                         }
+                    }else{
+                        showErrorNotification("The component definition JSON provided is not valid.")
                     }
                 }catch(err){
-                    console.log(err)
-                    //TODO: INVALID JSON DATA PROVIDED, PROPERLY HANDLE ERROR HERE 
+                    showErrorNotification(`The file ${file.name} does not contain a valid JSON object`);
                 }
             }
             reader.readAsText(file)
@@ -64,26 +65,26 @@ class ComponentUploadScreen extends React.Component{
     }
     handleUploadComponentDefinitions = ()=>{
         this.state.compsToUpload.forEach(compDefinition=>{
-            this.props.uploadComponentDefinition(compDefinition, (success, data)=>{
+            this.props.uploadComponentDefinition(compDefinition, (success, error)=>{
                 if(success){
                     this.setState({compsToUpload:this.state.compsToUpload.filter(item=>item.id !== compDefinition.id)}, ()=>{
                         this.loadComponentDefinitions();
-                        //alert("GOOD") //HANLE THIS PROPERLY
+                        showSuccessNotification(`${compDefinition.name} data was successfully saved!`)
                     })
                 }else{  
-                    console.log(data);
-                    //TODO: HANDLE ERROR, SOMETHING HAPPENED WHILE TRYING TO UPLOAD DATA
+                    showErrorNotification(`Something went wrong: "${error}"`)
                 }
             })
         });
     }
     handleDeleteComponentDefinition = (item, callback=()=>{})=>{
         confirmationAlert(`Delete ${item.name} component definition?`, ()=>{
-            this.props.deleteComponentDefinition(item._id, (success, err)=>{
+            this.props.deleteComponentDefinition(item._id, (success, error)=>{
                 if(success){
-                    this.loadComponentDefinitions()
+                    this.loadComponentDefinitions();
+                    showSuccessNotification(`${item.name} data was deleted!`)
                 }else{
-                    //TODO: HANDLE ERROR, COULD NOT DELETE COMPONENT DEFINITION
+                    showErrorNotification(`Something went wrong: "${error}"`)
                 }
                 callback(success);
             })
@@ -94,8 +95,9 @@ class ComponentUploadScreen extends React.Component{
             this.setState({editComponentData:null});
             if(success){
                 this.loadComponentDefinitions()
+                showSuccessNotification(`${compDefinition.name} data was successfully updated!`)
             }else {
-                //TODO: HANDLE ERROR, COULD NOT UPDATE COMPONENT DEFINITION
+                showErrorNotification(`Something went wrong: "${error}"`)
             }
         });
     }
@@ -103,10 +105,9 @@ class ComponentUploadScreen extends React.Component{
         this.setState({editComponentData:item})
     }
     loadComponentDefinitions = ()=>{
-        this.props.getComponentDefinition((success, data)=>{
+        this.props.getComponentDefinition((success, error)=>{
             if(!success){
-                console.log(data);
-                //TODO: HANDLE ERROR, SOMETHING HAPPENED WHILE TRYING TO UPLOAD DATA
+                showErrorNotification(`Something went wrong: "${error}"`)
             }
         });
     }
