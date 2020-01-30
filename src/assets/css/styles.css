@@ -279,7 +279,7 @@ p {
 	border-radius: 5px;
 	border: 1px solid #64B5F6;
 	background-color: #90CAF9;
-	width: 70%;
+	width: 90%;
 	height: 90%;
 	box-shadow: 0 0 2px rgba(5, 32, 71, 0.363);
 	display: flex;
@@ -375,6 +375,7 @@ p {
 	border: 1px solid #ddd;
 	box-shadow: 0 0 35px rgba(56, 26, 26, 0.18);
 	border-radius: 5px;
+	background-color: whitesmoke;
 }
 
 .confirm-alert-dialog .title{
@@ -428,3 +429,19 @@ p {
 	top: 0; left: 0; bottom: 0; right: 0;
 	overflow-y: auto;
 }
+
+
+/**** LIBRARY OVERWRITES ******/
+
+.react-confirm-alert-overlay{
+	background: rgba(0, 0, 0, 0.3) !important;
+	-webkit-animation: react-confirm-alert-fadeIn 0.2s 0.1s forwards !important;
+  	-moz-animation: react-confirm-alert-fadeIn 0.2s 0.1s forwards !important;
+  	-o-animation: react-confirm-alert-fadeIn 0.2s 0.1s forwards !important;
+  	animation: react-confirm-alert-fadeIn 0.2s 0.1s forwards !important;
+}
+
+.react-confirm-alert-blur {
+	filter: blur(0.5px) !important;
+	-webkit-filter: blur(0.5px) !important;
+  }
