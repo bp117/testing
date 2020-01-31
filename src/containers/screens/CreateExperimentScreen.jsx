@@ -141,10 +141,10 @@ const KanbanCardItem = (props)=>(
         </div>
         <div className="controls">
             <Button.Group>
-                <Button icon style={{padding:7}} onClick={props.onEditKanbanItem}>
+                <Button icon style={{padding:7}} onClick={props.onEditKanbanItem} color="blue">
                     <Icon name="edit" style={{fontSize:13}} />
                 </Button>
-                <Button icon style={{padding:7}}>
+                <Button icon style={{padding:7}} onClick={props.onCloneKanbanItem} color="blue">
                     <Icon name="clone" style={{fontSize:12}} />
                 </Button>
                 <Button icon negative style={{padding:7}} onClick={props.onRemoveKanbanItem}>
@@ -177,6 +177,7 @@ const ConfigureExperimentView = (props)=>(
                                                     key={getCompId(item)}
                                                     onRemoveKanbanItem={()=>props.onRemoveKanbanItem(item, stateName)}
                                                     onEditKanbanItem={()=>props.onEditKanbanItem(item, stateName)}
+                                                    onCloneKanbanItem={()=>props.onCloneKanbanItem(item, stateName)}
                                                 /> 
                                             ))}
                                             {provided.placeholder}
@@ -194,9 +195,17 @@ const ConfigureExperimentView = (props)=>(
 
 const KanbanComponentEditView = (props)=>{
     let { data } = props;
-    const [currentCmd, setCurrentCmd] = useState("");
-    const [commands, setCommands] = useState({"start":"", "stop":"", "status":""});
-    const [timeouts, setTimeouts] = useState({"start":"", "stop":"", "status":""});
+    const [currentCmd, setCurrentCmd] = useState("start");
+    const [commands, setCommands] = useState({
+        "start": (data.actions["start"]||{}).command, 
+        "stop": (data.actions["stop"]||{}).command, 
+        "status": (data.actions["status"]||{}).command
+    });
+    const [timeouts, setTimeouts] = useState({
+        "start": (data.actions["start"]||{}).timeout, 
+        "stop": (data.actions["stop"]||{}).timeout, 
+        "status": (data.actions["status"]||{}).timeout
+    });
     const [actionArgs, setActionArgs] = useState(data.actionArguments||"");
     const [waitTime, setWaitTime] = useState(data.waitTimeInMillsAfterAction||"");
     const [expectedOutput, setExpectedOutput] = useState(data.expectedOutputFunctionForRegex||"");
@@ -210,6 +219,7 @@ const KanbanComponentEditView = (props)=>{
                             placeholder='Select Command'
                             search
                             selection
+                            defaultValue="start"
                             options={[
                                 {key:"Start", value:"start", text:"Start", style:{fontSize:16}, icon:"play circle"},
                                 {key:"Stop", value:"stop", text:"Stop", style:{fontSize:16}, icon:"stop circle"},
@@ -380,18 +390,13 @@ class CreateExperimentScreen extends React.Component{
             ()=>{
                 if(!Object.keys(this.state.kanbanStates).find(kState=>this.state.kanbanStates[kState].find(item2=>item2.name===tempName))){
                     let kanbanStates = JSON.parse(JSON.stringify(this.state.kanbanStates));
-                    kanbanStates[stateName] = (kanbanStates[stateName]||[]).map(item=>{
-                        if(getCompId(item) === getCompId(component)){
-                            item = component = {...component, name: tempName};
-                        }   
-                        return item;
-                    });
+                    kanbanStates[stateName] = [...kanbanStates[stateName], {...component, name: tempName}]
                     this.setState({kanbanStates, isKanbanEdited:true});
                 }else{
-                    showWarningNotification("A component with the name `"+tempName+"` name already exists.")
+                    showWarningNotification("A component with the name `"+tempName+"` already exists.")
                 }
             },
-            {isPositiveBtn:true, okBtnText:"Set Name", cancelBtnText:"Cancel", title:"Change component clone name"}
+            {isPositiveBtn:true, okBtnText:"Set Name", cancelBtnText:"Cancel", title:"Change clone component name"}
         )
     }
     handleEditKanbanItem = (component, stateName)=>{
