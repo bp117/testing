@@ -55,7 +55,7 @@ const ConfigComponentItem = (props)=>{
     return (
         <div className="configure-comp-container">
             <div className="configure-comp-item" ref={props.itemRef} id={props.compId}>
-                <h4>{props.name}</h4>
+                <h4>{props.editedName}</h4>
             </div>
             <div className="controls">
                 <Button negative onClick={props.onRemove}><Icon name="trash" /> Remove</Button>
@@ -137,7 +137,7 @@ const StepperComponent = (props)=>(
 const KanbanCardItem = (props)=>(
     <div className="kanban-card-container">
         <div className="kanban-card">
-            <h4> {props.name} </h4>
+            <h4> {props.editedName} </h4>
         </div>
         <div className="controls">
             <Button.Group>
@@ -200,7 +200,7 @@ const ConfigureExperimentView = (props)=>(
 
 const KanbanComponentEditView = (props)=>{
     let { data } = props;
-    const [currentCmd, setCurrentCmd] = useState("start");
+    const [currentCmd, setCurrentCmd] = useState(data.selectedAction||"start");
     const [commands, setCommands] = useState({
         "start": (data.actions["start"]||{}).command, 
         "stop": (data.actions["stop"]||{}).command, 
@@ -213,7 +213,10 @@ const KanbanComponentEditView = (props)=>{
     });
     const [actionArgs, setActionArgs] = useState(data.actionArguments||"");
     const [waitTime, setWaitTime] = useState(data.waitTimeInMillsAfterAction||"");
-    const [expectedOutput, setExpectedOutput] = useState(data.expectedOutputFunctionForRegex||"");
+    const [expectedOutputFn, setExpectedOutputFn] = useState(data.expectedOutputFunctionForRegex||"");
+    const [expectedOutcomeStatus, setExpectedOutcomeStatus] = useState(data.expectedOutcomeStatusCode||"");
+    const [selectionCriteria, setSelectionCriteria] = useState(data.hostSelectionCriteria||"");
+    const [selectionCriteriaCount, setSelectionCriteriaCount] = useState(data.hostSelectionCriteriaCount||"");
     return (
         <div style={{padding:10}}>
             <div style={{display:"flex"}}>
@@ -224,7 +227,7 @@ const KanbanComponentEditView = (props)=>{
                             placeholder='Select Command'
                             search
                             selection
-                            defaultValue="start"
+                            defaultValue={currentCmd}
                             options={[
                                 {key:"Start", value:"start", text:"Start", style:{fontSize:16}, icon:"play circle"},
                                 {key:"Stop", value:"stop", text:"Stop", style:{fontSize:16}, icon:"stop circle"},
@@ -234,6 +237,7 @@ const KanbanComponentEditView = (props)=>{
                                 setCurrentCmd(cmd.value);
                                 setCommands({...commands, [cmd.value]: (( data.actions[cmd.value] || {} ).command || "" ) });
                                 setTimeouts({...timeouts, [cmd.value]: (( data.actions[cmd.value] || {} ).timeout || "0" ) })
+                                data.selectedAction = cmd.value
                             }}
                         />
                     </div>
@@ -247,6 +251,7 @@ const KanbanComponentEditView = (props)=>{
                             onChange={(_, input)=>{
                                 setCommands({...commands, [currentCmd]: input.value })
                                 data.actions[currentCmd] && ( data.actions[currentCmd].command = input.value )
+                                data.selectedAction = currentCmd;
                             }}/>
                     </div>
                 </div>
@@ -260,7 +265,7 @@ const KanbanComponentEditView = (props)=>{
                             onChange={(_, input)=>{
                                 setTimeouts({...commands, [currentCmd]: input.value })
                                 if(!Number.isNaN( Number(input.value) )){
-                                    data.actions[currentCmd] && ( data.actions[currentCmd].timeout = Number(input.value) )
+                                    data.actions[currentCmd] && ( data.actions[currentCmd].timeout = Number(input.value) );
                                 }
                             }} />
                     </div>
@@ -288,7 +293,9 @@ const KanbanComponentEditView = (props)=>{
                             value={waitTime}
                             onChange={(_,input)=>{
                                 setWaitTime(input.value);
-                                data.waitTimeInMillsAfterAction = Number( input.value );
+                                if(!Number.isNaN( Number(input.value) )){
+                                    data.waitTimeInMillsAfterAction = Number( input.value );
+                                }
                             }}/>
                     </div>
                 </div>
@@ -297,12 +304,63 @@ const KanbanComponentEditView = (props)=>{
                     <div>
                         <Input 
                             placeholder="Enter value..."
-                            value={expectedOutput}
+                            value={expectedOutputFn}
                             onChange={(_,input)=>{
-                                setExpectedOutput(input.value);
+                                setExpectedOutputFn(input.value);
                                 data.expectedOutputFunctionForRegex = input.value;
                             }}/>
                     </div>
+                </div>
+            </div>
+
+            <div style={{display:"flex", paddingTop:10}}>
+                <div style={{flex:1, margin:"0 5px"}}>
+                    <div style={{fontSize:12, fontWeight:"bold", color:"#263238"}}>Expected outcome status code</div>
+                    <div>
+                        <Input 
+                            placeholder="Enter value..."
+                            value={expectedOutcomeStatus}
+                            error={expectedOutcomeStatus && Number.isNaN( Number(expectedOutcomeStatus) )}
+                            onChange={(_,input)=>{
+                                setExpectedOutcomeStatus(input.value);
+                                if(!Number.isNaN( Number(input.value) )){
+                                    data.expectedOutcomeStatusCode = Number(input.value)
+                                }
+                            }}/>
+                    </div>
+                </div>
+                <div style={{flex:1, margin:"0 5px"}}>
+                    <div style={{fontSize:12, fontWeight:"bold", color:"#263238"}}>Host selection criteria</div>
+                    <div>
+                        <Dropdown 
+                            selection
+                            placeholder="Host selection criteria..."
+                            options={[{key:"all", value:"all", text:"All", style:{fontSize:16}}, {key:"any", value:"any", text:"Any", style:{fontSize:16}}]}
+                            value={selectionCriteria}
+                            onChange={(_,input)=>{
+                                setSelectionCriteria(input.value);
+                                data.hostSelectionCriteria = input.value;
+                            }}/>
+                    </div>
+                </div>
+                <div style={{flex:1, margin:"0 5px"}}>
+                    {selectionCriteria === "any"&&
+                        <React.Fragment>
+                            <div style={{fontSize:12, fontWeight:"bold", color:"#263238"}}>Number</div>
+                            <div>
+                                <Input 
+                                    placeholder="Number"
+                                    error={selectionCriteriaCount && Number.isNaN( Number(selectionCriteriaCount) )}
+                                    value={selectionCriteriaCount}
+                                    onChange={(_,input)=>{
+                                        setSelectionCriteriaCount(input.value);
+                                        if(!Number.isNaN( Number(input.value) )){
+                                            data.hostSelectionCriteriaCount = Number( input.value );
+                                        }
+                                    }}/>
+                            </div>
+                        </React.Fragment>
+                    }
                 </div>
             </div>
         </div>
@@ -311,7 +369,7 @@ const KanbanComponentEditView = (props)=>{
 
 const specialChars = "£$%^&*-+=!";
 const getCompId = (component)=>{
-    return component._id + specialChars + component.name
+    return component._id + specialChars + component.name+" "+component.editedName
 }
 
 class CreateExperimentScreen extends React.Component{
@@ -353,7 +411,7 @@ class CreateExperimentScreen extends React.Component{
                     <Input defaultValue={tempCompName} onChange={(elt)=>tempCompName = elt.target.value } autoFocus/>
                 </div>,
                 ()=>{
-                    draggedComp = {...draggedComp, name: tempCompName}
+                    draggedComp = {...draggedComp, editedName: tempCompName}
                     if(draggedComp && !this.state.componentNodes.find( item => getCompId(item) === getCompId(draggedComp) )){
                         this.nodeRefs = {...this.nodeRefs, [getCompId(draggedComp)]:React.createRef()}
                         this.setState({componentNodes:[
@@ -382,23 +440,23 @@ class CreateExperimentScreen extends React.Component{
         })
     }
     handleRemoveKanbanItem = (component, stateName)=>{
-        confirmationAlert("Remove `"+component.name+"` from `"+stateName+"`?", ()=>{
+        confirmationAlert("Remove `"+component.editedName+"` from `"+stateName+"`?", ()=>{
             let kanbanStates = JSON.parse(JSON.stringify(this.state.kanbanStates));
             kanbanStates[stateName] = (kanbanStates[stateName]||[]).filter(item=>getCompId(item)!==getCompId(component))
             this.setState({kanbanStates, isKanbanEdited:true});
         }, {okBtnText:"Yes, Remove"});
     }
     handleCloneKanbanItem = (component, stateName)=>{
-        let tempName = component.name+" (copy)";
+        let tempName = component.editedName+" (copy)";
         confirmationAlert(
             <div style={{display:"flex", alignItems:"center", marginTop:10}}>
                 <span style={{marginRight:10}}>Name:</span>
                 <Input defaultValue={tempName} onChange={(_, data)=>tempName = data.value} autoFocus/>
             </div>,
             ()=>{
-                if(!this.state.kanbanStates[stateName].find(item2=>item2.name===tempName)){
+                if(!this.state.kanbanStates[stateName].find(item2=>item2.editedName===tempName)){
                     let kanbanStates = JSON.parse(JSON.stringify(this.state.kanbanStates));
-                    kanbanStates[stateName] = [...kanbanStates[stateName], {...component, name: tempName}]
+                    kanbanStates[stateName] = [...kanbanStates[stateName], {...component, editedName: tempName}]
                     this.setState({kanbanStates, isKanbanEdited:true});
                 }else{
                     showWarningNotification("A component with the name `"+tempName+"` already exists in the `"+stateName+"`.")
@@ -424,7 +482,7 @@ class CreateExperimentScreen extends React.Component{
                 });
                 this.setState({kanbanStates, isKanbanEdited:true});
             },
-            {title:"Edit "+component.name+" component", okBtnText:"Save Edits", isPositiveBtn:true}
+            {title:"Edit "+component.editedName+" component", okBtnText:"Save Edits", isPositiveBtn:true, cancelBtnText:"Cancel"}
         )
     }
     handleMoveToConfigureExp = ()=>{
@@ -448,11 +506,6 @@ class CreateExperimentScreen extends React.Component{
         let states = ["Steady State", "Chaos State", "Rollback State"];
         states.forEach((item)=>{
             let data = JSON.parse(JSON.stringify( this.state.componentNodes )); //This deep cloning method should work fine for our use case
-            // let currentData = JSON.parse(JSON.stringify( (this.state.kanbanStates[item]||[]) ));
-            // if(currentData){
-            //     data = data.filter(item2 => !currentData.some( item3 => getCompId(item3) === getCompId(item2) )); //filter items that have already been added
-            //     data = [...currentData, ...data];
-            // }
             kanbanStatesData[item] = data;
         });
         
@@ -472,10 +525,28 @@ class CreateExperimentScreen extends React.Component{
             (this.state.kanbanStates[kState]||[]).forEach(item=>{
                 let formattedKey = kState.replace(/\s+/g, "");
                 formattedKey = formattedKey[0].toLowerCase()+formattedKey.slice(1);
-                jsonData[formattedKey] = [...(jsonData[formattedKey]||[]), item];
-                if(!addedComponents.includes(item._id)){
-                    addedComponents.push(item._id);
-                    jsonData.components.push(item);
+                let {name, configuration, actions, editedName, selectedAction, waitTimeInMillsAfterAction, actionArguments, expectedOutputFunctionForRegex, expectedOutcomeStatusCode, hostSelectionCriteria, hostSelectionCriteriaCount} = item;
+                let originalItem = this.state.componentNodes.find(item2=>item2._id === item._id);
+                let compData = {
+                    component:{
+                        type: name,
+                        name: editedName,
+                        ...( selectedAction && actions[ selectedAction ] !== originalItem.actions[ selectedAction ] ? 
+                            { configuration: { [ selectedAction ]: actions[ selectedAction ] } }:{})
+                    },
+                    action: selectedAction || "start",
+                    actionArguments: actionArguments && actionArguments.split(","),
+                    waitTimeInMillsAfterAction,
+                    expectedOutputFunctionForRegex,
+                    expectedOutcomeStatusCode,
+                    hostSelectionCriteria: hostSelectionCriteria && hostSelectionCriteria === "all"? "all" : hostSelectionCriteriaCount
+                }
+                jsonData[formattedKey] = jsonData[formattedKey] || { executionSteps:[] };
+                jsonData[formattedKey].executionSteps.push( JSON.parse(JSON.stringify(compData))); //So that all `undefined` fields will be removed
+
+                if(!addedComponents.includes(item.editedName)){
+                    addedComponents.push(item.editedName);
+                    jsonData.components.push({type:name, name:editedName, configuration, actions});
                 }
             })
         });
@@ -492,6 +563,7 @@ class CreateExperimentScreen extends React.Component{
         }
         this.setState({isSubmittingExpJson:true},()=>{
             let generatedExperimentJson = this._generateExperimentJSON();
+            console.log("GENERATED EXPERIMENT JSON ", generatedExperimentJson);
             this.props.submitExperimentJSON(generatedExperimentJson, (success, error)=>{
                 if(success){
                     showSuccessNotification("Experiment JSON data was successfully submitted");
