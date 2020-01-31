@@ -331,7 +331,7 @@ p {
 	flex: 0.6;
 	padding: 20px;
 	box-shadow: 0 2px 2px 0 rgba(34, 36, 38, 0.20);
-    border: 1px solid rgb(160, 158, 158);
+    border: 1px solid rgba(160, 158, 158, 0.671);
     border-radius: 5px;
     cursor: default;
 	background-color: white;
@@ -385,6 +385,50 @@ p {
 .kanban-board .body{
 	flex: 1;
 	position: relative;
+}
+
+.kanban-board .kanban-card-container {
+	width: 100%;
+	padding: 5px 10px;
+	position: relative;
+	transition: all .3s;
+}
+
+.kanban-board .kanban-card-container:hover{
+	background-color: rgba(0, 0, 0, 0.1);
+	transition: all .3s;
+}
+
+.kanban-card-container .kanban-card {
+	border: 1px solid red;
+	padding: 15px;
+	box-shadow: 0 2px 2px 0 rgba(34, 36, 38, 0.20);
+    border: 1px solid rgba(160, 158, 158, 0.671);
+    border-radius: 5px;
+    cursor: default;
+	background-color: white;
+	border-left: 5px solid #333;
+    transition: all 0.3s;
+    user-select: none;
+}
+
+.kanban-card>h4 {
+	font-size: 18px;
+}
+
+.kanban-board .kanban-card-container .controls{
+	opacity: 0;
+	transform: translateY(-5px);
+	transition: all .5s;
+	position: absolute;
+	top: 0;
+	right: 5px;
+}
+
+.kanban-board .kanban-card-container:hover .controls{
+	opacity: 1;
+	transform: translateY(0);
+	transition: all .5s;
 }
 
 /***********************

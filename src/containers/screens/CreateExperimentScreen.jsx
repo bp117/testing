@@ -134,6 +134,27 @@ const StepperComponent = (props)=>(
     </Step.Group>
 )
 
+const KanbanCardItem = (props)=>(
+    <div className="kanban-card-container">
+        <div className="kanban-card">
+            <h4> item2 </h4>
+        </div>
+        <div className="controls">
+            <Button.Group>
+                <Button icon style={{padding:7}}>
+                    <Icon name="edit" style={{fontSize:13}} />
+                </Button>
+                <Button icon style={{padding:7}}>
+                    <Icon name="clone" style={{fontSize:12}} />
+                </Button>
+                <Button icon negative style={{padding:7}}>
+                    <Icon name="trash" style={{fontSize:11}} />
+                </Button>
+            </Button.Group>
+        </div>
+    </div>
+)
+
 const ConfigureExperimentView = (props)=>(
     <div className={"match-parent center-content "+(props.isActive?"":"hidden")}>
         <div className="match-parent configure-exp-container">
@@ -151,7 +172,7 @@ const ConfigureExperimentView = (props)=>(
                                     {(provided, snapshot) => (
                                         <div ref={provided.innerRef}>
                                             {(props.kanbanStates[kanbanState]||[]).map((item,index)=>(
-                                                <div>asdsad</div>
+                                               <KanbanCardItem {...item} key={getCompId(item)}/> 
                                             ))}
                                             {provided.placeholder}
                                         </div>
