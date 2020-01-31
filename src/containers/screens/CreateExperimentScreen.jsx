@@ -1,6 +1,6 @@
-import React from "react";
+import React, {useState} from "react";
 import ReactDOM from "react-dom";
-import { Button, Step, Icon, Input } from "semantic-ui-react";
+import { Button, Step, Icon, Input, Dropdown } from "semantic-ui-react";
 import { Switch, Route } from "react-router-dom";
 import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
 import { showWarningNotification, showErrorNotification, confirmationAlert } from "../../components/utils/alerts";
@@ -141,7 +141,7 @@ const KanbanCardItem = (props)=>(
         </div>
         <div className="controls">
             <Button.Group>
-                <Button icon style={{padding:7}}>
+                <Button icon style={{padding:7}} onClick={props.onEditKanbanItem}>
                     <Icon name="edit" style={{fontSize:13}} />
                 </Button>
                 <Button icon style={{padding:7}}>
@@ -176,6 +176,7 @@ const ConfigureExperimentView = (props)=>(
                                                     {...item} 
                                                     key={getCompId(item)}
                                                     onRemoveKanbanItem={()=>props.onRemoveKanbanItem(item, stateName)}
+                                                    onEditKanbanItem={()=>props.onEditKanbanItem(item, stateName)}
                                                 /> 
                                             ))}
                                             {provided.placeholder}
@@ -191,6 +192,108 @@ const ConfigureExperimentView = (props)=>(
     </div>
 )
 
+const KanbanComponentEditView = (props)=>{
+    let { data } = props;
+    const [currentCmd, setCurrentCmd] = useState("");
+    const [commands, setCommands] = useState({"start":"", "stop":"", "status":""});
+    const [timeouts, setTimeouts] = useState({"start":"", "stop":"", "status":""});
+    const [actionArgs, setActionArgs] = useState(data.actionArguments||"");
+    const [waitTime, setWaitTime] = useState(data.waitTimeInMillsAfterAction||"");
+    const [expectedOutput, setExpectedOutput] = useState(data.expectedOutputFunctionForRegex||"");
+    return (
+        <div style={{padding:10}}>
+            <div style={{display:"flex"}}>
+                <div style={{flex:1, margin:"0 5px"}}>
+                    <div style={{fontSize:12, fontWeight:"bold", color:"#263238"}}>Command</div>
+                    <div>
+                        <Dropdown
+                            placeholder='Select Command'
+                            search
+                            selection
+                            options={[
+                                {key:"Start", value:"start", text:"Start", style:{fontSize:16}, icon:"play circle"},
+                                {key:"Stop", value:"stop", text:"Stop", style:{fontSize:16}, icon:"stop circle"},
+                                {key:"Status", value:"status", text:"Status", style:{fontSize:16}, icon:"chart bar"}
+                            ]}
+                            onChange={(_, cmd)=>{
+                                setCurrentCmd(cmd.value);
+                                setCommands({...commands, [cmd.value]: (( data.actions[cmd.value] || {} ).command || "" ) });
+                                setTimeouts({...timeouts, [cmd.value]: (( data.actions[cmd.value] || {} ).timeout || "0" ) })
+                            }}
+                        />
+                    </div>
+                </div>
+                <div style={{flex:1, margin:"0 5px"}}>
+                    <div style={{fontSize:12, fontWeight:"bold", color:"#263238"}}>Value</div>
+                    <div>
+                        <Input 
+                            placeholder="Enter command value..." 
+                            value={commands[currentCmd]}
+                            onChange={(_, input)=>{
+                                setCommands({...commands, [currentCmd]: input.value })
+                                data.actions[currentCmd] && ( data.actions[currentCmd].command = input.value )
+                            }}/>
+                    </div>
+                </div>
+                <div style={{flex:1, margin:"0 5px"}}>
+                    <div style={{fontSize:12, fontWeight:"bold", color:"#263238"}}>Timeout</div>
+                    <div>
+                        <Input 
+                            placeholder="Timeout value in (ms)"
+                            value={timeouts[currentCmd]}
+                            error={timeouts[currentCmd] && Number.isNaN( Number(timeouts[currentCmd]) )}
+                            onChange={(_, input)=>{
+                                setTimeouts({...commands, [currentCmd]: input.value })
+                                if(!Number.isNaN( Number(input.value) )){
+                                    data.actions[currentCmd] && ( data.actions[currentCmd].timeout = Number(input.value) )
+                                }
+                            }} />
+                    </div>
+                </div>
+            </div>
+            <div style={{display:"flex", paddingTop:10}}>
+                <div style={{flex:1, margin:"0 5px"}}>
+                    <div style={{fontSize:12, fontWeight:"bold", color:"#263238"}}>Action arguments</div>
+                    <div>
+                        <Input 
+                            placeholder="Enter value..."
+                            value={actionArgs}
+                            onChange={(_,input)=>{
+                                setActionArgs(input.value);
+                                data.actionArguments = input.value;
+                            }}/>
+                    </div>
+                </div>
+                <div style={{flex:1, margin:"0 5px"}}>
+                    <div style={{fontSize:12, fontWeight:"bold", color:"#263238"}}>Wait time after action (ms)</div>
+                    <div>
+                        <Input 
+                            placeholder="Time in milliseconds..."
+                            error={waitTime && Number.isNaN( Number(waitTime) )}
+                            value={waitTime}
+                            onChange={(_,input)=>{
+                                setWaitTime(input.value);
+                                data.waitTimeInMillsAfterAction = Number( input.value );
+                            }}/>
+                    </div>
+                </div>
+                <div style={{flex:1, margin:"0 5px"}}>
+                    <div style={{fontSize:12, fontWeight:"bold", color:"#263238"}}>Expected output function for Regex</div>
+                    <div>
+                        <Input 
+                            placeholder="Enter value..."
+                            value={expectedOutput}
+                            onChange={(_,input)=>{
+                                setExpectedOutput(input.value);
+                                data.expectedOutputFunctionForRegex = input.value;
+                            }}/>
+                    </div>
+                </div>
+            </div>
+        </div>
+    )
+}
+
 const specialChars = "£$%^&*-+=!";
 const getCompId = (component)=>{
     return component._id + specialChars + component.name
@@ -202,7 +305,8 @@ class CreateExperimentScreen extends React.Component{
         this.state = {
             componentNodes: [],
             currentStep: "CONFIGURE_COMPONENT",
-            kanbanStates:{"Steady State":[], "Chaos State":[], "Rollback State":[]}
+            kanbanStates:{"Steady State":[], "Chaos State":[], "Rollback State":[]},
+            isKanbanEdited: false
         }
         this.nodeRefs = {}
         this.jsPlumb = jsPlumb.getInstance({
@@ -224,28 +328,27 @@ class CreateExperimentScreen extends React.Component{
     handleComponentDropped = (data)=>{
         if(data.destination && data.destination.droppableId != data.source.droppableId){
             let draggedComp = this.props.components.find(item=>getCompId(item)===data.draggableId);
-            this.setState({tempCompName:draggedComp.name}, ()=>{
-                confirmationAlert(
-                    <div style={{display:"flex", alignItems:"center", marginTop:10}}>
-                        <span style={{marginRight:10}}>Name:</span>
-                        <Input defaultValue={this.state.tempCompName} onChange={(elt)=>this.setState({tempCompName:elt.target.value})} />
-                    </div>,
-                    ()=>{
-                        draggedComp = {...draggedComp, name: this.state.tempCompName}
-                        if(draggedComp && !this.state.componentNodes.find( item => getCompId(item) === getCompId(draggedComp) )){
-                            this.nodeRefs = {...this.nodeRefs, [getCompId(draggedComp)]:React.createRef()}
-                            this.setState({componentNodes:[
-                                ...this.state.componentNodes, 
-                                draggedComp
-                            ]});
-                        }
-                        else if(draggedComp){
-                            showWarningNotification(draggedComp.name+" is already added to the component canvas")
-                        }
-                    },
-                    {isPositiveBtn:true, okBtnText:"Set Name", cancelBtnText:"Cancel", title:"Edit component name"}
-                )
-            })
+            let tempCompName = draggedComp.name;
+            confirmationAlert(
+                <div style={{display:"flex", alignItems:"center", marginTop:10}}>
+                    <span style={{marginRight:10}}>Name:</span>
+                    <Input defaultValue={tempCompName} onChange={(elt)=>tempCompName = elt.target.value } />
+                </div>,
+                ()=>{
+                    draggedComp = {...draggedComp, name: tempCompName}
+                    if(draggedComp && !this.state.componentNodes.find( item => getCompId(item) === getCompId(draggedComp) )){
+                        this.nodeRefs = {...this.nodeRefs, [getCompId(draggedComp)]:React.createRef()}
+                        this.setState({componentNodes:[
+                            ...this.state.componentNodes, 
+                            draggedComp
+                        ]});
+                    }
+                    else if(draggedComp){
+                        showWarningNotification(tempCompName+" is already added to the component canvas")
+                    }
+                },
+                {isPositiveBtn:true, okBtnText:"Set Name", cancelBtnText:"Cancel", title:"Edit component name"}
+            )
         }
     }
     
@@ -264,27 +367,79 @@ class CreateExperimentScreen extends React.Component{
         confirmationAlert("Remove `"+component.name+"` from `"+stateName+"`?", ()=>{
             let kanbanStates = JSON.parse(JSON.stringify(this.state.kanbanStates));
             kanbanStates[stateName] = (kanbanStates[stateName]||[]).filter(item=>getCompId(item)!==getCompId(component))
-            this.setState({kanbanStates});
+            this.setState({kanbanStates, isKanbanEdited:true});
         }, {okBtnText:"Yes, Remove"});
+    }
+    handleCloneKanbanItem = (component, stateName)=>{
+        let tempName = component.name+" (copy)";
+        confirmationAlert(
+            <div style={{display:"flex", alignItems:"center", marginTop:10}}>
+                <span style={{marginRight:10}}>Name:</span>
+                <Input defaultValue={tempName} onChange={(_, data)=>tempName = data.value} />
+            </div>,
+            ()=>{
+                if(!Object.keys(this.state.kanbanStates).find(kState=>this.state.kanbanStates[kState].find(item2=>item2.name===tempName))){
+                    let kanbanStates = JSON.parse(JSON.stringify(this.state.kanbanStates));
+                    kanbanStates[stateName] = (kanbanStates[stateName]||[]).map(item=>{
+                        if(getCompId(item) === getCompId(component)){
+                            item = component = {...component, name: tempName};
+                        }   
+                        return item;
+                    });
+                    this.setState({kanbanStates, isKanbanEdited:true});
+                }else{
+                    showWarningNotification("A component with the name `"+tempName+"` name already exists.")
+                }
+            },
+            {isPositiveBtn:true, okBtnText:"Set Name", cancelBtnText:"Cancel", title:"Change component clone name"}
+        )
+    }
+    handleEditKanbanItem = (component, stateName)=>{
+        let mutableEditData = JSON.parse(JSON.stringify(component)); //DATA TO BE EDITED AND SHOULD BE MUTATED FOR THE CHANGES TO TAKE EFFECT
+        confirmationAlert(
+            <KanbanComponentEditView 
+                data={mutableEditData}
+                stateName={stateName} 
+            />,
+            ()=>{
+                let kanbanStates = JSON.parse(JSON.stringify(this.state.kanbanStates));
+                kanbanStates[stateName] = (kanbanStates[stateName]||[]).map(item=>{
+                    if(getCompId(item) === getCompId(component)){
+                        item = mutableEditData;
+                    }   
+                    return item;
+                });
+                this.setState({kanbanStates, isKanbanEdited:true});
+            },
+            {title:"Edit "+component.name+" component", okBtnText:"Save Edits", isPositiveBtn:true}
+        )
     }
     handleMoveToConfigureExp = ()=>{
         //let allConnections = this.jsPlumb.getAllConnections();
-        this._prepareKanbanStates();
-        this.setState({currentStep: "CONFIGURE_EXPERIMENT"})
+        if(this.state.currentStep !== "CONFIGURE_EXPERIMENT"){
+            this._prepareKanbanStates();
+            this.setState({currentStep: "CONFIGURE_EXPERIMENT", isKanbanEdited:false})
+        }
     }
     handleMoveToConfigureComp = ()=> {
-        this.setState({currentStep: "CONFIGURE_COMPONENT"})
+        if(this.state.currentStep === "CONFIGURE_EXPERIMENT" && this.state.isKanbanEdited){
+            confirmationAlert("You will loose all your component configurations done in this phase. Proceed?", ()=>{
+                this.setState({currentStep: "CONFIGURE_COMPONENT"})
+            }, {okBtnText:"Yes, Proceed"})
+        }else{
+            this.setState({currentStep: "CONFIGURE_COMPONENT"})
+        }
     }
     _prepareKanbanStates = ()=>{
         let kanbanStatesData = {} ;
         let states = ["Steady State", "Chaos State", "Rollback State"];
         states.forEach((item)=>{
             let data = JSON.parse(JSON.stringify( this.state.componentNodes )); //This deep cloning method should work fine for our use case
-            let currentData = JSON.parse(JSON.stringify( (this.state.kanbanStates[item]||[]) ));
-            if(currentData){
-                data = data.filter(item2 => !currentData.some( item3 => getCompId(item3) === getCompId(item2) )); //filter items that have already been added
-                data = [...currentData, ...data];
-            }
+            // let currentData = JSON.parse(JSON.stringify( (this.state.kanbanStates[item]||[]) ));
+            // if(currentData){
+            //     data = data.filter(item2 => !currentData.some( item3 => getCompId(item3) === getCompId(item2) )); //filter items that have already been added
+            //     data = [...currentData, ...data];
+            // }
             kanbanStatesData[item] = data;
         });
         
@@ -343,6 +498,8 @@ class CreateExperimentScreen extends React.Component{
                                     isActive={this.state.currentStep === "CONFIGURE_EXPERIMENT"}
                                     kanbanStates={this.state.kanbanStates}
                                     onRemoveKanbanItem={this.handleRemoveKanbanItem}
+                                    onEditKanbanItem={this.handleEditKanbanItem}
+                                    onCloneKanbanItem={this.handleCloneKanbanItem}
                                 />
                             </div>
                         </div>
