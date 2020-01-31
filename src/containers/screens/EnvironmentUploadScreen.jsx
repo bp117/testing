@@ -1,7 +1,7 @@
 import React from "react";
 import { Button, Table, Icon } from "semantic-ui-react";
 import Dropzone from "react-dropzone";
-import * as actions from "../../actions/componentActions";
+import * as actions from "../../actions/environmentActions";
 import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
 import EditJSONModal from "../../components/modals/EditJSONModal";
@@ -9,8 +9,8 @@ import { confirmationAlert, showWarningNotification, showErrorNotification, show
 
 function mapStateToProps(state){
     return {
-        isUploading: state.components.isUploadingComponentDef,
-        components: state.components.components
+        isUploading: state.environments.isUploadingEnvironmentDef,
+        environments: state.environments.environments
     }
 }
 
@@ -18,17 +18,17 @@ function mapDispatchToProps(dispatch){
     return bindActionCreators(actions, dispatch);
 }
 
-class ComponentUploadScreen extends React.Component{
+class EnvironmentUploadScreen extends React.Component{
     constructor(props){
         super(props);
         this.state = {
             isFileDragOver: false,
-            compsToUpload: []
+            envsToUpload: []
         }
         this.inputRef = React.createRef()
     }
-    _isValidComponentJson = (jsonData)=>{
-        
+    
+    _isValidEnvironmentJson = (jsonData)=>{
         return true //for now
     }
 
@@ -36,7 +36,7 @@ class ComponentUploadScreen extends React.Component{
         this.inputRef.current.click();
     }
     removeFileFromUploadList = (item)=>{
-        this.setState({compsToUpload:this.state.compsToUpload.filter(item2=>item2.name !== item.name)})
+        this.setState({envsToUpload:this.state.envsToUpload.filter(item2=>item2.name !== item.name)})
     }
     handleFileDrop = (files=[])=>{
         this.setState({isFileDragOver:false});
@@ -45,14 +45,14 @@ class ComponentUploadScreen extends React.Component{
             reader.onload = evt=>{
                 try{
                     let jsonData = JSON.parse(evt.target.result);
-                    if(this._isValidComponentJson(jsonData)){
-                        if(!this.state.compsToUpload.some(item=>item.name===jsonData.name)){
-                            this.setState({ compsToUpload: [ jsonData, ...this.state.compsToUpload ] });
+                    if(this._isValidEnvironmentJson(jsonData)){
+                        if(!this.state.envsToUpload.some(item=>item.name===jsonData.name)){
+                            this.setState({ envsToUpload: [ jsonData, ...this.state.envsToUpload ] });
                         }else{
-                            showWarningNotification(`A Component defination with the name "${jsonData.name}" has already been added`);
+                            showWarningNotification(`An environment config with the name "${jsonData.name}" has already been added`);
                         }
                     }else{
-                        showErrorNotification("The component definition JSON provided is not valid.")
+                        showErrorNotification("The environment configuration JSON provided is not valid.")
                     }
                 }catch(err){
                     showErrorNotification(`The file ${file.name} does not contain a valid JSON object`);
@@ -61,13 +61,13 @@ class ComponentUploadScreen extends React.Component{
             reader.readAsText(file)
         });
     }
-    handleUploadComponentDefinitions = ()=>{
-        this.state.compsToUpload.forEach(compDefinition=>{
-            this.props.uploadComponentDefinition(compDefinition, (success, error)=>{
+    handleUploadEnvironmentConfigs = ()=>{
+        this.state.envsToUpload.forEach(envConfig=>{
+            this.props.uploadEnvironmentConfig(envConfig, (success, error)=>{
                 if(success){
-                    this.setState({compsToUpload:this.state.compsToUpload.filter(item=>item.name !== compDefinition.name)}, ()=>{
-                        this.loadComponentDefinitions();
-                        showSuccessNotification(`${compDefinition.name} data was successfully saved!`)
+                    this.setState({envsToUpload:this.state.envsToUpload.filter(item=>item.id !== envConfig.id)}, ()=>{
+                        this.loadEnvironmentConfigs();
+                        showSuccessNotification(`${envConfig.name} data was successfully saved!`)
                     })
                 }else{  
                     showErrorNotification(`Something went wrong: "${error}"`)
@@ -75,11 +75,11 @@ class ComponentUploadScreen extends React.Component{
             })
         });
     }
-    handleDeleteComponentDefinition = (item, callback=()=>{})=>{
-        confirmationAlert(`Delete ${item.name} component definition?`, ()=>{
-            this.props.deleteComponentDefinition(item._id, (success, error)=>{
+    handleDeleteEnvironmentConfig = (item, callback=()=>{})=>{
+        confirmationAlert(`Delete ${item.name} environment config?`, ()=>{
+            this.props.deleteEnvironmentConfig(item._id, (success, error)=>{
                 if(success){
-                    this.loadComponentDefinitions();
+                    this.loadEnvironmentConfigs();
                     showSuccessNotification(`${item.name} data was deleted!`)
                 }else{
                     showErrorNotification(`Something went wrong: "${error}"`)
@@ -88,36 +88,36 @@ class ComponentUploadScreen extends React.Component{
             })
         }, {okBtnText:"Yes, Delete", cancelBtnText:"Cancel"})
     }
-    handleUpdateComponentDefinition = (data)=>{
-        this.props.updateComponentDefinition(data, (success, err)=>{
-            this.setState({editComponentData:null});
+    handleUpdateEnvironmentConfig = (data)=>{
+        this.props.updateEnvironmentConfig(data, (success, err)=>{
+            this.setState({editEnvironmentData:null});
             if(success){
-                this.loadComponentDefinitions()
-                showSuccessNotification(`${compDefinition.name} data was successfully updated!`)
+                this.loadEnvironmentConfigs()
+                showSuccessNotification(`${envConfig.name} data was successfully updated!`)
             }else {
                 showErrorNotification(`Something went wrong: "${error}"`)
             }
         });
     }
     setEditData = (item)=>{
-        this.setState({editComponentData:item})
+        this.setState({editEnvironmentData:item})
     }
-    loadComponentDefinitions = ()=>{
-        this.props.getComponentDefinition((success, error)=>{
+    loadEnvironmentConfigs = ()=>{
+        this.props.getEnvironmentConfig((success, error)=>{
             if(!success){
                 showErrorNotification(`Something went wrong: "${error}"`)
             }
         });
     }
     componentDidMount(){
-        this.loadComponentDefinitions()
+        this.loadEnvironmentConfigs()
     }
     render(){
         return (
             <div className="match-parent upload-screen">
                 <div className="upload-view">
                     <div className="match-parent content">
-                        <h4>Upload Component Definition Files</h4> 
+                        <h4>Upload Environment Configuration Files</h4> 
                         <div className="upload-zone-container">
                             <div className="upload-zone">
                                 <Dropzone 
@@ -127,11 +127,11 @@ class ComponentUploadScreen extends React.Component{
                                     {({getRootProps, getInputProps}) => (
                                         <div {...getRootProps()} className={"match-parent drop-zone "+(this.state.isFileDragOver?"drag-over":"")}>
                                             {this.state.isFileDragOver?
-                                                <div className="drag-over-desc">Drop your component definition file</div>
+                                                <div className="drag-over-desc">Drop your environment configuration file</div>
                                                 :
                                                 <React.Fragment>
                                                     <input ref={this.inputRef} type="file" onChange={(evt)=>this.handleFileDrop([...evt.target.files])} multiple className="hidden"/>
-                                                    {this.state.compsToUpload.length==0 ?
+                                                    {this.state.envsToUpload.length==0 ?
                                                         <div className="match-parent center-content">
                                                             <Button primary size="big" onClick={this.openFileChooser}> <Icon name="add" /> Choose File...</Button>
                                                         </div>
@@ -140,7 +140,7 @@ class ComponentUploadScreen extends React.Component{
                                                             <div style={{flex:1, position:"relative"}}>
                                                                 <div className="absolute-content" style={{paddingBottom:10}}>
                                                                     {
-                                                                        this.state.compsToUpload.map((item, indx)=>(
+                                                                        this.state.envsToUpload.map((item, indx)=>(
                                                                             <div style={{padding:"5px 10px"}}>
                                                                                 <span style={{marginRight:20}}>{item.name}</span>
                                                                                 <Icon name="trash" style={{fontSize:16, cursor:"pointer"}} color="red" onClick={()=>this.removeFileFromUploadList(item)}/>
@@ -165,39 +165,35 @@ class ComponentUploadScreen extends React.Component{
                                 <Button 
                                     style={{width:"100%"}} 
                                     color="teal" size="big" 
-                                    onClick={this.handleUploadComponentDefinitions} 
-                                    disabled={this.state.compsToUpload.length===0} 
+                                    onClick={this.handleUploadEnvironmentConfigs} 
+                                    disabled={this.state.envsToUpload.length===0} 
                                     loading={this.props.isUploading}>
-                                    <Icon name="upload" />Upload File{this.state.compsToUpload.length>0?"s":""}
+                                    <Icon name="upload" />Upload File{this.state.envsToUpload.length>0?"s":""}
                                 </Button>
                             </div>
                         </div>    
                     </div>
                 </div>
                 <div className="uploaded-view">
-                    <h4 className="title">Component Definition files</h4>
+                    <h4 className="title">Environment Config files</h4>
                     <div style={{position:"relative", flex:1, marginTop:10}}>
                         <div className="absolute-content">
-                            {this.props.components && this.props.components.length>0 ?
+                            {this.props.environments && this.props.environments.length>0 ?
                                 <Table striped selectable>
                                     <Table.Header>
                                         <Table.Row>
-                                            <Table.HeaderCell>Component</Table.HeaderCell>
-                                            <Table.HeaderCell>Version</Table.HeaderCell>
-                                            <Table.HeaderCell>Catergory</Table.HeaderCell>
+                                            <Table.HeaderCell>Environment</Table.HeaderCell>
                                             <Table.HeaderCell textAlign="right"></Table.HeaderCell>
                                         </Table.Row>
                                     </Table.Header>
 
                                     <Table.Body>
-                                        {this.props.components.map(item=>(
+                                        {this.props.environments.map(item=>(
                                             <Table.Row>
                                                 <Table.Cell>{item.name}</Table.Cell>
-                                                <Table.Cell>{item.metadata && item.metadata.version||"N/A"}</Table.Cell>
-                                                <Table.Cell>{item.category||"N/A"}</Table.Cell>
                                                 <Table.Cell textAlign="right">
                                                     <Button size="large" primary onClick={()=>this.setEditData(item)}><Icon name="eye" />View </Button>
-                                                    <Button size="large" negative onClick={()=>this.handleDeleteComponentDefinition(item)}><Icon name="trash" />Delete</Button>
+                                                    <Button size="large" negative onClick={()=>this.handleDeleteEnvironmentConfig(item)}><Icon name="trash" />Delete</Button>
                                                 </Table.Cell>
                                             </Table.Row>
                                         ))}
@@ -212,16 +208,16 @@ class ComponentUploadScreen extends React.Component{
                     </div>
                 </div>
                 <EditJSONModal 
-                    open={!!this.state.editComponentData} 
-                    data={this.state.editComponentData}
-                    onClose={()=>this.setState({editComponentData:null})}
-                    onDelete={()=>{this.handleDeleteComponentDefinition(this.state.editComponentData, ()=>{
-                        this.setState({editComponentData:null})
+                    open={!!this.state.editEnvironmentData} 
+                    data={this.state.editEnvironmentData}
+                    onClose={()=>this.setState({editEnvironmentData:null})}
+                    onDelete={()=>{this.handleDeleteEnvironmentConfig(this.state.editEnvironmentData, ()=>{
+                        this.setState({editEnvironmentData:null})
                     })}}
-                    onEdit={this.handleUpdateComponentDefinition} />
+                    onEdit={this.handleUpdateEnvironmentConfig} />
             </div>
         )
     }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(ComponentUploadScreen)
+export default connect(mapStateToProps, mapDispatchToProps)(EnvironmentUploadScreen)

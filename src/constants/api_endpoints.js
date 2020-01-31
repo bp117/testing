@@ -5,3 +5,8 @@ export const DELETE_COMPONENT_DEFINITION_DATA_URL =`${BASE_URL}/tablerow/delete/
 export const UPDATE_COMPONENT_DEFINITION_DATA_URL =`${BASE_URL}/tablerow/updatedata`; 
 export const SUBMIT_EXPERIMENT_JSON_URL =`${BASE_URL}/insertexperimentdata`; 
 export const SUBMIT_COMP_DEPENDENCY_URL =`${BASE_URL}/insertmodifydata`; 
+
+export const UPLOAD_ENVIRONMENT_CONFIG_URL =`${BASE_URL}/upload`; 
+export const ENVIRONMENT_CONFIG_DATA_URL =`${BASE_URL}/getdata`; 
+export const DELETE_ENVIRONMENT_CONFIG_DATA_URL =`${BASE_URL}/tablerow/delete/{id}`; 
+export const UPDATE_ENVIRONMENT_CONFIG_DATA_URL =`${BASE_URL}/tablerow/updatedata`; 
