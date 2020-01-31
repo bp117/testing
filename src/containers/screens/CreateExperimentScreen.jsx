@@ -3,7 +3,7 @@ import ReactDOM from "react-dom";
 import { Button, Step, Icon, Input, Dropdown } from "semantic-ui-react";
 import { Switch, Route } from "react-router-dom";
 import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
-import { showWarningNotification, showErrorNotification, confirmationAlert } from "../../components/utils/alerts";
+import { showWarningNotification, showErrorNotification, confirmationAlert, errorAlert } from "../../components/utils/alerts";
 import { connect } from "react-redux";
 import * as actions from "../../actions/componentActions";
 import {bindActionCreators} from "redux";
@@ -160,7 +160,12 @@ const ConfigureExperimentView = (props)=>(
         <div className="match-parent configure-exp-container">
             <div style={{display:"flex", alignItems:"center", width:"90%", justifyContent:"center", marginBottom:15}}>
                 <span style={{marginRight:10, fontFamily:"Josefin Sans", fontSize:15}}>Experiment Name</span>
-                <Input style={{flex:1}} size="large" action={{content:"Create Experiment", color:"green", icon:"check", size:"large"}}/>
+                <Input 
+                    style={{flex:1}} 
+                    size="large" 
+                    action={{content:"Create Experiment", color:"green", icon:"check", size:"large", onClick:props.onCreateExperiment}}
+                    value={props.experimentName}
+                    onChange={(_, data)=>props.onEditExperimentName(data.value)} />
             </div>
             <div className="kanban-boards-container">
                 {Object.keys(props.kanbanStates).map(stateName=>(
@@ -316,7 +321,8 @@ class CreateExperimentScreen extends React.Component{
             componentNodes: [],
             currentStep: "CONFIGURE_COMPONENT",
             kanbanStates:{"Steady State":[], "Chaos State":[], "Rollback State":[]},
-            isKanbanEdited: false
+            isKanbanEdited: false,
+            experimentName: ""
         }
         this.nodeRefs = {}
         this.jsPlumb = jsPlumb.getInstance({
@@ -388,12 +394,12 @@ class CreateExperimentScreen extends React.Component{
                 <Input defaultValue={tempName} onChange={(_, data)=>tempName = data.value} />
             </div>,
             ()=>{
-                if(!Object.keys(this.state.kanbanStates).find(kState=>this.state.kanbanStates[kState].find(item2=>item2.name===tempName))){
+                if(!this.state.kanbanStates[stateName].find(item2=>item2.name===tempName)){
                     let kanbanStates = JSON.parse(JSON.stringify(this.state.kanbanStates));
                     kanbanStates[stateName] = [...kanbanStates[stateName], {...component, name: tempName}]
                     this.setState({kanbanStates, isKanbanEdited:true});
                 }else{
-                    showWarningNotification("A component with the name `"+tempName+"` already exists.")
+                    showWarningNotification("A component with the name `"+tempName+"` already exists in the `"+stateName+"`.")
                 }
             },
             {isPositiveBtn:true, okBtnText:"Set Name", cancelBtnText:"Cancel", title:"Change clone component name"}
@@ -457,6 +463,36 @@ class CreateExperimentScreen extends React.Component{
             }
         });
     }
+    _generateExperimentJSON = ()=>{
+        let jsonData = {type:"Experiment", description:this.state.experimentName, components:[]}
+        let addedComponents = []
+        Object.keys(this.state.kanbanStates).forEach(kState=>{
+            (this.state.kanbanStates[kState]||[]).forEach(item=>{
+                let formattedKey = kState.replace(/\s+/g, "");
+                formattedKey = formattedKey[0].toLowerCase()+formattedKey.slice(1);
+                jsonData[formattedKey] = [...(jsonData[formattedKey]||[]), item];
+                if(!addedComponents.includes(item._id)){
+                    addedComponents.push(item._id);
+                    jsonData.components.push(item);
+                }
+            })
+        });
+
+        return jsonData;
+    }
+    handleCreateExperiment = ()=>{
+        if(!this.state.experimentName.trim()){
+            return errorAlert("Experiment name is required");
+        }
+        let {kanbanStates} = this.state
+        if(!Object.keys(kanbanStates).find(kState=>(kanbanStates[kState]||[]).length>0)){
+            return errorAlert("No component entries to generate the experiment JSON data");
+        }
+
+        let generatedExperimentJson = this._generateExperimentJSON();
+        console.log("GENERATED JSON ", generatedExperimentJson);
+        //save now to the db
+    }
     componentDidMount(){
         this._loadComponentDefinitions();
         this.jsPlumb.setContainer("jsplumb-container")
@@ -502,9 +538,12 @@ class CreateExperimentScreen extends React.Component{
                                 <ConfigureExperimentView 
                                     isActive={this.state.currentStep === "CONFIGURE_EXPERIMENT"}
                                     kanbanStates={this.state.kanbanStates}
+                                    experimentName={this.state.experimentName}
                                     onRemoveKanbanItem={this.handleRemoveKanbanItem}
                                     onEditKanbanItem={this.handleEditKanbanItem}
                                     onCloneKanbanItem={this.handleCloneKanbanItem}
+                                    onEditExperimentName={(experimentName)=>this.setState({experimentName})}
+                                    onCreateExperiment={this.handleCreateExperiment}
                                 />
                             </div>
                         </div>

@@ -35,6 +35,26 @@ export const confirmationAlert = (message, successCallback, options)=>{
     });
 }
 
+export const errorAlert = (message)=>{
+    confirmAlert({
+        title: 'Error',
+        message: message,
+        customUI: ({ onClose, message, title }) => {
+            return (
+              <div className='confirm-alert-dialog'>
+                <h4 className="title" style={{color:"#b71c1c"}}>{title}</h4>
+                <p className="message" style={{color:"#d32f2f"}}>{message}</p>
+                <div className="actions">
+                    <Button onClick={onClose} size="big" primary>
+                      <Icon name="check" /> OK
+                    </Button>
+                </div>
+              </div>
+            );
+        }
+    });
+}
+
 export const showSuccessNotification = (message, duration)=>{
   store.addNotification({
     title: "Success",
