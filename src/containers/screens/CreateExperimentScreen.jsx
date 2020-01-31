@@ -3,12 +3,12 @@ import ReactDOM from "react-dom";
 import { Button, Step, Icon, Input, Dropdown } from "semantic-ui-react";
 import { Switch, Route } from "react-router-dom";
 import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
-import { showWarningNotification, showErrorNotification, confirmationAlert, errorAlert } from "../../components/utils/alerts";
+import { showWarningNotification, showErrorNotification, confirmationAlert, errorAlert, showSuccessNotification } from "../../components/utils/alerts";
 import { connect } from "react-redux";
 import * as actions from "../../actions/componentActions";
+import * as actions2 from "../../actions/experimentActions";
 import {bindActionCreators} from "redux";
 import {jsPlumb} from "jsplumb"
-import { CONFIGURE_COMPONENT_ROUTE, CREATE_EXPERIMENT_ROUTE, CONFIGURE_EXPERIMENT_ROUTE } from "../../constants/app_routes";
 
 function mapStateToProps(state){
     return {
@@ -17,7 +17,7 @@ function mapStateToProps(state){
 }
 
 function mapDispatchToProps(dispatch){
-    return bindActionCreators(actions, dispatch);
+    return bindActionCreators({...actions, ...actions2}, dispatch);
 }
 
 
@@ -163,7 +163,7 @@ const ConfigureExperimentView = (props)=>(
                 <Input 
                     style={{flex:1}} 
                     size="large" 
-                    action={{content:"Create Experiment", color:"green", icon:"check", size:"large", onClick:props.onCreateExperiment}}
+                    action={{content:"Create Experiment", color:"green", icon:"check", size:"large", onClick:props.onCreateExperiment, loading:props.isSubmitting}}
                     value={props.experimentName}
                     onChange={(_, data)=>props.onEditExperimentName(data.value)} />
             </div>
@@ -322,7 +322,8 @@ class CreateExperimentScreen extends React.Component{
             currentStep: "CONFIGURE_COMPONENT",
             kanbanStates:{"Steady State":[], "Chaos State":[], "Rollback State":[]},
             isKanbanEdited: false,
-            experimentName: ""
+            experimentName: "",
+            isSubmittingExpJson:false 
         }
         this.nodeRefs = {}
         this.jsPlumb = jsPlumb.getInstance({
@@ -488,10 +489,17 @@ class CreateExperimentScreen extends React.Component{
         if(!Object.keys(kanbanStates).find(kState=>(kanbanStates[kState]||[]).length>0)){
             return errorAlert("No component entries to generate the experiment JSON data");
         }
-
-        let generatedExperimentJson = this._generateExperimentJSON();
-        console.log("GENERATED JSON ", generatedExperimentJson);
-        //save now to the db
+        this.setState({isSubmittingExpJson:true},()=>{
+            let generatedExperimentJson = this._generateExperimentJSON();
+            this.props.submitExperimentJSON(generatedExperimentJson, (success, error)=>{
+                if(success){
+                    showSuccessNotification("Experiment JSON data was successfully submitted");
+                }else{
+                    showErrorNotification(`Something went wrong: ${error}`)
+                }
+                this.setState({isSubmittingExpJson:false});
+            })
+        })
     }
     componentDidMount(){
         this._loadComponentDefinitions();
@@ -544,6 +552,7 @@ class CreateExperimentScreen extends React.Component{
                                     onCloneKanbanItem={this.handleCloneKanbanItem}
                                     onEditExperimentName={(experimentName)=>this.setState({experimentName})}
                                     onCreateExperiment={this.handleCreateExperiment}
+                                    isSubmitting = {this.state.isSubmittingExpJson}
                                 />
                             </div>
                         </div>
