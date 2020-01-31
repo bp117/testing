@@ -323,7 +323,8 @@ class CreateExperimentScreen extends React.Component{
             kanbanStates:{"Steady State":[], "Chaos State":[], "Rollback State":[]},
             isKanbanEdited: false,
             experimentName: "",
-            isSubmittingExpJson:false 
+            isSubmittingExpJson:false,
+            isSubmittingDeps: false 
         }
         this.nodeRefs = {}
         this.jsPlumb = jsPlumb.getInstance({
@@ -349,7 +350,7 @@ class CreateExperimentScreen extends React.Component{
             confirmationAlert(
                 <div style={{display:"flex", alignItems:"center", marginTop:10}}>
                     <span style={{marginRight:10}}>Name:</span>
-                    <Input defaultValue={tempCompName} onChange={(elt)=>tempCompName = elt.target.value } />
+                    <Input defaultValue={tempCompName} onChange={(elt)=>tempCompName = elt.target.value } autoFocus/>
                 </div>,
                 ()=>{
                     draggedComp = {...draggedComp, name: tempCompName}
@@ -392,7 +393,7 @@ class CreateExperimentScreen extends React.Component{
         confirmationAlert(
             <div style={{display:"flex", alignItems:"center", marginTop:10}}>
                 <span style={{marginRight:10}}>Name:</span>
-                <Input defaultValue={tempName} onChange={(_, data)=>tempName = data.value} />
+                <Input defaultValue={tempName} onChange={(_, data)=>tempName = data.value} autoFocus/>
             </div>,
             ()=>{
                 if(!this.state.kanbanStates[stateName].find(item2=>item2.name===tempName)){
@@ -503,27 +504,38 @@ class CreateExperimentScreen extends React.Component{
     }
     handleSaveDependencies = ()=>{
         let allConnections = this.jsPlumb.getAllConnections();
+        let dataToSend = []
+        this.setState({isSubmittingDeps:true})
         this.state.componentNodes.forEach(component=>{
-            let compDependencyJSON = {...component, dependency:{}};
+            let compDependencyJSON = {...component, dependencies:[]};
             (allConnections||[]).forEach(connection=>{
                 if(connection.source.id === getCompId(component)){
-                    compDependencyJSON.dependency = {...this.state.componentNodes.find(item=>getCompId(item)===connection.target.id), type:"downstream"}
+                    compDependencyJSON.dependencies.push({...this.state.componentNodes.find(item=>getCompId(item)===connection.target.id), direction:"downstream"})
                 }
                 else if(connection.target.id === getCompId(component)){
-                    compDependencyJSON.dependency = {...this.state.componentNodes.find(item=>getCompId(item)===connection.source.id), type:"upstream"}
+                    compDependencyJSON.dependencies.push({...this.state.componentNodes.find(item=>getCompId(item)===connection.source.id), direction:"upstream"})
                 }
             });
-            if(compDependencyJSON.dependency.type){
-                console.log("WE SHALL SAVE ", compDependencyJSON)
-                this.props.submitCompDependencyData(compDependencyJSON, (success, error)=>{
-                    if(success){
-                        showSuccessNotification("Dependency data for `"+component.name+"` saved");
-                    } else {
-                        showErrorNotification(`Something went wrong while submitting dependency data for \`${component.name}\`: ${error}`)
-                    }
-                })
+            if(compDependencyJSON.dependencies.length>0){
+                dataToSend.push(compDependencyJSON)
             }
         });
+        if(dataToSend.length>0){
+            this.props.submitCompDependencyData(dataToSend, (success, error)=>{
+                this.setState({isSubmittingDeps:false})
+                if(success){
+                    showSuccessNotification("Component dependencies successfully saved");
+                } else if(this.state.isSubmittingDeps){
+                    showErrorNotification(`Something went wrong: ${error}`)
+                }
+            });
+            setTimeout(() => {
+                if(this.state.isSubmittingDeps){
+                    showErrorNotification("No response from server within 1 minute");
+                    this.setState({isSubmittingDeps:false})
+                }
+            }, 60000);
+        }else this.setState({isSubmittingDeps:false})
     }
     componentDidMount(){
         this._loadComponentDefinitions();
@@ -582,7 +594,7 @@ class CreateExperimentScreen extends React.Component{
                         </div>
                         <div className="content-footer">
                             {this.state.currentStep === "CONFIGURE_COMPONENT" &&
-                                <Button size="big" color="teal" onClick={this.handleSaveDependencies} style={{marginLeft:10}}>Save Dependencies <Icon name="arrow right" /> </Button>
+                                <Button size="big" color="teal" onClick={this.handleSaveDependencies} style={{marginLeft:10}} loading={this.state.isSubmittingDeps}> <Icon name="save" /> Save Dependencies </Button>
                             }
                             {this.state.currentStep === "CONFIGURE_COMPONENT" &&
                                 <Button size="big" primary onClick={this.handleMoveToConfigureExp}>NEXT <Icon name="arrow right" /> </Button>
