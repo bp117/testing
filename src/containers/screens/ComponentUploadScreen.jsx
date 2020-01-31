@@ -5,11 +5,12 @@ import * as actions from "../../actions/componentActions";
 import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
 import EditJSONModal from "../../components/modals/EditJSONModal";
-import { confirmationAlert, showWarningNotification, showErrorNotification, showSuccessNotification } from "../../components/utils/alerts";
+import { confirmationAlert, showWarningNotification, showErrorNotification, showSuccessNotification, errorAlert } from "../../components/utils/alerts";
 
 function mapStateToProps(state){
     return {
         isUploading: state.components.isUploadingComponentDef,
+        isFetching: state.components.isFetchingComponent,
         components: state.components.components
     }
 }
@@ -28,7 +29,8 @@ class ComponentUploadScreen extends React.Component{
         this.inputRef = React.createRef()
     }
     _isValidComponentJson = (jsonData)=>{
-        
+        // let v = new validators.Validator();
+        // console.log(v.validate(jsonData, componentJSONSchema))
         return true //for now
     }
 
@@ -178,6 +180,10 @@ class ComponentUploadScreen extends React.Component{
                     <h4 className="title">Component Definition files</h4>
                     <div style={{position:"relative", flex:1, marginTop:10}}>
                         <div className="absolute-content">
+                            {this.props.isFetching && 
+                                <div className="match-parent center-content"> <div className="load-spinner" /> </div>
+
+                            }
                             {this.props.components && this.props.components.length>0 ?
                                 <Table striped selectable>
                                     <Table.Header>
