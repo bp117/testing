@@ -50,7 +50,7 @@ export default createReducer(initialState, {
         ...state,
         isFetchingComponent: false,
         isLoadedComponent: true,
-        components: data
+        components: (data||[]).filter(item=>item.type && item.type.toLowerCase()==="component")
     }),
     [FETCH_COMPONENT_DEFINITION_FAILURE]: (state)=>({
         ...state,

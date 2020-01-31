@@ -19,51 +19,6 @@ function mapDispatchToProps(dispatch){
     return bindActionCreators(actions, dispatch);
 }
 
-const FileUploadView = (props)=>(
-    <div className="upload-zone">
-        <Dropzone 
-            onDragLeave={props.onFileDragLeave} 
-            onDragOver={props.onFileDragOver}
-            onDrop={props.onFileDrop}>
-            {({getRootProps, getInputProps}) => (
-                <div {...getRootProps()} className={"match-parent drop-zone "+(props.isFileDragOver?"drag-over":"")}>
-                    {props.isFileDragOver?
-                        <div className="drag-over-desc">{props.dropDescText}</div>
-                        :
-                        <React.Fragment>
-                            <input ref={this.inputRef} type="file" onChange={(evt)=>props.onFileDrop([...evt.target.files])} multiple className="hidden"/>
-                            {props.selectedFiles.length==0 ?
-                                <div className="match-parent center-content">
-                                    <Button primary size="big" onClick={this.openFileChooser}> <Icon name="add" /> Choose File...</Button>
-                                </div>
-                                :
-                                <div className="match-parent" style={{padding:10, display:"flex", flexDirection:"column"}}>
-                                    <div style={{flex:1, position:"relative"}}>
-                                        <div className="absolute-content" style={{paddingBottom:10}}>
-                                            {
-                                                props.selectedFiles.map((item, indx)=>(
-                                                    <div style={{padding:"5px 10px"}}>
-                                                        <span style={{marginRight:20}}>{item.name}</span>
-                                                        <Icon name="trash" style={{fontSize:16, cursor:"pointer"}} color="red" onClick={()=>props.onRemoveFileFromList(item)}/>
-                                                    </div>
-                                                ))
-                                            }
-                                        </div>
-                                    </div>
-                                    <div style={{width:"100%", zIndex:9}}>
-                                        <Button primary size={"big"} onClick={this.openFileChooser}><Icon name="add" /> Add another file...</Button>
-                                    </div>
-                                </div>
-                            }
-                            <div className="desc">Or Drag and Drop it here</div>
-                        </React.Fragment>
-                    }
-                </div>
-            )}
-        </Dropzone>
-    </div>
-)
-
 class ComponentUploadScreen extends React.Component{
     constructor(props){
         super(props);
@@ -92,6 +47,7 @@ class ComponentUploadScreen extends React.Component{
             reader.onload = evt=>{
                 try{
                     let jsonData = JSON.parse(evt.target.result);
+                    jsonData = {...jsonData, type:"Component"}
                     if(this._isValidComponentJson(jsonData)){
                         if(!this.state.compsToUpload.some(item=>item.name===jsonData.name)){
                             this.setState({ compsToUpload: [ jsonData, ...this.state.compsToUpload ] });
@@ -166,15 +122,48 @@ class ComponentUploadScreen extends React.Component{
                     <div className="match-parent content">
                         <h4>Upload Component Definition Files</h4> 
                         <div className="upload-zone-container">
-                            <FileUploadView 
-                                onFileDragLeave={()=>this.setState({isFileDragOver:false})}
-                                onFileDragOver={()=>this.setState({isFileDragOver:true})}
-                                onFileDrop={this.handleFileDrop}
-                                isFileDragOver={this.state.isFileDragOver}
-                                dropDescText="Drop your component definition file"
-                                selectedFiles={this.state.compsToUpload}
-                                onRemoveFileFromList={this.removeFileFromUploadList}
-                            />
+                            <div className="upload-zone">
+                                <Dropzone 
+                                    onDragLeave={()=>this.setState({isFileDragOver:false})} 
+                                    onDragOver={()=>this.setState({isFileDragOver:true})}
+                                    onDrop={this.handleFileDrop}>
+                                    {({getRootProps, getInputProps}) => (
+                                        <div {...getRootProps()} className={"match-parent drop-zone "+(this.state.isFileDragOver?"drag-over":"")}>
+                                            {this.state.isFileDragOver?
+                                                <div className="drag-over-desc">Drop your component definition file</div>
+                                                :
+                                                <React.Fragment>
+                                                    <input ref={this.inputRef} type="file" onChange={(evt)=>this.handleFileDrop([...evt.target.files])} multiple className="hidden"/>
+                                                    {this.state.compsToUpload.length==0 ?
+                                                        <div className="match-parent center-content">
+                                                            <Button primary size="big" onClick={this.openFileChooser}> <Icon name="add" /> Choose File...</Button>
+                                                        </div>
+                                                        :
+                                                        <div className="match-parent" style={{padding:10, display:"flex", flexDirection:"column"}}>
+                                                            <div style={{flex:1, position:"relative"}}>
+                                                                <div className="absolute-content" style={{paddingBottom:10}}>
+                                                                    {
+                                                                        this.state.compsToUpload.map((item, indx)=>(
+                                                                            <div style={{padding:"5px 10px"}}>
+                                                                                <span style={{marginRight:20}}>{item.name}</span>
+                                                                                <Icon name="trash" style={{fontSize:16, cursor:"pointer"}} color="red" onClick={()=>this.removeFileFromUploadList(item)}/>
+                                                                            </div>
+                                                                        ))
+                                                                    }
+                                                                </div>
+                                                            </div>
+                                                            <div style={{width:"100%", zIndex:9}}>
+                                                                <Button primary size={"big"} onClick={this.openFileChooser}><Icon name="add" /> Add another file...</Button>
+                                                            </div>
+                                                        </div>
+                                                    }
+                                                    <div className="desc">Or Drag and Drop it here</div>
+                                                </React.Fragment>
+                                            }
+                                        </div>
+                                    )}
+                                </Dropzone>
+                            </div>
                             <div style={{width:"100%"}}>
                                 <Button 
                                     style={{width:"100%"}} 

@@ -9,7 +9,8 @@ import { confirmationAlert, showWarningNotification, showErrorNotification, show
 
 function mapStateToProps(state){
     return {
-        isUploading: state.environments.isUploadingEnvironmentDef,
+        isUploading: state.environments.isUploadingEnvironment,
+        isFetching: state.environments.isFetchingEnvironment,
         environments: state.environments.environments
     }
 }
@@ -45,6 +46,7 @@ class EnvironmentUploadScreen extends React.Component{
             reader.onload = evt=>{
                 try{
                     let jsonData = JSON.parse(evt.target.result);
+                    jsonData = {...jsonData, type:"EnvironmentConfig"}
                     if(this._isValidEnvironmentJson(jsonData)){
                         if(!this.state.envsToUpload.some(item=>item.name===jsonData.name)){
                             this.setState({ envsToUpload: [ jsonData, ...this.state.envsToUpload ] });
@@ -178,7 +180,10 @@ class EnvironmentUploadScreen extends React.Component{
                     <h4 className="title">Environment Config files</h4>
                     <div style={{position:"relative", flex:1, marginTop:10}}>
                         <div className="absolute-content">
-                            {this.props.environments && this.props.environments.length>0 ?
+                            {this.props.isFetching ?
+                                <div className="match-parent center-content"> <div className="spinning-loader" /> </div>
+                                :
+                            this.props.environments && this.props.environments.length>0 ?
                                 <Table striped selectable>
                                     <Table.Header>
                                         <Table.Row>

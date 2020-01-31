@@ -28,18 +28,18 @@ const initialState = {
 export default createReducer(initialState, {
     [UPLOAD_ENVIRONMENT_CONFIG_REQUEST]: (state)=>({
         ...state,
-        isUploadingEnvironmentDef: true,
-        isUploadedEnvironmentDef: false
+        isUploadingEnvironment: true,
+        isUploadedEnvironment: false
     }),
     [UPLOAD_ENVIRONMENT_CONFIG_SUCCESS]: (state)=>({
         ...state,
-        isUploadingEnvironmentDef: false,
-        isUploadedEnvironmentDef: true
+        isUploadingEnvironment: false,
+        isUploadedEnvironment: true
     }),
     [UPLOAD_ENVIRONMENT_CONFIG_FAILURE]: (state)=>({
         ...state,
-        isUploadingEnvironmentDef: false,
-        isUploadedEnvironmentDef: false
+        isUploadingEnvironment: false,
+        isUploadedEnvironment: false
     }),
     [FETCH_ENVIRONMENT_CONFIG_REQUEST]: (state)=>({
         ...state,
@@ -50,7 +50,7 @@ export default createReducer(initialState, {
         ...state,
         isFetchingEnvironment: false,
         isLoadedEnvironment: true,
-        environments: data
+        environments: (data||[]).filter(item=>item.type && item.type.toLowerCase()==="environmentconfig")
     }),
     [FETCH_ENVIRONMENT_CONFIG_FAILURE]: (state)=>({
         ...state,
