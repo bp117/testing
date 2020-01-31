@@ -2,13 +2,14 @@ import React, {useState} from "react";
 import ReactDOM from "react-dom";
 import { Button, Step, Icon, Input, Dropdown } from "semantic-ui-react";
 import { Switch, Route } from "react-router-dom";
+import {jsPlumb} from "jsplumb"
+import { connect } from "react-redux";
+import {bindActionCreators} from "redux";
 import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
 import { showWarningNotification, showErrorNotification, confirmationAlert, errorAlert, showSuccessNotification } from "../../components/utils/alerts";
-import { connect } from "react-redux";
 import * as actions from "../../actions/componentActions";
 import * as actions2 from "../../actions/experimentActions";
-import {bindActionCreators} from "redux";
-import {jsPlumb} from "jsplumb"
+import {arrayMove} from "../../utils/misc";
 
 function mapStateToProps(state){
     return {
@@ -29,9 +30,6 @@ const DraggablePaletteMenuItem = (props)=>(
                     ref={provided.innerRef}
                     {...provided.draggableProps}
                     {...provided.dragHandleProps}
-                    onDoubleClick={() => {
-                        props.onEditTaskItem();
-                    }}
                 >
                     <PaletteMenuItem {...props}/>
                 </div>
@@ -70,11 +68,11 @@ const ConfigureComponentView = (props)=>(
             <div className="header">  Component Canvas  </div>
             <div className="body">
                 <div className="absolute-content">
-                    <Droppable droppableId="#canvas-droppable-view">
+                    <Droppable droppableId="#canvas-droppable">
                     {(provided, snapshot) => (
                         <div
                             ref={provided.innerRef}
-                            style={{ backgroundColor: snapshot.isDraggingOver && "#E3F2FD" }}
+                            style={{ backgroundColor: snapshot.isDraggingOver && "#ECEFF1" }}
                             className="match-parent"
                         >
                             {props.componentNodes.map(item=>(
@@ -99,7 +97,7 @@ const SidebarPalette = (props)=>(
         <div className="header">Components Palette</div>
         <div style={{flex:1, position:"relative"}}>
             <div className="absolute-content">
-                <Droppable droppableId="#droppable-sidbar-palette" isDropDisabled={true}>
+                <Droppable droppableId="#palette-droppable" isDropDisabled={true}>
                 {(provided, snapshot) => (
                     <div ref={provided.innerRef}>
                         {props.components.map((item,index)=>(
@@ -155,6 +153,20 @@ const KanbanCardItem = (props)=>(
     </div>
 )
 
+const DraggableKanbanCardItem = (props)=>(
+    <Draggable draggableId={getCompId(props)+"--->"+props.stateName} index={props.index}>
+        {(provided, snapshot) => (
+            <div
+                ref={provided.innerRef}
+                {...provided.draggableProps}
+                {...provided.dragHandleProps}
+            >
+                <KanbanCardItem {...props}/>
+            </div>
+        )}
+    </Draggable>
+)
+
 const ConfigureExperimentView = (props)=>(
     <div className={"match-parent center-content "+(props.isActive?"":"hidden")}>
         <div className="match-parent configure-exp-container">
@@ -173,13 +185,15 @@ const ConfigureExperimentView = (props)=>(
                         <div className="header">{stateName}</div>
                         <div className="body">
                             <div className="absolute-content">
-                                <Droppable droppableId="#droppable-kanban-board">
+                                <Droppable droppableId={"#kanban-droppable--->"+stateName}>
                                     {(provided, snapshot) => (
-                                        <div ref={provided.innerRef}>
+                                        <div ref={provided.innerRef} className="match-parent" style={{backgroundColor:snapshot.isDraggingOver?"#E8EAF6":null}}>
                                             {(props.kanbanStates[stateName]||[]).map((item,index)=>(
-                                                <KanbanCardItem 
+                                                <DraggableKanbanCardItem 
                                                     {...item} 
                                                     key={getCompId(item)}
+                                                    index={index}
+                                                    stateName={stateName}
                                                     onRemoveKanbanItem={()=>props.onRemoveKanbanItem(item, stateName)}
                                                     onEditKanbanItem={()=>props.onEditKanbanItem(item, stateName)}
                                                     onCloneKanbanItem={()=>props.onCloneKanbanItem(item, stateName)}
@@ -401,8 +415,58 @@ class CreateExperimentScreen extends React.Component{
         })
     }
 
+    _handleKanbanComponentDropped = (data)=>{
+        if (data.destination && data.source){
+            let sourceIndx = data.source.index;
+            let destIndx = data.destination.index;
+            let draggedCompId = data.draggableId.substring(0, data.draggableId.lastIndexOf("--->"));
+            let kStateSrc = data.draggableId.substring(data.draggableId.lastIndexOf("--->")+4);
+            let t = data.destination.droppableId;
+            let kStateDest = t.substring(t.lastIndexOf("--->")+4);
+            let draggedComp = (this.state.kanbanStates[kStateSrc]||[]).find(item=>getCompId(item)===draggedCompId);
+            let mutableKanbanStates = JSON.parse( JSON.stringify(this.state.kanbanStates) );
+            let kStateDestArr = mutableKanbanStates[kStateDest];
+            let kStateSrcArr = mutableKanbanStates[kStateSrc];
+            
+            if(kStateSrc === kStateDest){
+                arrayMove(kStateDestArr, sourceIndx, destIndx, true)
+                this.setState({kanbanStates:mutableKanbanStates})
+            }else{
+                const moveKanbanCards = (draggedComp)=>{
+                    kStateDestArr.splice(destIndx, 0, draggedComp);
+                    kStateSrcArr.splice(sourceIndx, 1);
+                    this.setState({kanbanStates:mutableKanbanStates})
+                }
+                if(kStateDestArr.find(item=>item.editedName===draggedComp.editedName)){
+                    let tempName = draggedComp.editedName;
+                    confirmationAlert(
+                        <div style={{display:"flex", alignItems:"center", marginTop:10}}>
+                            <span style={{marginRight:10}}>Name:</span>
+                            <Input defaultValue={tempName} onChange={(_, data)=>tempName = data.value} autoFocus/>
+                        </div>,
+                        ()=>{
+                            if(!kStateDestArr.find(item2=>item2.editedName===tempName)){
+                                moveKanbanCards({...draggedComp, editedName:tempName})
+                            }else{
+                                showWarningNotification("A component with the name `"+tempName+"` already exists in the `"+kStateDest+"`. So, operation cancelled")
+                            }
+                        },
+                        {isPositiveBtn:true, okBtnText:"Set Name", cancelBtnText:"Cancel", title:"Change name to avoid conflicts"}
+                    )
+                }
+                else moveKanbanCards(draggedComp);
+                
+                
+            }
+        }
+        console.log("DROPPED DATA ", data);
+    }
+
     handleComponentDropped = (data)=>{
-        if(data.destination && data.destination.droppableId != data.source.droppableId){
+        if(data.source.droppableId.startsWith("#kanban-droppable")){
+            this._handleKanbanComponentDropped(data)
+        }
+        else if (data.destination && data.destination.droppableId != data.source.droppableId){
             let draggedComp = this.props.components.find(item=>getCompId(item)===data.draggableId);
             let tempCompName = draggedComp.name;
             confirmationAlert(

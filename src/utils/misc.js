@@ -47,3 +47,24 @@ export function createReducer(initialState, reducerMap) {
     return reducer ? reducer(state, action.payload) : state;
   };
 }
+
+
+/**
+ * Switches the position of an element in an array
+ * @param {Array} arr
+ * @param {number} old_index
+ * @param {number} new_index
+ */
+export function arrayMove(arr, old_index, new_index, mutate = false) {
+  if (!mutate) {
+      arr = JSON.parse(JSON.stringify(arr));
+  }
+  if (new_index >= arr.length) {
+      var k = new_index - arr.length + 1;
+      while (k--) {
+          arr.push(undefined);
+      }
+  }
+  arr.splice(new_index, 0, arr.splice(old_index, 1)[0]);
+  return arr;
+}
