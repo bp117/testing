@@ -58,7 +58,7 @@ const ConfigComponentItem = (props)=>{
                 <h4>{props.name}</h4>
             </div>
             <div className="controls">
-                <Button negative onClick={()=>props.onRemove(props)}><Icon name="trash" /> Remove</Button>
+                <Button negative onClick={props.onRemove}><Icon name="trash" /> Remove</Button>
             </div>
         </div>
     )
@@ -82,7 +82,7 @@ const ConfigureComponentView = (props)=>(
                                     {...item} 
                                     key={getCompId(item)} 
                                     itemRef={props.nodeRefList[getCompId(item)]} 
-                                    onRemove={props.onRemoveCompConfig}
+                                    onRemove={()=>props.onRemoveCompConfig(item)}
                                     compId={getCompId(item)} />
                             ))}
                         </div>
@@ -137,7 +137,7 @@ const StepperComponent = (props)=>(
 const KanbanCardItem = (props)=>(
     <div className="kanban-card-container">
         <div className="kanban-card">
-            <h4> item2 </h4>
+            <h4> {props.name} </h4>
         </div>
         <div className="controls">
             <Button.Group>
@@ -147,7 +147,7 @@ const KanbanCardItem = (props)=>(
                 <Button icon style={{padding:7}}>
                     <Icon name="clone" style={{fontSize:12}} />
                 </Button>
-                <Button icon negative style={{padding:7}}>
+                <Button icon negative style={{padding:7}} onClick={props.onRemoveKanbanItem}>
                     <Icon name="trash" style={{fontSize:11}} />
                 </Button>
             </Button.Group>
@@ -163,16 +163,20 @@ const ConfigureExperimentView = (props)=>(
                 <Input style={{flex:1}} size="large" action={{content:"Create Experiment", color:"green", icon:"check", size:"large"}}/>
             </div>
             <div className="kanban-boards-container">
-                {Object.keys(props.kanbanStates).map(kanbanState=>(
+                {Object.keys(props.kanbanStates).map(stateName=>(
                     <div className="kanban-board">
-                        <div className="header">{kanbanState}</div>
+                        <div className="header">{stateName}</div>
                         <div className="body">
                             <div className="absolute-content">
                                 <Droppable droppableId="#droppable-kanban-board">
                                     {(provided, snapshot) => (
                                         <div ref={provided.innerRef}>
-                                            {(props.kanbanStates[kanbanState]||[]).map((item,index)=>(
-                                               <KanbanCardItem {...item} key={getCompId(item)}/> 
+                                            {(props.kanbanStates[stateName]||[]).map((item,index)=>(
+                                                <KanbanCardItem 
+                                                    {...item} 
+                                                    key={getCompId(item)}
+                                                    onRemoveKanbanItem={()=>props.onRemoveKanbanItem(item, stateName)}
+                                                /> 
                                             ))}
                                             {provided.placeholder}
                                         </div>
@@ -198,7 +202,7 @@ class CreateExperimentScreen extends React.Component{
         this.state = {
             componentNodes: [],
             currentStep: "CONFIGURE_COMPONENT",
-            kanbanStates:{}
+            kanbanStates:{"Steady State":[], "Chaos State":[], "Rollback State":[]}
         }
         this.nodeRefs = {}
         this.jsPlumb = jsPlumb.getInstance({
@@ -256,12 +260,35 @@ class CreateExperimentScreen extends React.Component{
             });
         })
     }
+    handleRemoveKanbanItem = (component, stateName)=>{
+        confirmationAlert("Remove `"+component.name+"` from `"+stateName+"`?", ()=>{
+            let kanbanStates = JSON.parse(JSON.stringify(this.state.kanbanStates));
+            kanbanStates[stateName] = (kanbanStates[stateName]||[]).filter(item=>getCompId(item)!==getCompId(component))
+            this.setState({kanbanStates});
+        }, {okBtnText:"Yes, Remove"});
+    }
     handleMoveToConfigureExp = ()=>{
-        let allConnections = this.jsPlumb.getAllConnections();
+        //let allConnections = this.jsPlumb.getAllConnections();
+        this._prepareKanbanStates();
         this.setState({currentStep: "CONFIGURE_EXPERIMENT"})
     }
     handleMoveToConfigureComp = ()=> {
         this.setState({currentStep: "CONFIGURE_COMPONENT"})
+    }
+    _prepareKanbanStates = ()=>{
+        let kanbanStatesData = {} ;
+        let states = ["Steady State", "Chaos State", "Rollback State"];
+        states.forEach((item)=>{
+            let data = JSON.parse(JSON.stringify( this.state.componentNodes )); //This deep cloning method should work fine for our use case
+            let currentData = JSON.parse(JSON.stringify( (this.state.kanbanStates[item]||[]) ));
+            if(currentData){
+                data = data.filter(item2 => !currentData.some( item3 => getCompId(item3) === getCompId(item2) )); //filter items that have already been added
+                data = [...currentData, ...data];
+            }
+            kanbanStatesData[item] = data;
+        });
+        
+        this.setState({kanbanStates: kanbanStatesData})
     }
     _loadComponentDefinitions = ()=>{
         this.props.getComponentDefinition((success, error)=>{
@@ -314,7 +341,8 @@ class CreateExperimentScreen extends React.Component{
                                 /> 
                                 <ConfigureExperimentView 
                                     isActive={this.state.currentStep === "CONFIGURE_EXPERIMENT"}
-                                    kanbanStates={/*this.state.kanbanStates*/ {"Steady State":[], "Chaos State":[], "Rollback State":[]}}
+                                    kanbanStates={this.state.kanbanStates}
+                                    onRemoveKanbanItem={this.handleRemoveKanbanItem}
                                 />
                             </div>
                         </div>
