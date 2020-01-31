@@ -54,7 +54,7 @@ const PaletteMenuItem = (props)=>(
 const ConfigComponentItem = (props)=>{
     return (
         <div className="configure-comp-container">
-            <div className="configure-comp-item" ref={props.itemRef}>
+            <div className="configure-comp-item" ref={props.itemRef} id={props.compId}>
                 <h4>{props.name}</h4>
             </div>
             <div className="controls">
@@ -501,6 +501,30 @@ class CreateExperimentScreen extends React.Component{
             })
         })
     }
+    handleSaveDependencies = ()=>{
+        let allConnections = this.jsPlumb.getAllConnections();
+        this.state.componentNodes.forEach(component=>{
+            let compDependencyJSON = {...component, dependency:{}};
+            (allConnections||[]).forEach(connection=>{
+                if(connection.source.id === getCompId(component)){
+                    compDependencyJSON.dependency = {...this.state.componentNodes.find(item=>getCompId(item)===connection.target.id), type:"downstream"}
+                }
+                else if(connection.target.id === getCompId(component)){
+                    compDependencyJSON.dependency = {...this.state.componentNodes.find(item=>getCompId(item)===connection.source.id), type:"upstream"}
+                }
+            });
+            if(compDependencyJSON.dependency.type){
+                console.log("WE SHALL SAVE ", compDependencyJSON)
+                this.props.submitCompDependencyData(compDependencyJSON, (success, error)=>{
+                    if(success){
+                        showSuccessNotification("Dependency data for `"+component.name+"` saved");
+                    } else {
+                        showErrorNotification(`Something went wrong while submitting dependency data for \`${component.name}\`: ${error}`)
+                    }
+                })
+            }
+        });
+    }
     componentDidMount(){
         this._loadComponentDefinitions();
         this.jsPlumb.setContainer("jsplumb-container")
@@ -557,6 +581,9 @@ class CreateExperimentScreen extends React.Component{
                             </div>
                         </div>
                         <div className="content-footer">
+                            {this.state.currentStep === "CONFIGURE_COMPONENT" &&
+                                <Button size="big" color="teal" onClick={this.handleSaveDependencies} style={{marginLeft:10}}>Save Dependencies <Icon name="arrow right" /> </Button>
+                            }
                             {this.state.currentStep === "CONFIGURE_COMPONENT" &&
                                 <Button size="big" primary onClick={this.handleMoveToConfigureExp}>NEXT <Icon name="arrow right" /> </Button>
                             }
