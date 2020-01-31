@@ -401,17 +401,22 @@ class CreateExperimentScreen extends React.Component{
         this.nodeRefs = {}
         this.jsPlumb = jsPlumb.getInstance({
             PaintStyle:{ 
-              strokeWidth:3, 
+              strokeWidth:7, 
               stroke:"#BF360C"
             },
-            ConnectionOverlays: [["Arrow", {location: 0.5, width:15, length:15}]],
+            ConnectionOverlays: [["Arrow", {location: 0.8, width:22, length:22, fill: "#3E2723"}]],
             Connector:[ "Bezier", { curviness: 100 } ],
-            Endpoint:[ "Rectangle", { radius:7 } ],
-            EndpointStyle : { fill: "#567567"  },
+            Endpoint:[ "Dot", { radius:10 } ],
+            EndpointStyle : { fill: "#3E2723"  },
             Anchor : [ "Continuous", {} ]
         });
         this.jsPlumb.bind("beforeDetach", ()=>{
             return confirm("Detach this connection link?")
+        });
+        this.jsPlumb.bind("connection", (data)=>{
+            data.connection.bind("dblclick", ()=>{
+                this.jsPlumb.deleteConnection(data.connection);
+            })
         })
     }
 
