@@ -5,6 +5,7 @@ import { store } from 'react-notifications-component';
 
 export const confirmationAlert = (message, successCallback, options)=>{
     options = options || {okBtnText:"YES", cancelBtnText:"NO"}
+    options.autoClose = typeof options.autoClose == "boolean"? options.autoClose : true 
     confirmAlert({
         title: options.title || 'Confirm Action',
         message: message,
@@ -20,8 +21,8 @@ export const confirmationAlert = (message, successCallback, options)=>{
                     </Button>
                     <Button
                       onClick={() => {
-                          successCallback();
-                          onClose();
+                          successCallback(onClose);
+                          if(options.autoClose){ onClose(); }
                       }}
                       size="big"
                       color={options.isPositiveBtn?"green":"red"}
@@ -35,7 +36,7 @@ export const confirmationAlert = (message, successCallback, options)=>{
     });
 }
 
-export const errorAlert = (message)=>{
+export const errorAlert = (message, onOkClick)=>{
     confirmAlert({
         title: 'Error',
         message: message,
@@ -45,7 +46,10 @@ export const errorAlert = (message)=>{
                 <h4 className="title" style={{color:"#b71c1c"}}>{title}</h4>
                 <p className="message" style={{color:"#d32f2f"}}>{message}</p>
                 <div className="actions">
-                    <Button onClick={onClose} size="big" primary>
+                    <Button onClick={()=>{
+                      onClose();
+                      onOkClick()
+                    }} size="big" primary>
                       <Icon name="check" /> OK
                     </Button>
                 </div>

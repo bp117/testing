@@ -248,10 +248,10 @@ const KanbanComponentEditView = (props)=>{
                                 {key:"Status", value:"status", text:"Status", style:{fontSize:16}, icon:"chart bar"}
                             ]}
                             onChange={(_, cmd)=>{
+                                data.selectedAction = cmd.value
                                 setCurrentCmd(cmd.value);
                                 setCommands({...commands, [cmd.value]: (( data.actions[cmd.value] || {} ).command || "" ) });
                                 setTimeouts({...timeouts, [cmd.value]: (( data.actions[cmd.value] || {} ).timeout || "0" ) })
-                                data.selectedAction = cmd.value
                             }}
                         />
                     </div>
@@ -262,10 +262,11 @@ const KanbanComponentEditView = (props)=>{
                         <Input 
                             placeholder="Enter command value..." 
                             value={commands[currentCmd]}
+                            error={!commands[currentCmd]}
                             onChange={(_, input)=>{
-                                setCommands({...commands, [currentCmd]: input.value })
-                                data.actions[currentCmd] && ( data.actions[currentCmd].command = input.value )
                                 data.selectedAction = currentCmd;
+                                data.actions[currentCmd] && ( data.actions[currentCmd].command = input.value )
+                                setCommands({...commands, [currentCmd]: input.value })
                             }}/>
                     </div>
                 </div>
@@ -275,12 +276,12 @@ const KanbanComponentEditView = (props)=>{
                         <Input 
                             placeholder="Timeout value in (ms)"
                             value={timeouts[currentCmd]}
-                            error={timeouts[currentCmd] && Number.isNaN( Number(timeouts[currentCmd]) )}
+                            error={!timeouts[currentCmd] || timeouts[currentCmd] && Number.isNaN( Number(timeouts[currentCmd]) )}
                             onChange={(_, input)=>{
-                                setTimeouts({...commands, [currentCmd]: input.value })
                                 if(!Number.isNaN( Number(input.value) )){
                                     data.actions[currentCmd] && ( data.actions[currentCmd].timeout = Number(input.value) );
                                 }
+                                setTimeouts({...commands, [currentCmd]: input.value })
                             }} />
                     </div>
                 </div>
@@ -292,9 +293,10 @@ const KanbanComponentEditView = (props)=>{
                         <Input 
                             placeholder="Enter value..."
                             value={actionArgs}
+                            error={props.checkEdited(currentCmd, data) && !actionArgs}
                             onChange={(_,input)=>{
-                                setActionArgs(input.value);
                                 data.actionArguments = input.value;
+                                setActionArgs(input.value);
                             }}/>
                     </div>
                 </div>
@@ -303,13 +305,13 @@ const KanbanComponentEditView = (props)=>{
                     <div>
                         <Input 
                             placeholder="Time in milliseconds..."
-                            error={waitTime && Number.isNaN( Number(waitTime) )}
+                            error={props.checkEdited(currentCmd, data) && !waitTime || waitTime && Number.isNaN( Number(waitTime) )}
                             value={waitTime}
                             onChange={(_,input)=>{
-                                setWaitTime(input.value);
                                 if(!Number.isNaN( Number(input.value) )){
                                     data.waitTimeInMillsAfterAction = Number( input.value );
                                 }
+                                setWaitTime(input.value);
                             }}/>
                     </div>
                 </div>
@@ -319,9 +321,10 @@ const KanbanComponentEditView = (props)=>{
                         <Input 
                             placeholder="Enter value..."
                             value={expectedOutputFn}
+                            error={props.checkEdited(currentCmd, data) && !expectedOutputFn}
                             onChange={(_,input)=>{
-                                setExpectedOutputFn(input.value);
                                 data.expectedOutputFunctionForRegex = input.value;
+                                setExpectedOutputFn(input.value);
                             }}/>
                     </div>
                 </div>
@@ -334,12 +337,12 @@ const KanbanComponentEditView = (props)=>{
                         <Input 
                             placeholder="Enter value..."
                             value={expectedOutcomeStatus}
-                            error={expectedOutcomeStatus && Number.isNaN( Number(expectedOutcomeStatus) )}
+                            error={props.checkEdited(currentCmd, data) && !expectedOutcomeStatus || expectedOutcomeStatus && Number.isNaN( Number(expectedOutcomeStatus) )}
                             onChange={(_,input)=>{
-                                setExpectedOutcomeStatus(input.value);
                                 if(!Number.isNaN( Number(input.value) )){
                                     data.expectedOutcomeStatusCode = Number(input.value)
                                 }
+                                setExpectedOutcomeStatus(input.value);
                             }}/>
                     </div>
                 </div>
@@ -351,9 +354,10 @@ const KanbanComponentEditView = (props)=>{
                             placeholder="Host selection criteria..."
                             options={[{key:"all", value:"all", text:"All", style:{fontSize:16}}, {key:"any", value:"any", text:"Any", style:{fontSize:16}}]}
                             value={selectionCriteria}
+                            error={props.checkEdited(currentCmd, data) && !selectionCriteria}
                             onChange={(_,input)=>{
-                                setSelectionCriteria(input.value);
                                 data.hostSelectionCriteria = input.value;
+                                setSelectionCriteria(input.value);
                             }}/>
                     </div>
                 </div>
@@ -364,13 +368,13 @@ const KanbanComponentEditView = (props)=>{
                             <div>
                                 <Input 
                                     placeholder="Number"
-                                    error={selectionCriteriaCount && Number.isNaN( Number(selectionCriteriaCount) )}
+                                    error={props.checkEdited(currentCmd, data) && !selectionCriteriaCount || selectionCriteriaCount && Number.isNaN( Number(selectionCriteriaCount) )}
                                     value={selectionCriteriaCount}
                                     onChange={(_,input)=>{
-                                        setSelectionCriteriaCount(input.value);
                                         if(!Number.isNaN( Number(input.value) )){
                                             data.hostSelectionCriteriaCount = Number( input.value );
                                         }
+                                        setSelectionCriteriaCount(input.value);
                                     }}/>
                             </div>
                         </React.Fragment>
@@ -464,7 +468,6 @@ class CreateExperimentScreen extends React.Component{
                 
             }
         }
-        console.log("DROPPED DATA ", data);
     }
 
     handleComponentDropped = (data)=>{
@@ -534,24 +537,58 @@ class CreateExperimentScreen extends React.Component{
             {isPositiveBtn:true, okBtnText:"Set Name", cancelBtnText:"Cancel", title:"Change clone component name"}
         )
     }
+    _validateExperimentConfigComp = (compData)=>{
+        let originalItem = this.state.componentNodes.find(item=>item._id === compData._id);
+        let selectedAction = compData.selectedAction, actionsModified = compData.actions, actions = originalItem.actions; 
+        let isActionEdited = selectedAction && (actionsModified[ selectedAction ].command||"").trim() !== (actions[ selectedAction ].command||"").trim()
+        if(isActionEdited){
+            let errStr = "";
+            if(!(actionsModified[selectedAction].command||"").trim()) errStr+="commandValue\r\n";
+            if(!(""+actionsModified[selectedAction].timeout).trim()) errStr+="timeout\r\n";
+            if(!(compData.actionArguments||"").trim()) errStr+="actionArguments\r\n";
+            if(!(""+compData.waitTimeInMillsAfterAction).trim()) errStr+="waitTimeInMillsAfterAction\r\n";
+            if(!(compData.expectedOutputFunctionForRegex||"").trim()) errStr+="expectedOutputFunctionForRegex\r\n";
+            if(!(""+compData.expectedOutcomeStatusCode).trim()) errStr+="expectedOutcomeStatusCode\r\n";
+            if(!(compData.hostSelectionCriteria||"").trim()) errStr+="hostSelectionCriteriaCount\r\n";
+            if(compData.hostSelectionCriteria && compData.hostSelectionCriteria=="any" && !(""+compData.hostSelectionCriteriaCount).trim()) errStr+="hostSelectionCriteriaCount\r\n";
+
+            return errStr.trim().split("\r\n");
+        }
+        return null
+    }
+    _checkIfExperimentConfigCompIsEdited = (actionType, compData)=>{
+        let originalItem = this.state.componentNodes.find(item=>item._id === compData._id);
+        let actionsModified = compData.actions, actions = originalItem.actions; 
+        return actionType && (actionsModified[ actionType ].command||"").trim() !== (actions[ actionType ].command||"").trim()
+    }
     handleEditKanbanItem = (component, stateName)=>{
+        this.setState({editCompHasErrors:false})
         let mutableEditData = JSON.parse(JSON.stringify(component)); //DATA TO BE EDITED AND SHOULD BE MUTATED FOR THE CHANGES TO TAKE EFFECT
         confirmationAlert(
             <KanbanComponentEditView 
                 data={mutableEditData}
                 stateName={stateName} 
+                checkEdited={this._checkIfExperimentConfigCompIsEdited}
             />,
-            ()=>{
-                let kanbanStates = JSON.parse(JSON.stringify(this.state.kanbanStates));
-                kanbanStates[stateName] = (kanbanStates[stateName]||[]).map(item=>{
-                    if(getCompId(item) === getCompId(component)){
-                        item = mutableEditData;
-                    }   
-                    return item;
-                });
-                this.setState({kanbanStates, isKanbanEdited:true});
+            (onClosCb, setExtraView)=>{
+                let valResult = this._validateExperimentConfigComp(mutableEditData)
+                if(!valResult || valResult.length==0){
+                    let kanbanStates = JSON.parse(JSON.stringify(this.state.kanbanStates));
+                    kanbanStates[stateName] = (kanbanStates[stateName]||[]).map(item=>{
+                        if(getCompId(item) === getCompId(component)){
+                            item = mutableEditData;
+                        }   
+                        return item;
+                    });
+                    this.setState({kanbanStates, isKanbanEdited:true});
+                    onClosCb();
+                }else{
+                    errorAlert("Please fill out all required fields", ()=>{
+                        this.handleEditKanbanItem(mutableEditData, stateName)
+                    });
+                }
             },
-            {title:"Edit "+component.editedName+" component", okBtnText:"Save Edits", isPositiveBtn:true, cancelBtnText:"Cancel"}
+            {title:"Edit "+component.editedName+" component", okBtnText:"Save Edits", isPositiveBtn:true, cancelBtnText:"Cancel", autoClose:false}
         )
     }
     handleMoveToConfigureExp = ()=>{
