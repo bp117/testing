@@ -601,7 +601,7 @@ class CreateExperimentScreen extends React.Component{
                     component:{
                         type: name,
                         name: editedName,
-                        ...( selectedAction && actionsModified[ selectedAction ] !== actions[ selectedAction ] ? 
+                        ...( selectedAction && (actionsModified[ selectedAction ]||"").trim() !== (actions[ selectedAction ]||"").trim() ? 
                             { configuration: { [ selectedAction ]: actionsModified[ selectedAction ] } }:{})
                     },
                     action: selectedAction || "start",
