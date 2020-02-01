@@ -9,7 +9,7 @@ import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
 import { showWarningNotification, showErrorNotification, confirmationAlert, errorAlert, showSuccessNotification } from "../../components/utils/alerts";
 import * as actions from "../../actions/componentActions";
 import * as actions2 from "../../actions/experimentActions";
-import {arrayMove} from "../../utils/misc";
+import {arrayMove, isValidNumber} from "../../utils/misc";
 
 function mapStateToProps(state){
     return {
@@ -546,13 +546,13 @@ class CreateExperimentScreen extends React.Component{
             if(!(actionsModified[selectedAction].command||"").trim()) errStr+="commandValue\r\n";
             if(!(""+actionsModified[selectedAction].timeout).trim()) errStr+="timeout\r\n";
             if(!(compData.actionArguments||"").trim()) errStr+="actionArguments\r\n";
-            if(!(""+compData.waitTimeInMillsAfterAction).trim()) errStr+="waitTimeInMillsAfterAction\r\n";
+            if(!isValidNumber( compData.waitTimeInMillsAfterAction)) errStr+="waitTimeInMillsAfterAction\r\n";
             if(!(compData.expectedOutputFunctionForRegex||"").trim()) errStr+="expectedOutputFunctionForRegex\r\n";
-            if(!(""+compData.expectedOutcomeStatusCode).trim()) errStr+="expectedOutcomeStatusCode\r\n";
+            if(!isValidNumber(compData.expectedOutcomeStatusCode)) errStr+="expectedOutcomeStatusCode\r\n";
             if(!(compData.hostSelectionCriteria||"").trim()) errStr+="hostSelectionCriteriaCount\r\n";
-            if(compData.hostSelectionCriteria && compData.hostSelectionCriteria=="any" && !(""+compData.hostSelectionCriteriaCount).trim()) errStr+="hostSelectionCriteriaCount\r\n";
+            if((compData.hostSelectionCriteria||"").trim() && compData.hostSelectionCriteria=="any" && !isValidNumber(compData.hostSelectionCriteriaCount)) errStr+="hostSelectionCriteriaCount\r\n";
 
-            return errStr.trim().split("\r\n");
+            return errStr? errStr.trim().split("\r\n").filter(item=>item.trim()) : null;
         }
         return null
     }
@@ -583,7 +583,7 @@ class CreateExperimentScreen extends React.Component{
                     this.setState({kanbanStates, isKanbanEdited:true});
                     onClosCb();
                 }else{
-                    errorAlert("Please fill out all required fields", ()=>{
+                    errorAlert("Please fill in valid inputs to all required fields", ()=>{
                         this.handleEditKanbanItem(mutableEditData, stateName)
                     });
                 }

@@ -68,3 +68,8 @@ export function arrayMove(arr, old_index, new_index, mutate = false) {
   arr.splice(new_index, 0, arr.splice(old_index, 1)[0]);
   return arr;
 }
+
+export function isValidNumber(str){
+  if(typeof str === "number") return true;
+  return !Number.isNaN( Number(str) )
+}
