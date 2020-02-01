@@ -92,11 +92,11 @@ class ComponentUploadScreen extends React.Component{
         }, {okBtnText:"Yes, Delete", cancelBtnText:"Cancel"})
     }
     handleUpdateComponentDefinition = (data)=>{
-        this.props.updateComponentDefinition(data, (success, err)=>{
+        this.props.updateComponentDefinition(data, (success, error)=>{
             this.setState({editComponentData:null});
             if(success){
                 this.loadComponentDefinitions()
-                showSuccessNotification(`${compDefinition.name} data was successfully updated!`)
+                showSuccessNotification(`${data.name} data was successfully updated!`)
             }else {
                 showErrorNotification(`Something went wrong: "${error}"`)
             }

@@ -91,11 +91,11 @@ class EnvironmentUploadScreen extends React.Component{
         }, {okBtnText:"Yes, Delete", cancelBtnText:"Cancel"})
     }
     handleUpdateEnvironmentConfig = (data)=>{
-        this.props.updateEnvironmentConfig(data, (success, err)=>{
+        this.props.updateEnvironmentConfig(data, (success, error)=>{
             this.setState({editEnvironmentData:null});
             if(success){
                 this.loadEnvironmentConfigs()
-                showSuccessNotification(`${envConfig.name} data was successfully updated!`)
+                showSuccessNotification(`${data.name} data was successfully updated!`)
             }else {
                 showErrorNotification(`Something went wrong: "${error}"`)
             }
