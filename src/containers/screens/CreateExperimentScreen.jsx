@@ -597,7 +597,6 @@ class CreateExperimentScreen extends React.Component{
                 let {name, actions:actionsModified, editedName, selectedAction, waitTimeInMillsAfterAction, actionArguments, expectedOutputFunctionForRegex, expectedOutcomeStatusCode, hostSelectionCriteria, hostSelectionCriteriaCount} = item;
                 let originalItem = this.state.componentNodes.find(item2=>item2._id === item._id);
                 let {configuration, actions} = originalItem
-                console.log("ACTIONS MODIFIED ", actionsModified, ", ACTIONS ", actions, ", SELECTED ACTION ", selectedAction)
                 let compData = {
                     component:{
                         type: name,
