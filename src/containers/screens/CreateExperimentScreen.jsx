@@ -609,7 +609,7 @@ class CreateExperimentScreen extends React.Component{
                     waitTimeInMillsAfterAction,
                     expectedOutputFunctionForRegex,
                     expectedOutcomeStatusCode,
-                    hostSelectionCriteria: hostSelectionCriteria && hostSelectionCriteria === "all"? "all" : hostSelectionCriteriaCount
+                    hostSelectionCriteria: hostSelectionCriteria && hostSelectionCriteria === "all"? "all" : "any("+hostSelectionCriteriaCount+")"
                 }
                 jsonData[formattedKey] = jsonData[formattedKey] || { executionSteps:[] };
                 jsonData[formattedKey].executionSteps.push( JSON.parse(JSON.stringify(compData))); //So that all `undefined` fields will be removed
