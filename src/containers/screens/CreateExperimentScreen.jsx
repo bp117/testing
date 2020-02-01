@@ -594,14 +594,15 @@ class CreateExperimentScreen extends React.Component{
             (this.state.kanbanStates[kState]||[]).forEach(item=>{
                 let formattedKey = kState.replace(/\s+/g, "");
                 formattedKey = formattedKey[0].toLowerCase()+formattedKey.slice(1);
-                let {name, configuration, actions, editedName, selectedAction, waitTimeInMillsAfterAction, actionArguments, expectedOutputFunctionForRegex, expectedOutcomeStatusCode, hostSelectionCriteria, hostSelectionCriteriaCount} = item;
+                let {name, actions:actionsModified, editedName, selectedAction, waitTimeInMillsAfterAction, actionArguments, expectedOutputFunctionForRegex, expectedOutcomeStatusCode, hostSelectionCriteria, hostSelectionCriteriaCount} = item;
                 let originalItem = this.state.componentNodes.find(item2=>item2._id === item._id);
+                let {configuration, actions} = originalItem
                 let compData = {
                     component:{
                         type: name,
                         name: editedName,
-                        ...( selectedAction && actions[ selectedAction ] !== originalItem.actions[ selectedAction ] ? 
-                            { configuration: { [ selectedAction ]: actions[ selectedAction ] } }:{})
+                        ...( selectedAction && actionsModified[ selectedAction ] !== actions[ selectedAction ] ? 
+                            { configuration: { [ selectedAction ]: actionsModified[ selectedAction ] } }:{})
                     },
                     action: selectedAction || "start",
                     actionArguments: actionArguments && actionArguments.split(","),

@@ -521,6 +521,7 @@ p {
 /**** LIBRARY OVERWRITES ******/
 
 .react-confirm-alert-overlay{
+	z-index: 99999 !important;
 	background: rgba(0, 0, 0, 0.3) !important;
 	-webkit-animation: react-confirm-alert-fadeIn 0.2s 0.1s forwards !important;
   	-moz-animation: react-confirm-alert-fadeIn 0.2s 0.1s forwards !important;

@@ -1,6 +1,7 @@
 import React from "react";
 import { Modal, Button, Icon } from "semantic-ui-react";
 import JSONEditor from 'react-json-view'
+import {confirmationAlert} from "../utils/alerts"
 
 export default class EditJSONModal extends React.Component {
     state = { editData: ""}
@@ -30,7 +31,14 @@ export default class EditJSONModal extends React.Component {
                     <div className="app-modal-footer">
                         <div className="match-parent" style={{textAlign:"right"}}>
                             <Button color="orange" size="large" onClick={this.props.onClose}><Icon name="remove" /> Cancel</Button>
-                            <Button positive size="large" onClick={()=>this.props.onEdit(this.state.editData)}><Icon name="check" /> Update</Button>
+                            <Button positive size="large" onClick={
+                                ()=>{
+                                    confirmationAlert("Proceed with edit?", ()=>{
+                                        this.props.onEdit(this.state.editData)
+                                    }, {okBtnText:"Yes, Proceed", isPositiveBtn:true})
+                                }
+                            }>
+                                    <Icon name="check" /> Update</Button>
                         </div>
                     </div>
                 </div>
