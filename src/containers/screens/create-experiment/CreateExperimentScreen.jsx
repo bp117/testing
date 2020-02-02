@@ -6,10 +6,10 @@ import {jsPlumb} from "jsplumb"
 import { connect } from "react-redux";
 import {bindActionCreators} from "redux";
 import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
-import { showWarningNotification, showErrorNotification, confirmationAlert, errorAlert, showSuccessNotification } from "../../components/utils/alerts";
-import * as actions from "../../actions/componentActions";
-import * as actions2 from "../../actions/experimentActions";
-import {arrayMove, isValidNumber} from "../../utils/misc";
+import { showWarningNotification, showErrorNotification, confirmationAlert, errorAlert, showSuccessNotification } from "../../../components/utils/alerts";
+import * as actions from "../../../actions/componentActions";
+import * as actions2 from "../../../actions/experimentActions";
+import {arrayMove, isValidNumber} from "../../../utils/misc";
 
 function mapStateToProps(state){
     return {

@@ -1,10 +1,12 @@
 import { combineReducers } from 'redux';
 import components from './components'
-import environments from './environment'
+import environments from './environment';
+import experiments from './experiments';
 
 const rootReducer = combineReducers({
     components,
-    environments
+    environments,
+    experiments
 });
 
 export default rootReducer;

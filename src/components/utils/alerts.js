@@ -48,7 +48,7 @@ export const errorAlert = (message, onOkClick)=>{
                 <div className="actions">
                     <Button onClick={()=>{
                       onClose();
-                      onOkClick()
+                      typeof onOkClick === "function" && onOkClick()
                     }} size="big" primary>
                       <Icon name="check" /> OK
                     </Button>

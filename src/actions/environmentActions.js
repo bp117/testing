@@ -28,7 +28,7 @@ export const uploadEnvironmentConfig = (data, callback=()=>{})=>{
     });
 }
 
-export const getEnvironmentConfig = (callback=()=>{})=>{
+export const fetchEnvironmentConfig = (callback=()=>{})=>{
     return genericRequest({
         request_action: FETCH_ENVIRONMENT_CONFIG_REQUEST,
         success_action: FETCH_ENVIRONMENT_CONFIG_SUCCESS,

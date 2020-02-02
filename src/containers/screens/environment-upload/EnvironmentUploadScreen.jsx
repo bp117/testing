@@ -1,11 +1,11 @@
 import React from "react";
 import { Button, Table, Icon } from "semantic-ui-react";
 import Dropzone from "react-dropzone";
-import * as actions from "../../actions/environmentActions";
+import * as actions from "../../../actions/environmentActions";
 import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
-import EditJSONModal from "../../components/modals/EditJSONModal";
-import { confirmationAlert, showWarningNotification, showErrorNotification, showSuccessNotification } from "../../components/utils/alerts";
+import EditJSONModal from "../../../components/modals/EditJSONModal";
+import { confirmationAlert, showWarningNotification, showErrorNotification, showSuccessNotification } from "../../../components/utils/alerts";
 
 function mapStateToProps(state){
     return {
@@ -56,7 +56,7 @@ class EnvironmentUploadScreen extends React.Component{
                     }else{
                         showErrorNotification("The environment configuration JSON provided is not valid.")
                     }
-                }catch(err){
+                } catch(err) {
                     showErrorNotification(`The file ${file.name} does not contain a valid JSON object`);
                 }
             }
@@ -105,7 +105,7 @@ class EnvironmentUploadScreen extends React.Component{
         this.setState({editEnvironmentData:item})
     }
     loadEnvironmentConfigs = ()=>{
-        this.props.getEnvironmentConfig((success, error)=>{
+        this.props.fetchEnvironmentConfig((success, error)=>{
             if(!success){
                 showErrorNotification(`Something went wrong: "${error}"`)
             }

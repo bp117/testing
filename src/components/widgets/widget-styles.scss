@@ -1,0 +1,22 @@
+.accordion-container{
+    width: 100%;
+    margin: 3px 0 !important;
+
+    .panel-header {
+        width: 100%;
+        font-size: 16px;
+        cursor: pointer;
+    }
+
+    .panel-content{
+        width: 100%;
+        margin-top: 25px;
+        font-size: 15px;
+        transition: all .3s;
+        &.closed-panel{
+            opacity: 0;
+            display: none;
+            transition: all .3s;
+        }
+    }
+}

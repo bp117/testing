@@ -1,11 +1,11 @@
 import React from "react";
 import { Button, Table, Icon } from "semantic-ui-react";
 import Dropzone from "react-dropzone";
-import * as actions from "../../actions/componentActions";
+import * as actions from "../../../actions/componentActions";
 import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
-import EditJSONModal from "../../components/modals/EditJSONModal";
-import { confirmationAlert, showWarningNotification, showErrorNotification, showSuccessNotification, errorAlert } from "../../components/utils/alerts";
+import EditJSONModal from "../../../components/modals/EditJSONModal";
+import { confirmationAlert, showWarningNotification, showErrorNotification, showSuccessNotification, errorAlert } from "../../../components/utils/alerts";
 
 function mapStateToProps(state){
     return {
