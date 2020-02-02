@@ -2,7 +2,7 @@ import React from "react";
 import Stepper from 'react-stepper-horizontal';
 import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
-import { Header, Segment, Button, Icon, Dropdown, Checkbox } from "semantic-ui-react";
+import { Header, Segment, Button, Icon, Dropdown, Checkbox, Table } from "semantic-ui-react";
 import "./run-exp-styles.scss";
 import CustomAccordion from "../../../components/widgets/CustomAccordion";
 import * as experimentActions from "../../../actions/experimentActions";
@@ -14,7 +14,8 @@ function mapStateToProps(state){
         isFetchingEnvironment: state.environments.isFetchingEnvironment,
         isFetchingExperiment: state.experiments.isFetchingExperiment,
         environments: state.environments.environments,
-        experiments: state.experiments.experiments
+        experiments: state.experiments.experiments,
+        readyExperiments: state.experiments.readyExperiments
     }
 }
 function mapDispatchToProps(dispatch){
@@ -27,8 +28,12 @@ const AccordionContent = (props)=>{
         <div style={{display:"flex", flexWrap:"wrap", padding:"0 15px"}}>
             {data.hosts.map((item,indx)=>(
                 <div style={{margin:"5px 10px"}} key={Object.keys(item)[0]+""+indx}>
-                    <Checkbox label={Object.keys(item)[0]} style={{fontSize:16}} onChange={(_, d)=>{
-                        props.toggleHostSelection(Object.keys(item)[0], data, d.checked)
+                    <Checkbox 
+                        checked={!!(props.selectedHosts[data.name]||[]).find(item2=>Object.keys(item)[0]===Object.keys(item2)[0])} 
+                        label={Object.keys(item)[0]} 
+                        style={{fontSize:16}} 
+                        onChange={(_, d)=>{
+                        props.toggleHostSelection(item, data, d.checked)
                     }}/>
                 </div>
             ))}
@@ -58,33 +63,43 @@ class RunExperimentScreen extends React.Component{
     _loadExperimentConfigs = ()=>{
         this.props.fetchExperimentJSON((success, error)=>{
             if(!success){
-                showErrorNotification(`Something went wrong: "${error}"`)
+                showErrorNotification(`Something went wrong while fetching the experiment json: "${error}"`)
+            }
+        });
+
+        this.props.fetchFinalExperimentJSON((success, error)=>{
+            if(!success){
+                showErrorNotification(`Something went wrong while fetching the final experiment json data: "${error}"`)
             }
         })
     }
     _generateFinalExpJSON = ()=>{
-        let jsonData = {environment:{ ...this.state.selectedHosts }, experiment:{ ...this.state.selectedExperiment }};
-        console.log("GENERATED JSON ", jsonData);
-
+        let jsonData = {environment:{ ...this.state.selectedEnvironment }, experiment:{ ...this.state.selectedExperiment }};
+        let newComponents = jsonData.environment.components.map(item=>{
+            item.environmentConfig.hosts = this.state.selectedHosts[item.name];
+            return item;
+        });
+        jsonData.environment.components = newComponents;
+        return jsonData;
     }
     handleToggleSelectHost = (host, component, isChecked)=> {
-        this.setState({selectedHosts:this.state.selectedHosts.map(item=>{
-            let compName = Object.keys(item)[0];
-            if( compName === component.name && isChecked){
-                item[compName].hosts.push({name:host, status:"UNKNOWN"});
-            } else if(compName === component.name){
-                item[compName].hosts = item[compName].hosts.filter(item2=>item2.name !== host);
-            }
-            return item;
-        })})
+        let compHosts = this.state.selectedHosts[component.name] || [];
+        if(isChecked){
+            compHosts = [...compHosts, host]
+        }else{
+            compHosts = compHosts.filter(item=>Object.keys(item)[0] !== Object.keys(host)[0]);
+        }
+        this.setState({selectedHosts:{...this.state.selectedHosts, [component.name]:compHosts}})
     }
     showExperimentsGridview = ()=>{
         let finalExperimentJson = this._generateFinalExpJSON();
+        console.log("FINAL JSON ", finalExperimentJson)
         this.setState({savingFinalJson: true})
         this.props.submitFinalExperimentJSON(finalExperimentJson, (success, err)=>{
             this.setState({savingFinalJson:false})
             if(success){
                 showSuccessNotification("Successfully saved the final experiment data");
+                this._loadExperimentConfigs();
                 this.setState({currentStep:"RUN_EXPERIMENT"})
             }else{
                 showErrorNotification(`Something went wrong: ${err}`)
@@ -174,19 +189,42 @@ class RunExperimentScreen extends React.Component{
                                 </div>
                             </div>
                             {this.state.isExperimentValidated && this.state.currentStep === "CONFIGURE_ENV" &&
-                                <div className="configure-env-container">
+                                <div className="experiment-setup-display">
                                     <div className="title">Configure the environment and experiment</div>
                                     <div className="accordion-container">
                                         <CustomAccordion panels={this.state.experimentComponents.map(item=>({
                                             key: item._id,
                                             header: item.name,
-                                            content: <AccordionContent data={item} toggleHostSelection={this.handleToggleSelectHost}/>
+                                            content: <AccordionContent selectedHosts={this.state.selectedHosts} data={item} toggleHostSelection={this.handleToggleSelectHost}/>
                                         }))} />
                                     </div>
                                 </div>
                             }
                             {this.state.currentStep === "RUN_EXPERIMENT" && 
-                                <div>GRID VIEW TO BE DISPLAYED</div>
+                                <div className="experiment-setup-display">
+                                    <div className="title">Experiment List</div>
+                                    <div className="accordion-container">
+                                        <Table unstackable>
+                                            <Table.Header>
+                                                <Table.Row>
+                                                    <Table.HeaderCell>Name</Table.HeaderCell>
+                                                    <Table.HeaderCell textAlign='right'>Actions</Table.HeaderCell>
+                                                </Table.Row>
+                                            </Table.Header>
+
+                                            <Table.Body>
+                                                { 
+
+                                                }
+                                                <Table.Row>
+                                                    <Table.Cell>John</Table.Cell>
+                                                    <Table.Cell>Approved</Table.Cell>
+                                                    <Table.Cell textAlign='right'>None</Table.Cell>
+                                                </Table.Row>
+                                            </Table.Body>
+                                        </Table>
+                                    </div>
+                                </div>
 
                             }
                         </div>
