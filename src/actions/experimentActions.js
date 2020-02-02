@@ -1,5 +1,5 @@
-import { SUBMIT_EXPERIMENT_JSON_REQUEST, SUBMIT_EXPERIMENT_JSON_SUCCESS, SUBMIT_EXPERIMENT_JSON_FAILURE, SUBMIT_COMPONENT_DEPENENCY_REQUEST, SUBMIT_COMPONENT_DEPENENCY_SUCCESS, SUBMIT_COMPONENT_DEPENENCY_FAILURE, FETCH_EXPERIMENT_JSON_REQUEST, FETCH_EXPERIMENT_JSON_SUCCESS, FETCH_EXPERIMENT_JSON_FAILURE } from "../constants/action_types";
-import { SUBMIT_EXPERIMENT_JSON_URL, SUBMIT_COMP_DEPENDENCY_URL, LOAD_EXPERIMENT_JSON_URL } from "../constants/api_endpoints";
+import { SUBMIT_EXPERIMENT_JSON_REQUEST, SUBMIT_EXPERIMENT_JSON_SUCCESS, SUBMIT_EXPERIMENT_JSON_FAILURE, SUBMIT_COMPONENT_DEPENENCY_REQUEST, SUBMIT_COMPONENT_DEPENENCY_SUCCESS, SUBMIT_COMPONENT_DEPENENCY_FAILURE, FETCH_EXPERIMENT_JSON_REQUEST, FETCH_EXPERIMENT_JSON_SUCCESS, FETCH_EXPERIMENT_JSON_FAILURE, SUBMIT_FINAL_EXPERIMENT_JSON_REQUEST, SUBMIT_FINAL_EXPERIMENT_JSON_SUCCESS, SUBMIT_FINAL_EXPERIMENT_JSON_FAILURE, FETCH_FINAL_EXPERIMENT_JSON_REQUEST, FETCH_FINAL_EXPERIMENT_JSON_SUCCESS, FETCH_FINAL_EXPERIMENT_JSON_FAILURE } from "../constants/action_types";
+import { SUBMIT_EXPERIMENT_JSON_URL, SUBMIT_COMP_DEPENDENCY_URL, LOAD_EXPERIMENT_JSON_URL, SUBMIT_FINAL_EXPERIMENT_JSON_URL } from "../constants/api_endpoints";
 import { genericRequest } from "./__utils__";
 import { apiHttpPOST, apiHttpGET } from "../utils/request_helper";
 
@@ -8,6 +8,17 @@ export const fetchExperimentJSON = (callback=()=>{})=>{
         request_action: FETCH_EXPERIMENT_JSON_REQUEST,
         success_action: FETCH_EXPERIMENT_JSON_SUCCESS,
         failure_action: FETCH_EXPERIMENT_JSON_FAILURE,
+        callback: callback,
+        requestMethod: apiHttpGET,
+        endpoint: LOAD_EXPERIMENT_JSON_URL
+    });
+}
+
+export const fetchFinalExperimentJSON = (callback=()=>{})=>{
+    return genericRequest({
+        request_action: FETCH_FINAL_EXPERIMENT_JSON_REQUEST,
+        success_action: FETCH_FINAL_EXPERIMENT_JSON_SUCCESS,
+        failure_action: FETCH_FINAL_EXPERIMENT_JSON_FAILURE,
         callback: callback,
         requestMethod: apiHttpGET,
         endpoint: LOAD_EXPERIMENT_JSON_URL
@@ -23,6 +34,18 @@ export const submitExperimentJSON = (data, callback=()=>{})=>{
         requestMethod: apiHttpPOST,
         requestBody: data,
         endpoint: SUBMIT_EXPERIMENT_JSON_URL
+    });
+}
+
+export const submitFinalExperimentJSON = (data, callback=()=>{})=>{
+    return genericRequest({
+        request_action: SUBMIT_FINAL_EXPERIMENT_JSON_REQUEST,
+        success_action: SUBMIT_FINAL_EXPERIMENT_JSON_SUCCESS,
+        failure_action: SUBMIT_FINAL_EXPERIMENT_JSON_FAILURE,
+        callback: callback,
+        requestMethod: apiHttpPOST,
+        requestBody: {...data, experimentStatus:"NOT_EXECUTED"},
+        endpoint: SUBMIT_FINAL_EXPERIMENT_JSON_URL
     });
 }
 

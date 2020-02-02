@@ -7,7 +7,7 @@ import "./run-exp-styles.scss";
 import CustomAccordion from "../../../components/widgets/CustomAccordion";
 import * as experimentActions from "../../../actions/experimentActions";
 import * as environmentActions from "../../../actions/environmentActions";
-import { showErrorNotification, errorAlert } from "../../../components/utils/alerts";
+import { showErrorNotification, errorAlert, showSuccessNotification } from "../../../components/utils/alerts";
 
 function mapStateToProps(state){
     return {
@@ -44,7 +44,8 @@ class RunExperimentScreen extends React.Component{
             isExperimentValidated: false,
             selectedExperiment: null,
             selectedEnvironment: null,
-            selectedHosts: {}
+            selectedHosts: {},
+            currentStep: "CONFIGURE_ENV"
         }
     }
     _loadEnvironmentConfigs = ()=>{
@@ -67,7 +68,6 @@ class RunExperimentScreen extends React.Component{
 
     }
     handleToggleSelectHost = (host, component, isChecked)=> {
-        console.log("CHECKING ", host, ", ", component, ", ", isChecked)
         this.setState({selectedHosts:this.state.selectedHosts.map(item=>{
             let compName = Object.keys(item)[0];
             if( compName === component.name && isChecked){
@@ -80,6 +80,16 @@ class RunExperimentScreen extends React.Component{
     }
     showExperimentsGridview = ()=>{
         let finalExperimentJson = this._generateFinalExpJSON();
+        this.setState({savingFinalJson: true})
+        this.props.submitFinalExperimentJSON(finalExperimentJson, (success, err)=>{
+            this.setState({savingFinalJson:false})
+            if(success){
+                showSuccessNotification("Successfully saved the final experiment data");
+                this.setState({currentStep:"RUN_EXPERIMENT"})
+            }else{
+                showErrorNotification(`Something went wrong: ${err}`)
+            }
+        })
     }
     validateExperiment = ()=>{
         let components = this.state.selectedExperiment.components;
@@ -163,7 +173,7 @@ class RunExperimentScreen extends React.Component{
                                     </Button>
                                 </div>
                             </div>
-                            {this.state.isExperimentValidated &&
+                            {this.state.isExperimentValidated && this.state.currentStep === "CONFIGURE_ENV" &&
                                 <div className="configure-env-container">
                                     <div className="title">Configure the environment and experiment</div>
                                     <div className="accordion-container">
@@ -175,11 +185,32 @@ class RunExperimentScreen extends React.Component{
                                     </div>
                                 </div>
                             }
+                            {this.state.currentStep === "RUN_EXPERIMENT" && 
+                                <div>GRID VIEW TO BE DISPLAYED</div>
+
+                            }
                         </div>
                     </div>
                     <div className="controls">
-                        <Button size="big"><Icon name="arrow left" /> Back</Button>
-                        <Button size="big" onClick={this.showExperimentsGridview}>Next <Icon name="arrow right" /></Button>
+                        <Button 
+                            size="big" 
+                            disabled={this.state.currentStep==="CONFIGURE_ENV"}
+                            onClick={()=>this.setState({currentStep:"CONFIGURE_ENV"})}
+                            primary>
+                                <Icon name="arrow left" /> Back
+                        </Button>
+                        <Button 
+                            size="big" 
+                            onClick={this.showExperimentsGridview} 
+                            disabled={
+                                this.state.currentStep==="RUN_EXPERIMENT" || 
+                                !this.state.selectedExperiment || 
+                                !this.state.selectedEnvironment ||
+                            Object.keys(this.state.selectedHosts).length==0}
+                            loading={this.state.savingFinalJson}
+                            primary>
+                                Next <Icon name="arrow right" />
+                        </Button>
                     </div>
                 </Segment>
             </div>

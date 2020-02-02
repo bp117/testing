@@ -8,7 +8,9 @@ import{
 const initialState = {
     isFetchingExperiment: false,
     isLoadedExperiment: false,
-    experiments: []
+    experiments: [],
+    readyExperiments: [],
+    executedExperiments: []
 }
 
 export default createReducer(initialState, {
@@ -21,7 +23,9 @@ export default createReducer(initialState, {
         ...state,
         isFetchingExperiment: false,
         isLoadedExperiment: true,
-        experiments: payload
+        experiments: payload.filter(item=>!item.experimentStatus),
+        readyExperiments: payload.filter(item=>item.experimentStatus),
+        executedExperiments: payload.filter(item=>item.experimentStatus === "EXECUTED")
     }),
     [FETCH_EXPERIMENT_JSON_FAILURE]: (state)=>({
         ...state,
