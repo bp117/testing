@@ -15,7 +15,7 @@ function mapStateToProps(state){
         isFetchingExperiment: state.experiments.isFetchingExperiment,
         environments: state.environments.environments,
         experiments: state.experiments.experiments,
-        readyExperiments: state.experiments.readyExperiments
+        finalExperiments: state.experiments.finalExperiments
     }
 }
 function mapDispatchToProps(dispatch){
@@ -25,7 +25,8 @@ function mapDispatchToProps(dispatch){
 const AccordionContent = (props)=>{
     let {data} = props;
     return (
-        <div style={{display:"flex", flexWrap:"wrap", padding:"0 15px"}}>
+        <div>
+            <div style={{fontWeight:"bold", marginBottom:5, fontSize:14, textDecoration:"underline"}}>Hosts</div>
             {data.hosts.map((item,indx)=>(
                 <div style={{margin:"5px 10px"}} key={Object.keys(item)[0]+""+indx}>
                     <Checkbox 
@@ -137,6 +138,9 @@ class RunExperimentScreen extends React.Component{
         this._loadEnvironmentConfigs();
         this._loadExperimentConfigs()
     }
+    componentWillReceiveProps(props){
+        console.log(props.finalExperiments)
+    }
     render(){
         return (
             <div className="match-parent" style={{padding:10}}>
@@ -191,38 +195,46 @@ class RunExperimentScreen extends React.Component{
                             {this.state.isExperimentValidated && this.state.currentStep === "CONFIGURE_ENV" &&
                                 <div className="experiment-setup-display">
                                     <div className="title">Configure the environment and experiment</div>
-                                    <div className="accordion-container">
-                                        <CustomAccordion panels={this.state.experimentComponents.map(item=>({
-                                            key: item._id,
-                                            header: item.name,
-                                            content: <AccordionContent selectedHosts={this.state.selectedHosts} data={item} toggleHostSelection={this.handleToggleSelectHost}/>
-                                        }))} />
+                                    <div className="esd-content">
+                                        <div className="absolute-content">
+                                            <CustomAccordion panels={this.state.experimentComponents.map(item=>({
+                                                key: item._id,
+                                                header: item.name,
+                                                content: <AccordionContent selectedHosts={this.state.selectedHosts} data={item} toggleHostSelection={this.handleToggleSelectHost}/>
+                                            }))} />
+                                        </div>
                                     </div>
                                 </div>
                             }
                             {this.state.currentStep === "RUN_EXPERIMENT" && 
                                 <div className="experiment-setup-display">
                                     <div className="title">Experiment List</div>
-                                    <div className="accordion-container">
-                                        <Table unstackable>
-                                            <Table.Header>
-                                                <Table.Row>
-                                                    <Table.HeaderCell>Name</Table.HeaderCell>
-                                                    <Table.HeaderCell textAlign='right'>Actions</Table.HeaderCell>
-                                                </Table.Row>
-                                            </Table.Header>
+                                    <div className="esd-content">
+                                        <div className="absolute-content">
+                                            <Table unstackable>
+                                                <Table.Header>
+                                                    <Table.Row>
+                                                        <Table.HeaderCell>Name</Table.HeaderCell>
+                                                        <Table.HeaderCell textAlign='right'>Actions</Table.HeaderCell>
+                                                    </Table.Row>
+                                                </Table.Header>
 
-                                            <Table.Body>
-                                                { 
-
-                                                }
-                                                <Table.Row>
-                                                    <Table.Cell>John</Table.Cell>
-                                                    <Table.Cell>Approved</Table.Cell>
-                                                    <Table.Cell textAlign='right'>None</Table.Cell>
-                                                </Table.Row>
-                                            </Table.Body>
-                                        </Table>
+                                                <Table.Body>
+                                                    {this.props.finalExperiments.filter(item=>item.experimentStatus==="NOT_EXECUTED").map(item=>{
+                                                        return (
+                                                            <Table.Row>
+                                                                <Table.Cell>{(item.experiment||{}).description}</Table.Cell>
+                                                                <Table.Cell textAlign='right'>
+                                                                    <Button size="large" color="blue"><Icon name="eye" /> VIEW</Button>
+                                                                    <Button size="large" color="green"><Icon name="play" /> START</Button>
+                                                                    <Button size="large" negative><Icon name="stop" /> STOP</Button>
+                                                                </Table.Cell>
+                                                            </Table.Row>
+                                                        )
+                                                    })}
+                                                </Table.Body>
+                                            </Table>
+                                        </div>
                                     </div>
                                 </div>
 

@@ -18,9 +18,9 @@
         flex-direction: column;
         
         .main-content{
-            position: relative;
             display: flex;
             flex-direction: column;
+            flex: 1;
             
             .stepper-container{
                 padding-bottom: 10px;
@@ -36,10 +36,12 @@
                 }
             }
             .experiment-setup-display {
-                flex-shrink: 1;
+                flex: 1;
                 margin-top: 25px;
                 padding: 0 15px;
                 overflow: auto;
+                display: flex;
+                flex-direction: column;
                 .title {
                     font-size: 22px;
                     padding-bottom: 5px;
@@ -47,6 +49,10 @@
                     font-weight: "500";
                     font-family: "Josefin Sans", sans-serif;
                     border-bottom: 1px solid #ddd;
+                }
+                .esd-content{
+                    flex: 1;
+                    position: relative;
                 }
             }
         }

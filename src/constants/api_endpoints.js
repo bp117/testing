@@ -6,7 +6,7 @@ export const UPDATE_COMPONENT_DEFINITION_DATA_URL =`${BASE_URL}/tablerow/updated
 export const SUBMIT_EXPERIMENT_JSON_URL =`${BASE_URL}/insertexperimentdata`; 
 export const SUBMIT_FINAL_EXPERIMENT_JSON_URL =`${BASE_URL}/insertfinalexperimentdata`; 
 export const LOAD_EXPERIMENT_JSON_URL =`${BASE_URL}/getexperiments`; 
-export const LOAD_FINAL_EXPERIMENT_JSON_URL =`${BASE_URL}/getexperiments`; 
+export const LOAD_FINAL_EXPERIMENT_JSON_URL =`${BASE_URL}/getfinalexperimentdata`; 
 export const SUBMIT_COMP_DEPENDENCY_URL =`${BASE_URL}/insertmodifydata`; 
 
 export const UPLOAD_ENVIRONMENT_CONFIG_URL =`${BASE_URL}/upload`; 
