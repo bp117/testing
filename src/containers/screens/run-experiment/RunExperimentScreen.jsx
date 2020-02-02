@@ -25,9 +25,11 @@ const AccordionContent = (props)=>{
     let {data} = props;
     return (
         <div style={{display:"flex", flexWrap:"wrap", padding:"0 15px"}}>
-            {data.hosts.map(item=>(
-                <div style={{margin:"5px 10px"}}>
-                    <Checkbox label={Object.keys(item)[0]} style={{fontSize:16}}/>
+            {data.hosts.map((item,indx)=>(
+                <div style={{margin:"5px 10px"}} key={Object.keys(item)[0]+""+indx}>
+                    <Checkbox label={Object.keys(item)[0]} style={{fontSize:16}} onChange={(_, d)=>{
+                        props.toggleHostSelection(Object.keys(item)[0], data, d.checked)
+                    }}/>
                 </div>
             ))}
         </div>
@@ -41,7 +43,8 @@ class RunExperimentScreen extends React.Component{
             experimentComponents:[],
             isExperimentValidated: false,
             selectedExperiment: null,
-            selectedEnvironment: null
+            selectedEnvironment: null,
+            selectedHosts: {}
         }
     }
     _loadEnvironmentConfigs = ()=>{
@@ -57,6 +60,26 @@ class RunExperimentScreen extends React.Component{
                 showErrorNotification(`Something went wrong: "${error}"`)
             }
         })
+    }
+    _generateFinalExpJSON = ()=>{
+        let jsonData = {environment:{ ...this.state.selectedHosts }, experiment:{ ...this.state.selectedExperiment }};
+        console.log("GENERATED JSON ", jsonData);
+
+    }
+    handleToggleSelectHost = (host, component, isChecked)=> {
+        console.log("CHECKING ", host, ", ", component, ", ", isChecked)
+        this.setState({selectedHosts:this.state.selectedHosts.map(item=>{
+            let compName = Object.keys(item)[0];
+            if( compName === component.name && isChecked){
+                item[compName].hosts.push({name:host, status:"UNKNOWN"});
+            } else if(compName === component.name){
+                item[compName].hosts = item[compName].hosts.filter(item2=>item2.name !== host);
+            }
+            return item;
+        })})
+    }
+    showExperimentsGridview = ()=>{
+        let finalExperimentJson = this._generateFinalExpJSON();
     }
     validateExperiment = ()=>{
         let components = this.state.selectedExperiment.components;
@@ -79,7 +102,8 @@ class RunExperimentScreen extends React.Component{
                         ...item, 
                         hosts:envComponents.find(item2=>item2.name===item.name).environmentConfig.hosts
                     })), 
-                    isExperimentValidated:true
+                    isExperimentValidated:true,
+                    selectedHosts: components.map(item=>({[item.name]:{ hosts:[] }}))
                 });
             }
         }
@@ -146,7 +170,7 @@ class RunExperimentScreen extends React.Component{
                                         <CustomAccordion panels={this.state.experimentComponents.map(item=>({
                                             key: item._id,
                                             header: item.name,
-                                            content: <AccordionContent data={item}/>
+                                            content: <AccordionContent data={item} toggleHostSelection={this.handleToggleSelectHost}/>
                                         }))} />
                                     </div>
                                 </div>
@@ -155,7 +179,7 @@ class RunExperimentScreen extends React.Component{
                     </div>
                     <div className="controls">
                         <Button size="big"><Icon name="arrow left" /> Back</Button>
-                        <Button size="big">Next <Icon name="arrow right" /></Button>
+                        <Button size="big" onClick={this.showExperimentsGridview}>Next <Icon name="arrow right" /></Button>
                     </div>
                 </Segment>
             </div>
