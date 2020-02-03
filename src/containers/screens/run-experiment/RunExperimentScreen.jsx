@@ -150,7 +150,7 @@ class RunExperimentScreen extends React.Component{
                         <div className="main-content">
                             <div className="stepper-container">
                                 <Stepper 
-                                    steps={ [{title: 'Validate Experiment'}, {title: 'Run Experiment'}] } activeStep={ 1 } />
+                                    steps={ [{title: 'Validate Experiment'}, {title: 'Run Experiment'}] } activeStep={ this.state.currentStep==="RUN_EXPERIMENT"?1:0 } />
                             </div>
                             <div className="experiment-setup-form">
                                 <div className="item">
@@ -225,9 +225,10 @@ class RunExperimentScreen extends React.Component{
                                                             <Table.Row>
                                                                 <Table.Cell>{(item.experiment||{}).description}</Table.Cell>
                                                                 <Table.Cell textAlign='right'>
-                                                                    <Button size="large" color="blue"><Icon name="eye" /> VIEW</Button>
-                                                                    <Button size="large" color="green"><Icon name="play" /> START</Button>
-                                                                    <Button size="large" negative><Icon name="stop" /> STOP</Button>
+                                                                    <Button size="big" color="blue" icon><Icon name="eye" /></Button>
+                                                                    <Button size="big" color="green" icon><Icon name="play" /></Button>
+                                                                    <Button size="big" color="orange" icon><Icon name="stop" /></Button>
+                                                                    <Button size="big" negative icon><Icon name="trash" /></Button>
                                                                 </Table.Cell>
                                                             </Table.Row>
                                                         )
