@@ -8,6 +8,7 @@
   "dependencies": {
     "axios": "^0.19.0",
     "bootstrap": "3.4.1",
+    "d3": "^5.15.0",
     "jsplumb": "^2.12.9",
     "prop-types": "^15.7.2",
     "react": "^16.6.0",
@@ -25,7 +26,8 @@
     "redux-logger": "^3.0.6",
     "redux-thunk": "^2.3.0",
     "semantic-ui-css": "^2.4.1",
-    "semantic-ui-react": "^0.88.2"
+    "semantic-ui-react": "^0.88.2",
+    "svg-pan-zoom": "^3.6.1"
   },
   "devDependencies": {
     "@babel/core": "^7.7.2",

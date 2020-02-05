@@ -633,7 +633,7 @@ class CreateExperimentScreen extends React.Component{
                 formattedKey = formattedKey[0].toLowerCase()+formattedKey.slice(1);
                 let {name, actions:actionsModified, editedName, selectedAction, waitTimeInMillsAfterAction, actionArguments, expectedOutputFunctionForRegex, expectedOutcomeStatusCode, hostSelectionCriteria, hostSelectionCriteriaCount} = item;
                 let originalItem = this.state.componentNodes.find(item2=>item2._id === item._id);
-                let {configuration, actions} = originalItem
+                let {configuration, actions, dependencies} = originalItem
                 let compData = {
                     component:{
                         type: name,
@@ -646,6 +646,7 @@ class CreateExperimentScreen extends React.Component{
                     waitTimeInMillsAfterAction,
                     expectedOutputFunctionForRegex,
                     expectedOutcomeStatusCode,
+                    dependencies,
                     hostSelectionCriteria: hostSelectionCriteria && hostSelectionCriteria === "all"? "all" : "any("+hostSelectionCriteriaCount+")"
                 }
                 jsonData[formattedKey] = jsonData[formattedKey] || { executionSteps:[] };
@@ -653,7 +654,7 @@ class CreateExperimentScreen extends React.Component{
 
                 if(!addedComponents.includes(item.editedName)){
                     addedComponents.push(item.editedName);
-                    jsonData.components.push({type:name, name:editedName, configuration, actions});
+                    jsonData.components.push({type:name, name:editedName, configuration, actions, dependencies});
                 }
             })
         });
@@ -695,9 +696,9 @@ class CreateExperimentScreen extends React.Component{
                     compDependencyJSON.dependencies.push({...this.state.componentNodes.find(item=>getCompId(item)===connection.source.id), direction:"upstream"})
                 }
             });
-            if(compDependencyJSON.dependencies.length>0){
-                dataToSend.push(compDependencyJSON)
-            }
+
+            dataToSend.push(compDependencyJSON)
+            this.setState({componentNodes:dataToSend});
         });
         if(dataToSend.length>0){
             this.props.submitCompDependencyData(dataToSend, (success, error)=>{

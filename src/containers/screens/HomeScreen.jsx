@@ -1,7 +1,7 @@
 import React from "react";
 import NiceMenuCard from "../../components/widgets/NiceMenuCard";
 import { Icon } from "semantic-ui-react";
-import { UPLOAD_COMPONENT_ROUTE, CREATE_EXPERIMENT_ROUTE, UPLOAD_ENVIRONMENT_ROUTE, RUN_EXPERIMENT_ROUTE } from "../../constants/app_routes";
+import { UPLOAD_COMPONENT_ROUTE, CREATE_EXPERIMENT_ROUTE, UPLOAD_ENVIRONMENT_ROUTE, RUN_EXPERIMENT_ROUTE, RUN_EXPERIMENT_STATUS_ROUTE } from "../../constants/app_routes";
 
 const menuItems = [
     {
@@ -23,7 +23,7 @@ const menuItems = [
     },{
         name: "Run History",
         iconName: "check",
-        route: "/home/run-history"
+        route: RUN_EXPERIMENT_STATUS_ROUTE //"/home/run-history"
     },{
         name: "Schedules",
         iconName: "check",

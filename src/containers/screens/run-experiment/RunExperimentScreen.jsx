@@ -8,6 +8,7 @@ import CustomAccordion from "../../../components/widgets/CustomAccordion";
 import * as experimentActions from "../../../actions/experimentActions";
 import * as environmentActions from "../../../actions/environmentActions";
 import { showErrorNotification, errorAlert, showSuccessNotification } from "../../../components/utils/alerts";
+import { RUN_EXPERIMENT_STATUS_ROUTE } from "../../../constants/app_routes";
 
 function mapStateToProps(state){
     return {
@@ -31,7 +32,7 @@ const AccordionContent = (props)=>{
                 <div style={{margin:"5px 10px"}} key={Object.keys(item)[0]+""+indx}>
                     <Checkbox 
                         checked={!!(props.selectedHosts[data.name]||[]).find(item2=>Object.keys(item)[0]===Object.keys(item2)[0])} 
-                        label={Object.keys(item)[0]} 
+                        label={Object.keys(item)[0].replace(/\_/g, ".")} 
                         style={{fontSize:16}} 
                         onChange={(_, d)=>{
                         props.toggleHostSelection(item, data, d.checked)
@@ -75,13 +76,16 @@ class RunExperimentScreen extends React.Component{
         })
     }
     _generateFinalExpJSON = ()=>{
-        let jsonData = {environment:{ ...this.state.selectedEnvironment }, experiment:{ ...this.state.selectedExperiment }};
-        let newComponents = jsonData.environment.components.map(item=>{
-            item.environmentConfig.hosts = this.state.selectedHosts[item.name];
-            return item;
-        });
-        jsonData.environment.components = newComponents;
-        return jsonData;
+        if(this.state.selectedEnvironment && this.state.selectedExperiment){
+            let jsonData = {environment:{ ...this.state.selectedEnvironment }, experiment:{ ...this.state.selectedExperiment }};
+            let newComponents = jsonData.environment.components.map(item=>{
+                item.environmentConfig.hosts = this.state.selectedHosts[item.name];
+                return item;
+            });
+            jsonData.environment.components = newComponents;
+            return jsonData;
+        }
+        return null;
     }
     handleToggleSelectHost = (host, component, isChecked)=> {
         let compHosts = this.state.selectedHosts[component.name] || [];
@@ -94,18 +98,20 @@ class RunExperimentScreen extends React.Component{
     }
     showExperimentsGridview = ()=>{
         let finalExperimentJson = this._generateFinalExpJSON();
-        console.log("FINAL JSON ", finalExperimentJson)
-        this.setState({savingFinalJson: true})
-        this.props.submitFinalExperimentJSON(finalExperimentJson, (success, err)=>{
-            this.setState({savingFinalJson:false})
-            if(success){
-                showSuccessNotification("Successfully saved the final experiment data");
-                this._loadExperimentConfigs();
-                this.setState({currentStep:"RUN_EXPERIMENT"})
-            }else{
-                showErrorNotification(`Something went wrong: ${err}`)
-            }
-        })
+        if(finalExperimentJson){
+            this.setState({savingFinalJson: true})
+            this.props.submitFinalExperimentJSON(finalExperimentJson, (success, err)=>{
+                this.setState({currentStep:"RUN_EXPERIMENT", savingFinalJson:false})
+                if(success){
+                    showSuccessNotification("Successfully saved the final experiment data");
+                    this._loadExperimentConfigs();
+                }else{
+                    showErrorNotification(`Something went wrong: ${err}`)
+                }
+            });
+        }else{
+            this.setState({currentStep:"RUN_EXPERIMENT"})
+        }
     }
     validateExperiment = ()=>{
         let components = this.state.selectedExperiment.components;
@@ -126,7 +132,7 @@ class RunExperimentScreen extends React.Component{
                 this.setState({
                     experimentComponents: components.map( item=>({
                         ...item, 
-                        hosts:envComponents.find(item2=>item2.name===item.name).environmentConfig.hosts
+                        hosts: envComponents.find(item2=>item2.name===item.name).environmentConfig.hosts
                     })), 
                     isExperimentValidated:true,
                     selectedHosts: components.map(item=>({[item.name]:{ hosts:[] }}))
@@ -134,12 +140,23 @@ class RunExperimentScreen extends React.Component{
             }
         }
     }
+    handleStartExperiment = (finalExpConfig)=>{
+        this.props.startExperiment(finalExpConfig, (success, data)=>{
+            if(success){
+                this.props.history.push({
+                    pathname: RUN_EXPERIMENT_STATUS_ROUTE,
+                    state: {config:finalExpConfig, experimentId:data.experimentId}
+                });
+            } else {
+                showErrorNotification("Something went wrong: "+data)
+            }
+        });
+    }
     componentDidMount(){
         this._loadEnvironmentConfigs();
         this._loadExperimentConfigs()
     }
     componentWillReceiveProps(props){
-        console.log(props.finalExperiments)
     }
     render(){
         return (
@@ -198,7 +215,7 @@ class RunExperimentScreen extends React.Component{
                                     <div className="esd-content">
                                         <div className="absolute-content">
                                             <CustomAccordion panels={this.state.experimentComponents.map(item=>({
-                                                key: item._id,
+                                                key: item.name,
                                                 header: item.name,
                                                 content: <AccordionContent selectedHosts={this.state.selectedHosts} data={item} toggleHostSelection={this.handleToggleSelectHost}/>
                                             }))} />
@@ -225,10 +242,12 @@ class RunExperimentScreen extends React.Component{
                                                             <Table.Row>
                                                                 <Table.Cell>{(item.experiment||{}).description}</Table.Cell>
                                                                 <Table.Cell textAlign='right'>
-                                                                    <Button size="big" color="blue" icon><Icon name="eye" /></Button>
-                                                                    <Button size="big" color="green" icon><Icon name="play" /></Button>
-                                                                    <Button size="big" color="orange" icon><Icon name="stop" /></Button>
-                                                                    <Button size="big" negative icon><Icon name="trash" /></Button>
+                                                                    <Button size="large" color="blue" icon><Icon name="eye" /></Button>
+                                                                    <Button size="large" color="green" icon onClick={()=>this.handleStartExperiment(item)}>
+                                                                        <Icon name="play" />
+                                                                    </Button>
+                                                                    <Button size="large" color="orange" icon><Icon name="stop" /></Button>
+                                                                    <Button size="large" negative icon> <Icon name="trash" /> </Button>
                                                                 </Table.Cell>
                                                             </Table.Row>
                                                         )
@@ -253,11 +272,7 @@ class RunExperimentScreen extends React.Component{
                         <Button 
                             size="big" 
                             onClick={this.showExperimentsGridview} 
-                            disabled={
-                                this.state.currentStep==="RUN_EXPERIMENT" || 
-                                !this.state.selectedExperiment || 
-                                !this.state.selectedEnvironment ||
-                            Object.keys(this.state.selectedHosts).length==0}
+                            disabled={ this.state.currentStep==="RUN_EXPERIMENT" }
                             loading={this.state.savingFinalJson}
                             primary>
                                 Next <Icon name="arrow right" />

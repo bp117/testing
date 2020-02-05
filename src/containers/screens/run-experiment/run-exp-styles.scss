@@ -64,3 +64,45 @@
         text-align: center;
     }
 }
+
+.experiment-execution{
+    display: flex;
+    flex-direction: column;
+    .title{
+
+    }
+
+    .experiment-container{
+        flex: 1;
+        display: flex;
+
+        .lane {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px dashed rgb(175, 175, 175);
+            margin-left: 2px;
+            background-color: rgba(191, 225, 245, 0.144);
+
+            .lane-title {
+                border: 1px solid #ccc;
+                padding: 5px;
+                text-align: center;
+                background-color: #444;
+                color: whitesmoke;
+                font-size: 15px;
+                font-weight: bold;
+                text-transform: uppercase;
+            }
+
+            .svg-container{
+                flex: 1;
+                position: relative;
+            }
+
+            &:last-child{
+                border-right: none;
+            }
+        }
+    }
+}

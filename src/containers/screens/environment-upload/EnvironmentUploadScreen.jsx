@@ -46,6 +46,19 @@ class EnvironmentUploadScreen extends React.Component{
             reader.onload = evt=>{
                 try{
                     let jsonData = JSON.parse(evt.target.result);
+                    jsonData.hosts = (jsonData.hosts||[]).map(item=>{
+                        return {
+                            [Object.keys(item)[0].replace(/\./g, "_")]: item[Object.keys(item)[0]]
+                        }
+                    });
+                    jsonData.components = (jsonData.components||[]).map(item=>{
+                        item.environmentConfig.hosts = (item.environmentConfig.hosts||[]).map(item=>{
+                            return {
+                                [Object.keys(item)[0].replace(/\./g, "_")]: item[Object.keys(item)[0]]
+                            }
+                        });
+                        return item;
+                    });
                     jsonData = {...jsonData, type:"EnvironmentConfig"}
                     if(this._isValidEnvironmentJson(jsonData)){
                         if(!this.state.envsToUpload.some(item=>item.name===jsonData.name)){
