@@ -14,8 +14,10 @@ export const ENVIRONMENT_CONFIG_DATA_URL =`${BASE_URL}/getdata`;
 export const DELETE_ENVIRONMENT_CONFIG_DATA_URL =`${BASE_URL}/tablerow/delete/{id}`; 
 export const UPDATE_ENVIRONMENT_CONFIG_DATA_URL =`${BASE_URL}/tablerow/updatedata`; 
 
-export const START_EXPERIMENT_URL = `${BASE_URL}/runChaosTest`
-export const EXPERIMENT_STATUS_URL = `${BASE_URL}/getStatus`
+export const START_EXPERIMENT_URL = `${BASE_URL}/experiment/runChaosTest`
+export const EXPERIMENT_STATUS_URL = `${BASE_URL}/experiment/getStatus`
+export const EXPERIMENT_RUN_HISTORY_URL = `${BASE_URL}/experiment/history`
+export const EXPERIMENT_RUN_URL = `${BASE_URL}/experiment`
 
 // export const START_EXPERIMENT_URL = "http://localhost:4001/runChaosTest"
 // export const EXPERIMENT_STATUS_URL = "http://localhost:4001/getStatus"
