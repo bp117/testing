@@ -91,6 +91,14 @@ class RunExperimentScreen extends React.Component{
                             {(this.props.isFetchingExperiment || this.props.isFetchingRunHistory) ?
                                 <div className="match-parent center-content"><div className="spinning-loader" /></div>
                                 :
+                                this.props.runHistory.length == 0 ?
+                                <div className="match-parent center-content">
+                                    <div style={{textAlign:"center"}}>
+                                        <h3>No history yet!</h3>
+                                        <h5>All your executed experiments will be listed here</h5>
+                                    </div>
+                                </div>
+                                :
                                 <Table celled>
                                     <Table.Header>
                                         <Table.Row>

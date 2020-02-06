@@ -199,7 +199,7 @@ class RunExperimentScreen extends React.Component{
                                         }}
                                     />
                                 </div>
-                                <div className="item">
+                                <div>
                                     <Button 
                                         style={{height:"100%", fontSize:14}} 
                                         color="teal" 

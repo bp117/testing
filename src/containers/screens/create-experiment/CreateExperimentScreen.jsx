@@ -400,7 +400,8 @@ class CreateExperimentScreen extends React.Component{
             isKanbanEdited: false,
             experimentName: "",
             isSubmittingExpJson:false,
-            isSubmittingDeps: false 
+            isSubmittingDeps: false,
+            isDepsSubmitted: false 
         }
         this.nodeRefs = {}
         this.jsPlumb = jsPlumb.getInstance({
@@ -594,8 +595,20 @@ class CreateExperimentScreen extends React.Component{
     handleMoveToConfigureExp = ()=>{
         //let allConnections = this.jsPlumb.getAllConnections();
         if(this.state.currentStep !== "CONFIGURE_EXPERIMENT"){
-            this._prepareKanbanStates();
-            this.setState({currentStep: "CONFIGURE_EXPERIMENT", isKanbanEdited:false})
+            if(!this.state.isDepsSubmitted && (this.jsPlumb.getAllConnections()||[]).length > 0){
+                confirmationAlert("You have not yet saved this dependencies. Do you want to save it now?", ()=> {
+                    this.handleSaveDependencies(()=>{
+                        this._prepareKanbanStates();
+                        this.setState({currentStep: "CONFIGURE_EXPERIMENT", isKanbanEdited:false})
+                    });
+                }, {okBtnText:"YES, SAVE AND CONTINUE", cancelBtnText:"DON'T SAVE"}, ()=>{
+                    this._prepareKanbanStates();
+                    this.setState({currentStep: "CONFIGURE_EXPERIMENT", isKanbanEdited:false})
+                });
+            }else{
+                this._prepareKanbanStates();
+                this.setState({currentStep: "CONFIGURE_EXPERIMENT", isKanbanEdited:false})
+            }
         }
     }
     handleMoveToConfigureComp = ()=> {
@@ -682,7 +695,7 @@ class CreateExperimentScreen extends React.Component{
             })
         })
     }
-    handleSaveDependencies = ()=>{
+    handleSaveDependencies = (cb=()=>{})=>{
         let allConnections = this.jsPlumb.getAllConnections();
         let dataToSend = []
         this.setState({isSubmittingDeps:true})
@@ -704,6 +717,8 @@ class CreateExperimentScreen extends React.Component{
             this.props.submitCompDependencyData(dataToSend, (success, error)=>{
                 this.setState({isSubmittingDeps:false})
                 if(success){
+                    this.setState({isDepsSubmitted:true})
+                    typeof cb ==="function" && cb();
                     showSuccessNotification("Component dependencies successfully saved");
                 } else if(this.state.isSubmittingDeps){
                     showErrorNotification(`Something went wrong: ${error}`)

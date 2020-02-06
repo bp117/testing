@@ -39,11 +39,11 @@ class RunExperimentStatus extends React.Component{
     _processData = (expData)=>{
         function processStateData(stateData){
             let nodeCount = 0;
-            let parsedData = stateData.map(item=>{
+            let parsedData = (stateData||[]).map(item=>{
                 let {name:cName, type:cType} = item.component;
                 let comp = expData.environment.components.find(item2=>item2.name === cName && item2.type===cType);
                 let hostCount = 0;
-                let hosts = comp? comp.environmentConfig.hosts.map(host=>{
+                let hosts = comp? ((comp.environmentConfig||{}).hosts||[]).map(host=>{
                     let hostname = Object.keys(host)[0];
                     let status = "unknown";
                     return ({hostname, status, hostCount: hostCount++});
@@ -60,19 +60,27 @@ class RunExperimentStatus extends React.Component{
             return parsedData
         }
         function getStateDependencies(stateData){
-            return stateData.map(item=>{
-                let dep = item.dependencies[0];
-                if(dep && dep.direction === "downstream"){
-                    return {source:item.name, target:dep.name}
-                }
-                else if(dep.direction === "upstream"){
-                    return {source: dep.name, target:item.name}
-                }
+            let dependencies = [];
+            (stateData||[]).map(item=>{
+                (item.dependencies||[]).forEach(dep=>{
+                    if(dep && dep.direction === "downstream"){
+                        if(!dependencies.find(item2=>item2.source === item.name && item2.target === dep.name)){
+                            dependencies.push({source:item.name, target:dep.name})
+                        }
+                    }
+                    else if(dep && dep.direction === "upstream"){
+                        if(!dependencies.find(item2=>item2.source === dep.name && item2.target === item.name)){
+                            dependencies.push({source: dep.name, target:item.name})
+                        }
+                    }
+                });
             });
+
+            return dependencies
         }
-        let steadyState = processStateData( expData.experiment.steadyState.executionSteps );
-        let chaosState = processStateData( expData.experiment.chaosState.executionSteps );
-        let rollbackState = processStateData( expData.experiment.rollbackState.executionSteps );
+        let steadyState = processStateData( (expData.experiment.steadyState||{}).executionSteps );
+        let chaosState = processStateData( (expData.experiment.chaosState||{}).executionSteps );
+        let rollbackState = processStateData( (expData.experiment.rollbackState||{}).executionSteps );
 
         let steadyStateDeps = getStateDependencies( steadyState )
         let chaosStateDeps = getStateDependencies( chaosState )
@@ -114,12 +122,22 @@ class RunExperimentStatus extends React.Component{
     _updateGraph = (hostStatus)=>{
         hostStatus = hostStatus || {}
         let pData = this._addStateToProcessedData( this._processData(this.state.experimentConfig), hostStatus )
-        let runningIndx = hostStatus.state == "rollback"? 2 : hostStatus.state === "chaos"? 1: hostStatus.state === "steadyState"? 0 : -1
-        this.d3Managers.forEach((item, indx)=>item.updateGraph(pData.rollbackState[0], pData.rollbackState[1], runningIndx === indx));
+        let runningState = hostStatus.state == "rollback"? "Rollback State" : hostStatus.state === "chaos"? "Chaos State": hostStatus.state === "steadyState"? "Steady State" : null
+        this.d3SteadyStateMgr.updateGraph(pData.steadyState[0], pData.steadyState[1], hostStatus.state === "steadyState");
+        this.d3ChaosStateMgr.updateGraph(pData.chaosState[0], pData.chaosState[1], hostStatus.state === "chaos");
+        this.d3RollbackStateMgr.updateGraph(pData.rollbackState[0], pData.rollbackState[1], hostStatus.state == "rollback");
 
-        this.setState({runningState: runningIndx == 0? "Steady State": runningIndx == 1? "Chaos State": runningIndx == 2? "Rollback State": null})
+        this.setState({runningState})
     }
     startFetchingStatus = ()=>{
+        //WE RUN IT ONCE, FIRST
+        this.props.getExperimentStatus(this.state.experimentId, (success, status)=>{
+            if(success){
+                this._updateGraph(status.status);
+            }
+        });
+
+        //THEN SET AN INTERVAL TO CONTINOUSLY RUN IT.
         if(!this.fetchStatusIntvId){
             this.fetchStatusIntvId = setInterval(() => {
                 if(!this.isFetching) {

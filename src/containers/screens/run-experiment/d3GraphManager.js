@@ -1,7 +1,6 @@
 import svgPanZoom from "svg-pan-zoom";
 import * as d3 from "d3";
 
-
 export default class D3GraphManager{
     constructor(anchorNode, dataNodes, depNodes){
         this.anchorNode = anchorNode;
@@ -11,9 +10,59 @@ export default class D3GraphManager{
         this.isRunning = false
     }
 
+    _getTranslation = (transform) => {
+        transform = transform.replace("translate", "").replace("(", "").replace(")", "").split(",");
+        return [+transform[0], +transform[1]];
+    }
+
+    _getPositionConnector = (name) => {
+        let nodePos = this._getTranslation(this.svgRoot.select("."+name).attr("transform"))
+        let connPos = [Number(this.svgRoot.select(".connector-"+name).attr("cx")), Number(this.svgRoot.select(".connector-"+name).attr("cy"))]
+        return {x: nodePos[0]+connPos[0], y:nodePos[1]+connPos[1]}
+    }
+
+    _repeatDepAnimation = (dotConnector) => {
+        if(!dotConnector) return;
+        dotConnector.transition()
+        .ease(d3.easeSin)
+        .duration(1000)
+        .attr("cx", d=>this._getPositionConnector(d.target).x)
+        .attr("cy", d=>this._getPositionConnector(d.target).y)
+        .transition()
+        .duration(0)
+        .attr("cx", d=>this._getPositionConnector(d.source).x)
+        .attr("cy", d=>this._getPositionConnector(d.source).y)
+        .on("end", ()=>this._repeatDepAnimation(dotConnector))
+    }
+
+    _addDependencyLine = ()=>{
+        let lineConnector = this.svgRoot.selectAll(".line-connecting")
+            .data(this.depNodes)
+            .enter()
+
+        lineConnector.append("line")
+            .attr("class", "line-connecting")
+            .attr("x1", d => this._getPositionConnector(d.source).x)
+            .attr("y1", d => this._getPositionConnector(d.source).y)
+            .attr("x2", d => this._getPositionConnector(d.target).x)
+            .attr("y2", d => this._getPositionConnector(d.target).y)
+            .style("stroke-width", 2)
+            .style("stroke", `rgba(0,0,220, ${this.isRunning?"0.5":"0"})`)  //
+            .style("stroke-dasharray", "3,3")
+
+        let dotConnector = lineConnector.append("circle")
+            .attr("class", "dot-connecting")
+            .attr("r", 5)
+            .attr("cx", d=>this._getPositionConnector(d.source).x)
+            .attr("cy", d=>this._getPositionConnector(d.source).y)
+            .style("fill", `rgba(220,0,0,${this.isRunning?"0.5":"0"})`)  //
+
+        return dotConnector
+    }
+
     drawGraph = ()=>{
         d3.select(`svg#${this.svgId}`).remove();
-        let svgRoot = d3.select(this.anchorNode)
+        this.svgRoot = d3.select(this.anchorNode)
                 .append("svg")
                 .attr("width", "100%")
                 .attr("height", "98%")
@@ -21,7 +70,8 @@ export default class D3GraphManager{
                 .append("g")
                 .attr("class", "main_graph");
 
-        let gNode = svgRoot.selectAll("g")
+        if(!this.dataNodes || this.dataNodes.length == 0) return;        
+        let gNode = this.svgRoot.selectAll("g")
                 .data(this.dataNodes)
                 .enter()
                 .append("g")
@@ -68,71 +118,42 @@ export default class D3GraphManager{
                 .attr("y", d=>45 + d.hostCount*25)
                 .text(d=>d.hostname.replace(/_/g, "."))
                 .style("font-size", "12px")
-            
-        function getTranslation(transform){
-            transform = transform.replace("translate", "").replace("(", "").replace(")", "").split(",");
-            return [+transform[0], +transform[1]];
-        }
-
-        function getPositionConnector(name){
-            let nodePos = getTranslation(svgRoot.select("."+name).attr("transform"))
-            let connPos = [Number(svgRoot.select(".connector-"+name).attr("cx")), Number(svgRoot.select(".connector-"+name).attr("cy"))]
-            return {x: nodePos[0]+connPos[0], y:nodePos[1]+connPos[1]}
+        
+        let dotConnector = null;
+        if(this.depNodes && this.depNodes.length>0){
+            dotConnector = this._addDependencyLine()
+            this._repeatDepAnimation(dotConnector);
         }
         
-        let lineConnector = svgRoot.selectAll(".line-connecting")
-                .data(this.depNodes)
-                .enter()
-
-            lineConnector.append("line")
-                .attr("class", "line-connecting")
-                .attr("x1", d => getPositionConnector(d.source).x)
-                .attr("y1", d => getPositionConnector(d.source).y)
-                .attr("x2", d => getPositionConnector(d.target).x)
-                .attr("y2", d => getPositionConnector(d.target).y)
-                .style("stroke-width", 2)
-                .style("stroke", `rgba(0,0,220, ${this.isRunning?"0.5":"0"})`)  //
-                .style("stroke-dasharray", "3,3")
-
-        let dotConnector = lineConnector.append("circle")
-                .attr("class", "dot-connecting")
-                .attr("r", 5)
-                .attr("cx", d=>getPositionConnector(d.source).x)
-                .attr("cy", d=>getPositionConnector(d.source).y)
-                .style("fill", `rgba(220,0,0,${this.isRunning?"0.5":"0"})`)  //
-
-        repeat()
-        function repeat(){
-            dotConnector.transition()
-            .ease(d3.easeSin)
-            .duration(1000)
-            .attr("cx", d=>getPositionConnector(d.target).x)
-            .attr("cy", d=>getPositionConnector(d.target).y)
-            .transition()
-            .duration(0)
-            .attr("cx", d=>getPositionConnector(d.source).x)
-            .attr("cy", d=>getPositionConnector(d.source).y)
-            .on("end", repeat)
-        }
         let dragHandler = d3.drag() 
-            .on("drag", function(){
+            .on("drag", ()=>{
                 d3.select(this)
                     .attr("transform", 'translate('+(d3.event.x-100)+','+(d3.event.y-50)+')')
             
-            svgRoot.selectAll(".line-connecting")
+            this.svgRoot.selectAll(".line-connecting")
                 .transition()
                 .duration(0)
-                .attr("x1", d=>getPositionConnector(d.source).x)
-                .attr("y1", d=>getPositionConnector(d.source).y)
-                .attr("x2", d=>getPositionConnector(d.target).x)
-                .attr("y2", d=>getPositionConnector(d.target).y)
+                .attr("x1", d=>this._getPositionConnector(d.source).x)
+                .attr("y1", d=>this._getPositionConnector(d.source).y)
+                .attr("x2", d=>this._getPositionConnector(d.target).x)
+                .attr("y2", d=>this._getPositionConnector(d.target).y)
 
-            repeat();
+                this._repeatDepAnimation(dotConnector);
         });
 
-        dragHandler(svgRoot.selectAll(".node"))
-        this.panZoomTrigger = svgPanZoom("#"+this.svgId, {controlIconsEnabled:true, maxZoom:5})
-        this.panZoomTrigger.zoom(0.8)
+        dragHandler(this.svgRoot.selectAll(".node"))
+        this.panZoomTrigger = svgPanZoom("#"+this.svgId, {controlIconsEnabled:true, maxZoom:5 })
+        
+        this.panZoomTrigger.zoom(this.zoomScaleVal || 0.8)
+        this.panPointVal && this.panZoomTrigger.pan(this.panPointVal)
+
+
+        this.panZoomTrigger.setOnPan((point)=>{
+            this.panPointVal = point;
+        });
+        this.panZoomTrigger.setOnZoom((scale)=>{
+            this.zoomScaleVal = scale;
+        })
     }
 
     updateGraph = (dataNodes, depNodes, isRunning)=>{

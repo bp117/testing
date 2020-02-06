@@ -3,7 +3,7 @@ import { confirmAlert } from 'react-confirm-alert'; // Import
 import { Button, Icon } from "semantic-ui-react";
 import { store } from 'react-notifications-component';
 
-export const confirmationAlert = (message, successCallback, options)=>{
+export const confirmationAlert = (message, successCallback, options, cancelCallback=()=>{})=>{
     options = options || {okBtnText:"YES", cancelBtnText:"NO"}
     options.autoClose = typeof options.autoClose == "boolean"? options.autoClose : true 
     confirmAlert({
@@ -15,7 +15,9 @@ export const confirmationAlert = (message, successCallback, options)=>{
                 <h4 className="title">{title}</h4>
                 <p className="message">{message}</p>
                 <div className="actions">
-                    <Button onClick={onClose} size="big">
+                    <Button onClick={()=>{
+                      onClose(); cancelCallback();
+                    }} size="big">
                       <Icon name="remove" />
                       {options.cancelBtnText || "NO"}
                     </Button>
