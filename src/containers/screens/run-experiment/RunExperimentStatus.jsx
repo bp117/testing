@@ -121,13 +121,20 @@ class RunExperimentStatus extends React.Component{
     }
     _updateGraph = (hostStatus)=>{
         hostStatus = hostStatus || {}
-        let pData = this._addStateToProcessedData( this._processData(this.state.experimentConfig), hostStatus )
-        let runningState = hostStatus.state == "rollback"? "Rollback State" : hostStatus.state === "chaos"? "Chaos State": hostStatus.state === "steadyState"? "Steady State" : null
-        this.d3SteadyStateMgr.updateGraph(pData.steadyState[0], pData.steadyState[1], hostStatus.state === "steadyState");
-        this.d3ChaosStateMgr.updateGraph(pData.chaosState[0], pData.chaosState[1], hostStatus.state === "chaos");
-        this.d3RollbackStateMgr.updateGraph(pData.rollbackState[0], pData.rollbackState[1], hostStatus.state == "rollback");
-
-        this.setState({runningState})
+        if(hostStatus.host === "EXPERIMENT END" || hostStatus.state === "END"){
+            this.stopFetchingStatus();
+            this.setState({runningState:"END"}, ()=>{
+                showSuccessNotification("Experiment Complete!");
+            })
+        }else{
+            let pData = this._addStateToProcessedData( this._processData(this.state.experimentConfig), hostStatus )
+            let runningState = hostStatus.state == "rollback"? "Rollback State" : hostStatus.state === "chaos"? "Chaos State": hostStatus.state === "steadyState"? "Steady State" : null
+            this.d3SteadyStateMgr.updateGraph(pData.steadyState[0], pData.steadyState[1], hostStatus.state === "steadyState");
+            this.d3ChaosStateMgr.updateGraph(pData.chaosState[0], pData.chaosState[1], hostStatus.state === "chaos");
+            this.d3RollbackStateMgr.updateGraph(pData.rollbackState[0], pData.rollbackState[1], hostStatus.state == "rollback");
+    
+            this.setState({runningState})
+        }
     }
     startFetchingStatus = ()=>{
         //WE RUN IT ONCE, FIRST
@@ -187,7 +194,9 @@ class RunExperimentStatus extends React.Component{
                         <div className="lane">
                             <div className="lane-title">{item.state}
                             {item.state === this.state.runningState &&
-                                <span style={{marginLeft:10, padding:"2px 5px", borderRadius:5, backgroundColor:"#2196F3", fontSize:14}}>running</span>
+                                <div className="pulse-effect-view">
+                                    <span className="pulse-effect-ind"></span>
+                                </div>
                             }
                             </div>
                             <div className="svg-container">
@@ -199,13 +208,25 @@ class RunExperimentStatus extends React.Component{
                     ))}
                 </div>
                 <div className="footer" style={{borderTop:"2px solid #ccc", paddingTop:10}}>
-                    <div style={{display:"flex", alignItems:"center"}}>
-                        {[{text:"Unknown", color:"rgba(220,220,0,0.5)"}, {text:"Success", color:"rgba(0,220,0,0.5)"}, {text:"Failure", color:"rgba(220,0,0,0.5)"}].map(item=>(
-                            <div style={{marginRight:20, display:"flex", alignItems:"center"}}>
-                                <span style={{ display:"inline-block", width:25, height:25, borderRadius:"50%", border:"3px solid blue", backgroundColor: item.color}} />
-                                <span style={{marginLeft:10}}>{item.text}</span>
-                            </div>
-                        )) }
+                    <div style={{display:"flex", alignItems:"center", justifyContent:"space-between", padding:"2px 10px"}}>
+                        <div style={{display:"flex"}}>
+                            {[{text:"Unknown", color:"rgba(220,220,0,0.5)"}, {text:"Success", color:"rgba(0,220,0,0.5)"}, {text:"Failure", color:"rgba(220,0,0,0.5)"}].map(item=>(
+                                <div style={{marginRight:20, display:"flex", alignItems:"center"}}>
+                                    <span style={{ display:"inline-block", width:25, height:25, borderRadius:"50%", border:"3px solid blue", backgroundColor: item.color}} />
+                                    <span style={{marginLeft:10}}>{item.text}</span>
+                                </div>
+                            )) }
+                        </div>
+                        <div>
+                            {this.state.runningState !== "END" ?
+                                <>
+                                    <span style={{color:"#212121"}}>Current State:</span>
+                                    <span style={{color:"#1E88E5", fontSize:16, fontWeight:"bold", marginLeft:5}}>{this.state.runningState||"Loading..."}</span>
+                                </>
+                                :
+                                <span style={{color:"#00C853", fontSize:16, fontWeight:"bold"}}><Icon name="check circle" /> EXPERIMENT COMPLETED</span>
+                            }
+                        </div>
                     </div>
                 </div>
             </div>

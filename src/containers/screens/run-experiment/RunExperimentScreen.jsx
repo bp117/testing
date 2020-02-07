@@ -65,10 +65,9 @@ const CredentialsForm = (props)=>{
                 <Input 
                     placeholder="Password for the experiment..." 
                     onChange={(_, data)=>{ 
-                        setPassword(data.value)
+                        setPassword(data.value);
                         props.onPasswordChange && props.onPasswordChange(data.value)
                     }} 
-                    autoFocus 
                     type="password"
                     error={!password}/>
             </div>
@@ -243,7 +242,8 @@ class RunExperimentScreen extends React.Component{
                         <div className="main-content">
                             <div className="stepper-container">
                                 <Stepper 
-                                    steps={ [{title: 'Validate Experiment'}, {title: 'Run Experiment'}] } activeStep={ this.state.currentStep==="RUN_EXPERIMENT"?1:0 } />
+                                    steps={ [{title: 'Validate Experiment'}, {title: 'Run Experiment'}] } 
+                                    activeStep={ this.state.currentStep==="RUN_EXPERIMENT"?1:0 } />
                             </div>
                             <div className="experiment-setup-form">
                                 <div className="item">
@@ -322,7 +322,6 @@ class RunExperimentScreen extends React.Component{
                                                             <Table.HeaderCell textAlign='right'>Actions</Table.HeaderCell>
                                                         </Table.Row>
                                                     </Table.Header>
-
                                                     <Table.Body>
                                                         {this.state.finalExperiments.filter(item=>item.experimentStatus==="NOT_EXECUTED").map(item=>{
                                                             return (
@@ -364,7 +363,6 @@ class RunExperimentScreen extends React.Component{
                                         </div>
                                     </div>
                                 </div>
-
                             }
                         </div>
                     </div>
