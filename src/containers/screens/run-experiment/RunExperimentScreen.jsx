@@ -1,13 +1,13 @@
-import React from "react";
+import React, {useState} from "react";
 import Stepper from 'react-stepper-horizontal';
 import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
-import { Header, Segment, Button, Icon, Dropdown, Checkbox, Table, Menu } from "semantic-ui-react";
+import { Header, Segment, Button, Icon, Dropdown, Checkbox, Table, Menu, Input } from "semantic-ui-react";
 import "./run-exp-styles.scss";
 import CustomAccordion from "../../../components/widgets/CustomAccordion";
 import * as experimentActions from "../../../actions/experimentActions";
 import * as environmentActions from "../../../actions/environmentActions";
-import { showErrorNotification, errorAlert, showSuccessNotification } from "../../../components/utils/alerts";
+import { showErrorNotification, errorAlert, showSuccessNotification, confirmationAlert } from "../../../components/utils/alerts";
 import { RUN_EXPERIMENT_STATUS_ROUTE } from "../../../constants/app_routes";
 import EditJSONModal from "../../../components/modals/EditJSONModal";
 
@@ -40,6 +40,38 @@ const AccordionContent = (props)=>{
                     }}/>
                 </div>
             ))}
+        </div>
+    )
+}
+
+const CredentialsForm = (props)=>{
+    const [userName, setUserName] = useState(props.userName);
+    const [password, setPassword] = useState(props.password)
+    return (
+        <div>
+            <div style={{display:"flex", alignItems:"center", marginTop:10}}>
+                <span style={{marginRight:10}}>Username:</span>
+                <Input 
+                    placeholder="Username for the experiment..." 
+                    onChange={(_, data)=>{ 
+                        setUserName(data.value)
+                        props.onUserNameChange && props.onUserNameChange(data.value)
+                    }} 
+                    autoFocus 
+                    error={!(userName||"").trim()}/>
+            </div>
+            <div style={{display:"flex", alignItems:"center", marginTop:10}}>
+                <span style={{marginRight:10}}>Password:</span> &nbsp;
+                <Input 
+                    placeholder="Password for the experiment..." 
+                    onChange={(_, data)=>{ 
+                        setPassword(data.value)
+                        props.onPasswordChange && props.onPasswordChange(data.value)
+                    }} 
+                    autoFocus 
+                    type="password"
+                    error={!password}/>
+            </div>
         </div>
     )
 }
@@ -144,17 +176,39 @@ class RunExperimentScreen extends React.Component{
             }
         }
     }
-    handleStartExperiment = (finalExpConfig)=>{
-        this.props.startExperiment(finalExpConfig, (success, data)=>{
-            if(success){
-                this.props.history.push({
-                    pathname: RUN_EXPERIMENT_STATUS_ROUTE,
-                    state: {config:finalExpConfig, experimentId:data.experimentId}
-                });
-            } else {
-                showErrorNotification("Something went wrong: "+data)
-            }
-        });
+    handleStartExperiment = (finalExpConfig, defaultUname="")=>{
+        let credentials = {userName:defaultUname || "", password: ""}
+        confirmationAlert(
+            <CredentialsForm 
+                userName={credentials.userName}
+                onUserNameChange={(userName)=>{
+                    credentials.userName = userName
+                }}
+                onPasswordChange={(password)=>{
+                    credentials.password = password
+                }}
+            />,
+            ()=>{
+                if(credentials.userName.trim() && credentials.password){
+                    finalExpConfig = {...finalExpConfig, credentials}
+                    this.props.startExperiment(finalExpConfig, (success, data)=>{
+                        if(success){
+                            this.props.history.push({
+                                pathname: RUN_EXPERIMENT_STATUS_ROUTE,
+                                state: {config:finalExpConfig, experimentId:data.experimentId}
+                            });
+                        } else {
+                            showErrorNotification("Something went wrong: "+data)
+                        }
+                    });
+                }else{
+                    setTimeout(() => {
+                        errorAlert("Please enter valid values to all fields", ()=>{
+                            this.handleStartExperiment(finalExpConfig, credentials.userName)
+                        });
+                    }, 1);
+                }
+        }, {okBtnText:"SAVE & RUN EXPERIMENT", cancelBtnText:"CANCEL", isPositiveBtn:true})
     }
     handleDeleteExperiment = (item) => {
         this.props.deleteFinalExperiment(item._id, (success)=>{
