@@ -65,11 +65,23 @@ class RunExperimentScreen extends React.Component{
         })
     }
 
-    loadRowData = (pageNum)=> {
+    loadRowData = (pageNum, props=this.props)=> {
         this.setState({
-            runHistory: this.props.runHistory.slice(pageNum*this.maxTableRows, (pageNum+1)*this.maxTableRows),
+            runHistory: props.runHistory.slice(pageNum*this.maxTableRows, (pageNum+1)*this.maxTableRows),
             currentPage: pageNum
+        }, ()=>{
+            if(this.state.runHistory.length==0 && this.state.currentPage>0){
+                this.loadRowData(this.state.currentPage - 1);
+            }
         })
+    }
+
+    handleDeleteExperimentRun = (item) => {
+        this.props.deleteExperimentRun(item.experimentId, (success)=>{
+            if(success){
+                this._loadExperimentRunHistory()
+            }
+        });
     }
 
     componentDidMount(){
@@ -77,9 +89,7 @@ class RunExperimentScreen extends React.Component{
         this._loadExperimentRunHistory();
     }
     componentWillReceiveProps(props){
-        if(this.state.runHistory.length === 0){
-            this.setState({ runHistory: props.runHistory.slice(0, this.maxTableRows) })
-        }
+        this.loadRowData(this.state.currentPage, props);
     }
     render(){
         return (
@@ -126,7 +136,7 @@ class RunExperimentScreen extends React.Component{
                                                     <Button icon color="orange" style={{marginRight:5}} disabled={item.status==="COMPLETED"||item.status == "STOPPED"}>
                                                         <Icon name="stop" style={{fontSize:12}}/>
                                                     </Button>
-                                                    <Button icon negative>
+                                                    <Button icon negative onClick={()=>this.handleDeleteExperimentRun(item)}>
                                                         <Icon name="trash" style={{fontSize:12}}/>
                                                     </Button>
                                                 </Table.Cell>

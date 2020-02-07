@@ -2,13 +2,14 @@ import React from "react";
 import Stepper from 'react-stepper-horizontal';
 import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
-import { Header, Segment, Button, Icon, Dropdown, Checkbox, Table } from "semantic-ui-react";
+import { Header, Segment, Button, Icon, Dropdown, Checkbox, Table, Menu } from "semantic-ui-react";
 import "./run-exp-styles.scss";
 import CustomAccordion from "../../../components/widgets/CustomAccordion";
 import * as experimentActions from "../../../actions/experimentActions";
 import * as environmentActions from "../../../actions/environmentActions";
 import { showErrorNotification, errorAlert, showSuccessNotification } from "../../../components/utils/alerts";
 import { RUN_EXPERIMENT_STATUS_ROUTE } from "../../../constants/app_routes";
+import EditJSONModal from "../../../components/modals/EditJSONModal";
 
 function mapStateToProps(state){
     return {
@@ -52,8 +53,11 @@ class RunExperimentScreen extends React.Component{
             selectedExperiment: null,
             selectedEnvironment: null,
             selectedHosts: {},
-            currentStep: "CONFIGURE_ENV"
+            currentStep: "CONFIGURE_ENV",
+            currentPage: 0
         }
+
+        this.maxTableRows = 7
     }
     _loadEnvironmentConfigs = ()=>{
         this.props.fetchEnvironmentConfig((success, error)=>{
@@ -152,11 +156,29 @@ class RunExperimentScreen extends React.Component{
             }
         });
     }
+    handleDeleteExperiment = (item) => {
+        this.props.deleteFinalExperiment(item._id, (success)=>{
+            if(success){
+                this._loadExperimentConfigs();
+            }
+        });
+    }
+    loadRowData = (pageNum, props=this.props)=> {
+        this.setState({
+            finalExperiments: props.finalExperiments.slice(pageNum*this.maxTableRows, (pageNum+1)*this.maxTableRows),
+            currentPage: pageNum
+        }, ()=>{
+            if(this.state.finalExperiments.length==0 && this.state.currentPage>0){
+                this.loadRowData(this.state.currentPage - 1);
+            }
+        })
+    }
     componentDidMount(){
         this._loadEnvironmentConfigs();
         this._loadExperimentConfigs()
     }
     componentWillReceiveProps(props){
+        this.loadRowData(this.state.currentPage, props);
     }
     render(){
         return (
@@ -228,32 +250,63 @@ class RunExperimentScreen extends React.Component{
                                     <div className="title">Experiment List</div>
                                     <div className="esd-content">
                                         <div className="absolute-content">
-                                            <Table unstackable>
-                                                <Table.Header>
-                                                    <Table.Row>
-                                                        <Table.HeaderCell>Name</Table.HeaderCell>
-                                                        <Table.HeaderCell textAlign='right'>Actions</Table.HeaderCell>
-                                                    </Table.Row>
-                                                </Table.Header>
+                                            {(this.props.isFetchingExperiment) ?
+                                                <div className="match-parent center-content"><div className="spinning-loader" /></div>
+                                                :
+                                                this.props.finalExperiments.length === 0?
+                                                    <div className="match-parent center-content">
+                                                        <div style={{textAlign:"center"}}>
+                                                            <h3>No Final Experiments yet!</h3>
+                                                            <h5>All your final experiment configurations will be listed here</h5>
+                                                        </div>
+                                                    </div>
+                                                :
+                                                <Table unstackable>
+                                                    <Table.Header>
+                                                        <Table.Row>
+                                                            <Table.HeaderCell>Name</Table.HeaderCell>
+                                                            <Table.HeaderCell textAlign='right'>Actions</Table.HeaderCell>
+                                                        </Table.Row>
+                                                    </Table.Header>
 
-                                                <Table.Body>
-                                                    {this.props.finalExperiments.filter(item=>item.experimentStatus==="NOT_EXECUTED").map(item=>{
-                                                        return (
+                                                    <Table.Body>
+                                                        {this.state.finalExperiments.filter(item=>item.experimentStatus==="NOT_EXECUTED").map(item=>{
+                                                            return (
+                                                                <Table.Row>
+                                                                    <Table.Cell>{(item.experiment||{}).description}</Table.Cell>
+                                                                    <Table.Cell textAlign='right'>
+                                                                        <Button size="large" color="blue" icon onClick={()=>this.setState({viewFinalEnvConfig:item})}><Icon name="eye" /></Button>
+                                                                        <Button size="large" color="green" icon onClick={()=>this.handleStartExperiment(item)}>
+                                                                            <Icon name="play" />
+                                                                        </Button>
+                                                                        <Button size="large" color="orange" icon><Icon name="stop" /></Button>
+                                                                        <Button size="large" negative icon onClick={()=>this.handleDeleteExperiment(item)}> <Icon name="trash" /> </Button>
+                                                                    </Table.Cell>
+                                                                </Table.Row>
+                                                            )
+                                                        })}
+                                                    </Table.Body>
+                                                    {this.props.finalExperiments.length > this.maxTableRows &&
+                                                        <Table.Footer>
                                                             <Table.Row>
-                                                                <Table.Cell>{(item.experiment||{}).description}</Table.Cell>
-                                                                <Table.Cell textAlign='right'>
-                                                                    <Button size="large" color="blue" icon><Icon name="eye" /></Button>
-                                                                    <Button size="large" color="green" icon onClick={()=>this.handleStartExperiment(item)}>
-                                                                        <Icon name="play" />
-                                                                    </Button>
-                                                                    <Button size="large" color="orange" icon><Icon name="stop" /></Button>
-                                                                    <Button size="large" negative icon> <Icon name="trash" /> </Button>
-                                                                </Table.Cell>
+                                                                <Table.HeaderCell colSpan='4'>
+                                                                <Menu floated='right' pagination>
+                                                                    <Menu.Item as='a' icon disabled> 
+                                                                        <Icon name='chevron left' />
+                                                                    </Menu.Item>
+                                                                    { Array(Math.ceil(this.props.finalExperiments.length / this.maxTableRows )).fill(0).map((_, ind)=>(
+                                                                        <Menu.Item as='a' onClick={()=>this.loadRowData(ind)} active={this.state.currentPage == ind}>{ind+1}</Menu.Item>
+                                                                    ))}
+                                                                    <Menu.Item as='a' icon disabled>
+                                                                        <Icon name='chevron right' />
+                                                                    </Menu.Item>
+                                                                </Menu>
+                                                                </Table.HeaderCell>
                                                             </Table.Row>
-                                                        )
-                                                    })}
-                                                </Table.Body>
-                                            </Table>
+                                                        </Table.Footer>
+                                                    }
+                                                </Table>
+                                            }
                                         </div>
                                     </div>
                                 </div>
@@ -279,6 +332,13 @@ class RunExperimentScreen extends React.Component{
                         </Button>
                     </div>
                 </Segment>
+                <EditJSONModal 
+                    data={this.state.viewFinalEnvConfig}
+                    open={!!this.state.viewFinalEnvConfig}
+                    disableEdit disableDelete disableAdd showOnlyCloseAction
+                    onClose={()=>this.setState({viewFinalEnvConfig:null})}
+                    title="Experiment Config"
+                />
             </div>
         )
     }
