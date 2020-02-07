@@ -224,7 +224,7 @@ class RunExperimentStatus extends React.Component{
                                     <span style={{color:"#1E88E5", fontSize:16, fontWeight:"bold", marginLeft:5}}>{this.state.runningState||"Loading..."}</span>
                                 </>
                                 :
-                                <span style={{color:"#00C853", fontSize:16, fontWeight:"bold"}}><Icon name="check circle" /> EXPERIMENT COMPLETED</span>
+                                <span style={{color:"#00C853", fontSize:16, fontWeight:"bold"}}><Icon name="check circle" style={{fontSize:18}}/> EXPERIMENT COMPLETED</span>
                             }
                         </div>
                     </div>
