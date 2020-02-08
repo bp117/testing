@@ -207,7 +207,11 @@ class RunExperimentScreen extends React.Component{
         }
     }
     handleStartExperiment = (finalExpConfig, hosts)=>{
-        hosts = hosts || finalExpConfig.environment.hosts
+        let thisHosts = [];
+        finalExpConfig.environment.components.forEach(item=>{
+            thisHosts.push(...((item.environmentConfig||{}).hosts||[]))
+        })
+        hosts = hosts || thisHosts
         confirmationAlert(
             <HostsCredentialsForm 
                 hosts={hosts}
@@ -221,10 +225,12 @@ class RunExperimentScreen extends React.Component{
                     return ((cred||{}).user||"").trim() && (cred||{}).password
                 });
                 if(canProceed){
-                    finalExpConfig.environment.hosts = hosts
+                    finalExpConfig.environment.hosts = (finalExpConfig.environment.hosts||[]).map(item=>{
+                        return hosts.find(item2=>Object.keys(item)[0] === Object.keys(item2)[0]) || item;
+                    });
                     finalExpConfig.environment.components = (finalExpConfig.environment.components||[]).map(item=>{
                         item.environmentConfig.hosts = (item.environmentConfig.hosts||[]).map((item2)=>{
-                            return hosts.find(item3=>Object.keys(item3)[0] === Object.keys(item2)[0]) || item2[Object.keys(item2)[0]];
+                            return hosts.find(item3=>Object.keys(item3)[0] === Object.keys(item2)[0]) || item2;
                         });
                         return item;
                     });
