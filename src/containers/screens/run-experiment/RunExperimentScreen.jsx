@@ -222,8 +222,8 @@ class RunExperimentScreen extends React.Component{
                 });
                 if(canProceed){
                     finalExpConfig.environment.hosts = hosts
-                    finalExpConfig.environment.components = finalExpConfig.environment.components.map(item=>{
-                        item.environmentConfig.hosts = item.environmentConfig.hosts.map((item2)=>{
+                    finalExpConfig.environment.components = (finalExpConfig.environment.components||[]).map(item=>{
+                        item.environmentConfig.hosts = (item.environmentConfig.hosts||[]).map((item2)=>{
                             return hosts.find(item3=>Object.keys(item3)[0] === Object.keys(item2)[0]) || item2[Object.keys(item2)[0]];
                         });
                         return item;
