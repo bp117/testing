@@ -6,7 +6,7 @@ import "./run-history-styles.scss";
 import CustomAccordion from "../../../components/widgets/CustomAccordion";
 import * as experimentActions from "../../../actions/experimentActions";
 import * as environmentActions from "../../../actions/environmentActions";
-import { showErrorNotification, errorAlert, showSuccessNotification } from "../../../components/utils/alerts";
+import { showErrorNotification, errorAlert, showSuccessNotification, confirmationAlert } from "../../../components/utils/alerts";
 
 function mapStateToProps(state){
     return {
@@ -18,26 +18,6 @@ function mapStateToProps(state){
 }
 function mapDispatchToProps(dispatch){
     return bindActionCreators({...experimentActions, ...environmentActions}, dispatch)
-}
-
-const AccordionContent = (props)=>{
-    let {data} = props;
-    return (
-        <div>
-            <div style={{fontWeight:"bold", marginBottom:5, fontSize:14, textDecoration:"underline"}}>Hosts</div>
-            {data.hosts.map((item,indx)=>(
-                <div style={{margin:"5px 10px"}} key={Object.keys(item)[0]+""+indx}>
-                    <Checkbox 
-                        checked={!!(props.selectedHosts[data.name]||[]).find(item2=>Object.keys(item)[0]===Object.keys(item2)[0])} 
-                        label={Object.keys(item)[0].replace(/\_/g, ".")} 
-                        style={{fontSize:16}} 
-                        onChange={(_, d)=>{
-                        props.toggleHostSelection(item, data, d.checked)
-                    }}/>
-                </div>
-            ))}
-        </div>
-    )
 }
 
 class RunExperimentScreen extends React.Component{
@@ -77,11 +57,13 @@ class RunExperimentScreen extends React.Component{
     }
 
     handleDeleteExperimentRun = (item) => {
-        this.props.deleteExperimentRun(item.experimentId, (success)=>{
-            if(success){
-                this._loadExperimentRunHistory()
-            }
-        });
+        confirmationAlert("Delete?", ()=>{
+            this.props.deleteExperimentRun(item.experimentId, (success)=>{
+                if(success){
+                    this._loadExperimentRunHistory()
+                }
+            });
+        }, {okBtnText:"YES, DELETE"})
     }
 
     componentDidMount(){

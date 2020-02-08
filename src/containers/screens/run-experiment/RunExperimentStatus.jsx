@@ -215,7 +215,7 @@ class RunExperimentStatus extends React.Component{
                                     <span style={{ display:"inline-block", width:25, height:25, borderRadius:"50%", border:"3px solid blue", backgroundColor: item.color}} />
                                     <span style={{marginLeft:10}}>{item.text}</span>
                                 </div>
-                            )) }
+                            ))}
                         </div>
                         <div>
                             {this.state.runningState !== "END" ?

@@ -44,32 +44,59 @@ const AccordionContent = (props)=>{
     )
 }
 
-const CredentialsForm = (props)=>{
-    const [userName, setUserName] = useState(props.userName);
-    const [password, setPassword] = useState(props.password)
+const HostsCredentialsForm = (props)=>{
+    const [hosts, setHosts] = useState(props.hosts);
+    let mutableHosts = JSON.parse( JSON.stringify(hosts) )
     return (
-        <div>
-            <div style={{display:"flex", alignItems:"center", marginTop:10}}>
-                <span style={{marginRight:10}}>Username:</span>
-                <Input 
-                    placeholder="Username for the experiment..." 
-                    onChange={(_, data)=>{ 
-                        setUserName(data.value)
-                        props.onUserNameChange && props.onUserNameChange(data.value)
-                    }} 
-                    autoFocus 
-                    error={!(userName||"").trim()}/>
-            </div>
-            <div style={{display:"flex", alignItems:"center", marginTop:10}}>
-                <span style={{marginRight:10}}>Password:</span> &nbsp;
-                <Input 
-                    placeholder="Password for the experiment..." 
-                    onChange={(_, data)=>{ 
-                        setPassword(data.value);
-                        props.onPasswordChange && props.onPasswordChange(data.value)
-                    }} 
-                    type="password"
-                    error={!password}/>
+        <div style={{maxHeight:400, overflowY:"auto", overflowX:"hidden"}}>
+            <div style={{padding:10, width:"100%", height:"100%"}}>
+                {hosts.map((_, indx)=>{
+                    let hostname = Object.keys(mutableHosts[indx])[0]
+                    return (
+                        <div style={{paddingTop:3, marginTop:10, borderTop:"1px solid #ddd"}}>
+                            <div style={{display:"flex"}}>
+                                <span style={{marginRight:5}}>Credentials for: </span><span style={{color:"green"}}>{hostname.replace(/_/g, ".")}</span>
+                            </div>
+                            <div style={{display:"flex"}}>
+                                <div style={{display:"flex", alignItems:"center", marginRight:15, marginTop:2}}>
+                                    <span style={{marginRight:10, fontSize:14, fontWeight:"bold"}}>Username*:</span>
+                                    <Input 
+                                        placeholder="Username for the experiment..." 
+                                        value={((hosts[indx][hostname]||{}).sshCredentials || {}).user}
+                                        onChange={(_, data)=>{ 
+                                            let host = mutableHosts[indx];
+                                            let sshCredentials = {...((host[hostname]||{}).sshCredentials || {}) }
+                                            sshCredentials.user = data.value;
+                                            host[hostname].sshCredentials = sshCredentials
+                                            mutableHosts[indx] = host;
+                                            setHosts(mutableHosts);
+                                            props.onHostsChange && props.onHostsChange(mutableHosts);
+                                        }} 
+                                        error={!(((hosts[indx][hostname]||{}).sshCredentials || {}).user||"").trim()}
+                                        autoFocus 
+                                    />
+                                </div>
+                                <div style={{display:"flex", alignItems:"center"}}>
+                                    <span style={{marginRight:10, fontSize:14, fontWeight:"bold"}}>Password*:</span> &nbsp;
+                                    <Input 
+                                        placeholder="Password for the experiment..." 
+                                        value={((hosts[indx][hostname]||{}).sshCredentials || {}).password}
+                                        onChange={(_, data)=>{ 
+                                            let host = mutableHosts[indx];
+                                            let sshCredentials = {...((host[hostname]||{}).sshCredentials || {}) }
+                                            sshCredentials.password = data.value;
+                                            host[hostname].sshCredentials = sshCredentials
+                                            mutableHosts[indx] = host;
+                                            setHosts(mutableHosts);
+                                            props.onHostsChange && props.onHostsChange(mutableHosts);
+                                        }} 
+                                        type="password"
+                                        error={!((hosts[indx][hostname]||{}).sshCredentials || {}).password}/>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                )}
             </div>
         </div>
     )
@@ -112,13 +139,17 @@ class RunExperimentScreen extends React.Component{
     }
     _generateFinalExpJSON = ()=>{
         if(this.state.selectedEnvironment && this.state.selectedExperiment){
-            let jsonData = {environment:{ ...this.state.selectedEnvironment }, experiment:{ ...this.state.selectedExperiment }};
-            let newComponents = jsonData.environment.components.map(item=>{
-                item.environmentConfig.hosts = this.state.selectedHosts[item.name];
-                return item;
-            });
-            jsonData.environment.components = newComponents;
-            return jsonData;
+            if(!this.state.isExperimentValidated){
+                return null;
+            }else{
+                let jsonData = {environment:{ ...this.state.selectedEnvironment }, experiment:{ ...this.state.selectedExperiment }};
+                let newComponents = jsonData.environment.components.map(item=>{
+                    item.environmentConfig.hosts = this.state.selectedHosts[item.name];
+                    return item;
+                });
+                jsonData.environment.components = newComponents;
+                return jsonData;
+            }
         }
         return null;
     }
@@ -158,7 +189,7 @@ class RunExperimentScreen extends React.Component{
             errorAlert("No components found in the selected environment config")
         } else{
             let noHostsComps = components.filter(item=>!envComponents.some(item2=>{
-                return (item2.name===item.name && item2.environmentConfig && 
+                return (item2.name===item.name && item2.type===item.type && item2.environmentConfig && 
                         item2.environmentConfig.hosts && item2.environmentConfig.hosts.length>0)
             }));
             if(noHostsComps.length>0){
@@ -167,7 +198,7 @@ class RunExperimentScreen extends React.Component{
                 this.setState({
                     experimentComponents: components.map( item=>({
                         ...item, 
-                        hosts: envComponents.find(item2=>item2.name===item.name).environmentConfig.hosts
+                        hosts: envComponents.find(item2=>item2.name===item.name && item2.type===item.type).environmentConfig.hosts
                     })), 
                     isExperimentValidated:true,
                     selectedHosts: components.map(item=>({[item.name]:{ hosts:[] }}))
@@ -175,21 +206,28 @@ class RunExperimentScreen extends React.Component{
             }
         }
     }
-    handleStartExperiment = (finalExpConfig, defaultUname="")=>{
-        let credentials = {userName:defaultUname || "", password: ""}
+    handleStartExperiment = (finalExpConfig, hosts)=>{
+        hosts = hosts || finalExpConfig.environment.hosts
         confirmationAlert(
-            <CredentialsForm 
-                userName={credentials.userName}
-                onUserNameChange={(userName)=>{
-                    credentials.userName = userName
-                }}
-                onPasswordChange={(password)=>{
-                    credentials.password = password
+            <HostsCredentialsForm 
+                hosts={hosts}
+                onHostsChange={(_hosts)=>{
+                    hosts = _hosts
                 }}
             />,
             ()=>{
-                if(credentials.userName.trim() && credentials.password){
-                    finalExpConfig = {...finalExpConfig, credentials}
+                let canProceed = hosts.every((item,indx)=>{
+                    let cred = (hosts[indx][Object.keys(item)[0]]||{}).sshCredentials
+                    return ((cred||{}).user||"").trim() && (cred||{}).password
+                });
+                if(canProceed){
+                    finalExpConfig.environment.hosts = hosts
+                    finalExpConfig.environment.components = finalExpConfig.environment.components.map(item=>{
+                        item.environmentConfig.hosts = item.environmentConfig.hosts.map((item2)=>{
+                            return hosts.find(item3=>Object.keys(item3)[0] === Object.keys(item2)[0]) || item2[Object.keys(item2)[0]];
+                        });
+                        return item;
+                    });
                     this.props.startExperiment(finalExpConfig, (success, data)=>{
                         if(success){
                             this.props.history.push({
@@ -203,18 +241,20 @@ class RunExperimentScreen extends React.Component{
                 }else{
                     setTimeout(() => {
                         errorAlert("Please enter valid values to all fields", ()=>{
-                            this.handleStartExperiment(finalExpConfig, credentials.userName)
+                            this.handleStartExperiment(finalExpConfig, hosts)
                         });
                     }, 1);
                 }
         }, {okBtnText:"SAVE & RUN EXPERIMENT", cancelBtnText:"CANCEL", isPositiveBtn:true})
     }
     handleDeleteExperiment = (item) => {
-        this.props.deleteFinalExperiment(item._id, (success)=>{
-            if(success){
-                this._loadExperimentConfigs();
-            }
-        });
+        confirmationAlert("Delete?", ()=>{
+            this.props.deleteFinalExperiment(item._id, (success)=>{
+                if(success){
+                    this._loadExperimentConfigs();
+                }
+            });
+        }, {okBtnText:"YES, DELETE"})
     }
     loadRowData = (pageNum, props=this.props)=> {
         this.setState({
