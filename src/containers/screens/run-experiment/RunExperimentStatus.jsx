@@ -92,15 +92,18 @@ class RunExperimentStatus extends React.Component{
     _addStateToProcessedData = (processedData, logData) =>{
         if(!logData) return processedData;
 
-        Object.keys(processedData).map(key=>{
+        Object.keys(processedData).map((key,indx)=>{
+            let state = indx == 0 ? "steadyState" : indx == 1? "chaos" : indx == 2? "rollback" : null;
             processedData[key][0].forEach(item=>{
-                if(item.hosts && item.hosts.length>0 && item.name === logData.component){
-                    item.hosts.forEach(item2=>{
-                        if(item2.hostname.replace(/_/g, ".") === (logData.host||"").replace(/_/g, ".")){
-                            item2.status = ""+logData.success === "true"? "success" : ""+logData.success === "false"? "failure" : "unknown"
-                        }
-                    });
-                }
+                (logData||[]).forEach(logItem=>{
+                    if(item.hosts && item.hosts.length>0 && item.name === logItem.component && logItem.state === state){
+                        item.hosts.forEach(item2=>{
+                            if(item2.hostname.replace(/_/g, ".") === (logItem.host||"").replace(/_/g, ".")){
+                                item2.status = ""+logItem.success === "true"? "success" : ""+logItem.success === "false"? "failure" : "unknown"
+                            }
+                        });
+                    }
+                });
             });
         });
         return processedData
@@ -119,19 +122,19 @@ class RunExperimentStatus extends React.Component{
         this.d3Managers = [this.d3SteadyStateMgr, this.d3ChaosStateMgr, this.d3RollbackStateMgr];
         this.d3Managers.forEach(item=>item.drawGraph())
     }
-    _updateGraph = (hostStatus)=>{
-        hostStatus = hostStatus || {}
-        if(hostStatus.host === "EXPERIMENT END" || hostStatus.state === "END"){
+    _updateGraph = (hostStatusArr = [])=>{
+        let currentStatus = hostStatusArr[hostStatusArr.length-1] || {};
+        if(currentStatus.host === "EXPERIMENT END" || currentStatus.state === "END"){
             this.stopFetchingStatus();
             this.setState({runningState:"END"}, ()=>{
                 showSuccessNotification("Experiment Complete!");
             })
         }else{
-            let pData = this._addStateToProcessedData( this._processData(this.state.experimentConfig), hostStatus )
-            let runningState = hostStatus.state == "rollback"? "Rollback State" : hostStatus.state === "chaos"? "Chaos State": hostStatus.state === "steadyState"? "Steady State" : null
-            this.d3SteadyStateMgr.updateGraph(pData.steadyState[0], pData.steadyState[1], hostStatus.state === "steadyState");
-            this.d3ChaosStateMgr.updateGraph(pData.chaosState[0], pData.chaosState[1], hostStatus.state === "chaos");
-            this.d3RollbackStateMgr.updateGraph(pData.rollbackState[0], pData.rollbackState[1], hostStatus.state == "rollback");
+            let pData = this._addStateToProcessedData( this._processData(this.state.experimentConfig), hostStatusArr )
+            let runningState = currentStatus.state == "rollback"? "Rollback State" : currentStatus.state === "chaos"? "Chaos State": currentStatus.state === "steadyState"? "Steady State" : null
+            this.d3SteadyStateMgr.updateGraph(pData.steadyState[0], pData.steadyState[1], currentStatus.state === "steadyState");
+            this.d3ChaosStateMgr.updateGraph(pData.chaosState[0], pData.chaosState[1], currentStatus.state === "chaos");
+            this.d3RollbackStateMgr.updateGraph(pData.rollbackState[0], pData.rollbackState[1], currentStatus.state == "rollback");
     
             this.setState({runningState})
         }

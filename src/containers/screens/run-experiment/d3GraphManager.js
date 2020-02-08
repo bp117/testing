@@ -109,7 +109,7 @@ export default class D3GraphManager{
                 .attr("r", 10)
                 .attr("cx", 20)
                 .attr("cy", d=>40 + d.hostCount*25 )
-                .style("fill", d=> !this.isRunning? "rgba(220,220,0,0.8)" : d.status == "success"?"rgba(0,220,0,0.8":d.status=="failure"?"rgba(220,0,0,0.8)":"rgba(220,220,0,0.8)")
+                .style("fill", d=> d.status == "success"?"rgba(0,220,0,0.8":d.status=="failure"?"rgba(220,0,0,0.8)":"rgba(220,220,0,0.8)")
                 .style("stroke-width", 2)
                 .style("stroke", "#0000ff")
 
