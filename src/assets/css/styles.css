@@ -96,6 +96,7 @@ p {
 .mini-sidebar {
   width: 70px;
   height: 100%;
+  z-index: 3;
   background-color: rgb(17, 17, 17);
   box-shadow: 0 0 3px rgba(0,0,0,0.5);
 }
