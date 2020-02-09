@@ -68,6 +68,9 @@ class App extends Component{
                         }
                         <div className="app-content">
                             <div className="mini-sidebar">
+                                <div className={`item ${this.props.location.pathname==HOME_ROUTE?"active":""}`} onClick={()=>this.handleDispatchRoute(HOME_ROUTE)}>
+                                    <Icon name="home" style={{fontSize:18}}/>
+                                </div>
                                 {menuItems.map(item=>{
                                     let isSelected = item.route === this.props.location.pathname;
                                     return (
