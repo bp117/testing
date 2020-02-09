@@ -67,10 +67,22 @@ class App extends Component{
                             <BreadcrumbNav />
                         }
                         <div className="app-content">
-                            <div className="container" style={{height:"100%"}}>
-                                <Switch>
-                                    <AppRoutes />
-                                </Switch>
+                            <div className="mini-sidebar">
+                                {menuItems.map(item=>{
+                                    let isSelected = item.route === this.props.location.pathname;
+                                    return (
+                                        <div className={`item ${isSelected?"active":""}`} onClick={()=>this.handleDispatchRoute(item.route)}>
+                                            {item.icon2}
+                                        </div>
+                                    )}
+                                )}
+                            </div>
+                            <div style={{height:"100%", flex:1}}>
+                                <div className="container" style={{height:"100%"}}>
+                                    <Switch>
+                                        <AppRoutes />
+                                    </Switch>
+                                </div>
                             </div>
                         </div>
                     </div>
