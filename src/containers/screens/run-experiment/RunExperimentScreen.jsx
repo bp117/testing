@@ -283,7 +283,7 @@ class RunExperimentScreen extends React.Component{
         return (
             <div className="match-parent" style={{padding:10}}>
                 <Segment className="match-parent run-experiment">
-                    <div className="header">Run the experiment</div>
+                    <div className="header"><Icon name="lab" /> Run the experiment</div>
                     <div className="body">
                         <div className="main-content">
                             <div className="stepper-container">
@@ -321,13 +321,13 @@ class RunExperimentScreen extends React.Component{
                                         }}
                                     />
                                 </div>
-                                <div>
+                                <div className="item">
                                     <Button 
                                         style={{height:"100%", fontSize:14}} 
                                         color="teal" 
                                         disabled={!this.state.selectedExperiment || !this.state.selectedEnvironment}
                                         onClick={this.validateExperiment}>
-                                        VALIDATE EXPERIMENT
+                                            <Icon name="check" /> VALIDATE EXPERIMENT
                                     </Button>
                                 </div>
                             </div>

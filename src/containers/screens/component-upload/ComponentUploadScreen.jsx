@@ -157,7 +157,7 @@ class ComponentUploadScreen extends React.Component{
                                                             </div>
                                                         </div>
                                                     }
-                                                    <div className="desc">Or Drag and Drop it here</div>
+                                                    <div className="desc" style={{color:"#0277BD"}}>Or Drag and Drop it here</div>
                                                 </React.Fragment>
                                             }
                                         </div>

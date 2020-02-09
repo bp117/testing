@@ -95,8 +95,9 @@ class RunExperimentScreen extends React.Component{
                                     <Table.Header>
                                         <Table.Row>
                                             <Table.HeaderCell>Experiment Run Id</Table.HeaderCell>
-                                            <Table.HeaderCell>Experiment Configuration</Table.HeaderCell>
-                                            <Table.HeaderCell>Status</Table.HeaderCell>
+                                            <Table.HeaderCell textAlign="center">Experiment Configuration</Table.HeaderCell>
+                                            <Table.HeaderCell textAlign="center">Status</Table.HeaderCell>
+                                            <Table.HeaderCell textAlign="center">Completion time</Table.HeaderCell>
                                             <Table.HeaderCell></Table.HeaderCell>
                                         </Table.Row>
                                     </Table.Header>
@@ -105,19 +106,16 @@ class RunExperimentScreen extends React.Component{
                                         {this.state.runHistory.map(item=>(
                                             <Table.Row>
                                                 <Table.Cell>{item.experimentId}</Table.Cell>
-                                                <Table.Cell>{((this.props.finalExperiments.find(item2=>item2._id === item.finalExpConfigId)||{}).experiment||{}).description || <span style={{color:"red"}}>[Not Found]</span>}</Table.Cell>
-                                                <Table.Cell>
+                                                <Table.Cell textAlign="center">{((this.props.finalExperiments.find(item2=>item2._id === item.finalExpConfigId)||{}).experiment||{}).description || <span style={{color:"red"}}>[Not Found]</span>}</Table.Cell>
+                                                <Table.Cell textAlign="center">
                                                     <span style={{color:item.status === "STARTED"?"#1976D2": item.status=== "COMPLETED"? "#0097A7": item.status==="STOPPED"? "#b71c1c":"#F9A825"}}>
                                                         {item.status}
                                                     </span>
                                                 </Table.Cell>
+                                                <Table.Cell textAlign="center">
+                                                    {item.completedTime? item.completedTime : "--"}
+                                                </Table.Cell>
                                                 <Table.Cell textAlign="right">
-                                                    <Button icon color="green" style={{marginRight:5}} disabled={item.status==="STARTED"}>
-                                                        <Icon name="play" style={{fontSize:12}}/>
-                                                    </Button>
-                                                    <Button icon color="orange" style={{marginRight:5}} disabled={item.status==="COMPLETED"||item.status == "STOPPED"}>
-                                                        <Icon name="stop" style={{fontSize:12}}/>
-                                                    </Button>
                                                     <Button icon negative onClick={()=>this.handleDeleteExperimentRun(item)}>
                                                         <Icon name="trash" style={{fontSize:12}}/>
                                                     </Button>
@@ -129,7 +127,7 @@ class RunExperimentScreen extends React.Component{
                                     {this.props.runHistory.length > this.maxTableRows &&
                                         <Table.Footer>
                                             <Table.Row>
-                                                <Table.HeaderCell colSpan='4'>
+                                                <Table.HeaderCell colSpan='5'>
                                                 <Menu floated='right' pagination>
                                                     <Menu.Item as='a' icon disabled> 
                                                         <Icon name='chevron left' />
