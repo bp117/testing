@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Switch, Redirect } from "react-router-dom";
+import { Switch, Redirect, withRouter } from "react-router-dom";
 import Header from "../components/Header.jsx";
 import BreadcrumbNav from '../components/BreadcrumbNav.jsx';
 import AppRoutes from './routes.jsx';
@@ -18,7 +18,9 @@ class App extends Component{
                         <h2 className="brand-name">Chaos Testing</h2>  
                     </div>    
                 </Header>
-                <BreadcrumbNav />
+                {this.props.location.pathname !== HOME_ROUTE &&
+                    <BreadcrumbNav />
+                }
 				<div className="app-content">
                     <div className="container" style={{height:"100%"}}>
                         <Switch>
@@ -31,4 +33,4 @@ class App extends Component{
     }
 }
 
-export default App;
+export default withRouter(App);

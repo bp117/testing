@@ -1,6 +1,10 @@
 import React from "react";
+import { withRouter } from "react-router-dom";
 
-export default class Header extends React.Component{
+class Header extends React.Component{
+    componentWillReceiveProps(nextProps){
+        console.log("NEXT PROPS ", nextProps)
+    }
     render(){
         return(
             <div className="app-header">
@@ -9,3 +13,5 @@ export default class Header extends React.Component{
         )
     }
 }
+
+export default withRouter(Header);

@@ -58,11 +58,12 @@ p {
 	position: absolute;
 	top: 0; left: 0; right: 0; 
 	height: 4em;
-	background-color: black;
+	background-color: #01579B;
 	color: white;
 	-webkit-display: flex;
 	display: flex;
 	align-items: center;
+	box-shadow: 0 5px 3px rgba(0, 0, 0, 0.15);
 }
 
 .app-header .brand-name {
@@ -445,6 +446,7 @@ p {
 	 margin: 20px !important;
 	 cursor: pointer;
 	 user-select: none;
+	 transition: all .35s;
  }
 
 .nice-menu-card .nmc-icon {
@@ -456,6 +458,14 @@ p {
 	font-size: 20px;
 	font-family: "Josefin Sans";
 } 
+
+.nice-menu-card:hover {
+	background-color: rgba(30, 136, 229, 0.13);
+	border: 1px solid rgba(30, 136, 229, 0.315);
+	box-shadow: 0 0 10px rgba(0,0,0,0.2);
+	transform: translateY(-3px);
+	transition: all .35s;
+}
 
 .confirm-alert-dialog{
 	padding: 20px;
