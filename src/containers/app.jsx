@@ -7,6 +7,7 @@ import { HOME_ROUTE, UPLOAD_COMPONENT_ROUTE } from '../constants/app_routes.js';
 import "../assets/css/styles.css";
 import { Sidebar, Menu, Icon } from 'semantic-ui-react';
 import { menuItems } from '../constants/menuItems.js';
+import logoImg from "../assets/images/logo.png";
 
 class App extends Component{
     constructor(props){
@@ -60,7 +61,7 @@ class App extends Component{
                     <div className="match-parent">
                         <Header onToggleSidebar={this.handleToggleSidebar}>
                             <div className="container">
-                                <h2 className="brand-name">Chaos Testing</h2>  
+                                <img src={logoImg} height={48}/>  
                             </div>    
                         </Header>
                         {this.props.location.pathname !== HOME_ROUTE &&
@@ -80,11 +81,13 @@ class App extends Component{
                                     )}
                                 )}
                             </div>
-                            <div style={{height:"100%", flex:1}}>
-                                <div className="container" style={{height:"100%"}}>
-                                    <Switch>
-                                        <AppRoutes />
-                                    </Switch>
+                            <div style={{height:"100%", flex:1, position:"relative"}}>
+                                <div style={{position:"absolute", top:"4em", left:0, right:0, bottom:0}}>
+                                    <div className="container" style={{height:"100%"}}>
+                                        <Switch>
+                                            <AppRoutes />
+                                        </Switch>
+                                    </div>
                                 </div>
                             </div>
                         </div>

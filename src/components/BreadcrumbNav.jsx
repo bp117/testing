@@ -22,9 +22,9 @@ class BreadcrumbNav extends React.Component{
     render(){
         const {paths} = this.state;
         return (
-            <div className="breadcrumb-nav-container">
+            <div className="breadcrumb-nav-container" style={{marginLeft:25, zIndex:999}}>
                 <div className="container">
-                    <Breadcrumb className="match-parent center-top" size="huge">
+                    <Breadcrumb className="match-parent center-top" size="huge" style={{padding:"11px", fontSize:17, fontFamily:"Josefin Sans"}}>
                         {paths.map((item,indx)=>{
                             let hasLink = indx !== paths.length - 1; 
                             return (

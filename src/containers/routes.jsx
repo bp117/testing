@@ -1,6 +1,6 @@
 import React from "react";
 import { Route, Redirect } from "react-router-dom";
-import { HOME_ROUTE, UPLOAD_COMPONENT_ROUTE, CREATE_EXPERIMENT_ROUTE, UPLOAD_ENVIRONMENT_ROUTE, RUN_EXPERIMENT_ROUTE, RUN_EXPERIMENT_STATUS_ROUTE, RUN_HISTORY_ROUTE } from "../constants/app_routes";
+import { HOME_ROUTE, UPLOAD_COMPONENT_ROUTE, CREATE_EXPERIMENT_ROUTE, UPLOAD_ENVIRONMENT_ROUTE, RUN_EXPERIMENT_ROUTE, RUN_EXPERIMENT_STATUS_ROUTE, RUN_HISTORY_ROUTE, SCHEDULES_ROUTE } from "../constants/app_routes";
 import HomeScreen from "./screens/HomeScreen";
 import ComponentUploadScreen from "./screens/component-upload/ComponentUploadScreen";
 import CreateExperimentScreen from "./screens/create-experiment/CreateExperimentScreen";
@@ -19,7 +19,8 @@ export default class AppRoutes extends React.Component{
             RUN_EXPERIMENT_ROUTE, 
             RUN_HISTORY_ROUTE,
 
-            RUN_EXPERIMENT_STATUS_ROUTE
+            RUN_EXPERIMENT_STATUS_ROUTE,
+            SCHEDULES_ROUTE
         ].includes(route)
     }
     render(){
@@ -33,7 +34,11 @@ export default class AppRoutes extends React.Component{
                 <Route path={RUN_EXPERIMENT_ROUTE} render={(props)=><RunExperimentScreen {...props} />} exact/>
                 <Route path={RUN_EXPERIMENT_STATUS_ROUTE} render={(props)=><RunExperimentStatus {...props} />} exact/>
                 <Route path={RUN_HISTORY_ROUTE} render={(props)=><RunHistoryScreen {...props} />} exact/>
-
+                <Route path={SCHEDULES_ROUTE} render={(props)=>(
+                    <div className="match-parent center-content">
+                        <h3>Coming soon</h3>
+                    </div>
+                )} exact/>
                 <Route exact path="*" render={() => ( <Redirect to={this._routeExists(route)?route:HOME_ROUTE}/> )} />
             </React.Fragment>
         )

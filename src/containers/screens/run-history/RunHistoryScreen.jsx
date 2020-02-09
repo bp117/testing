@@ -48,12 +48,22 @@ class RunExperimentScreen extends React.Component{
     loadRowData = (pageNum, props=this.props)=> {
         this.setState({
             runHistory: props.runHistory.slice(pageNum*this.maxTableRows, (pageNum+1)*this.maxTableRows),
-            currentPage: pageNum
+            currentPage: pageNum,
+            nextDisabled: Math.ceil(props.runHistory.length / this.maxTableRows ) - 1 === pageNum,
+            previousDisabled: pageNum == 0
         }, ()=>{
             if(this.state.runHistory.length==0 && this.state.currentPage>0){
                 this.loadRowData(this.state.currentPage - 1);
             }
         })
+    }
+
+    loadPreviousRowData = ()=>{
+        this.loadRowData(this.state.currentPage - 1)
+    }
+
+    loadNextRowData = ()=>{
+        this.loadRowData(this.state.currentPage + 1)
     }
 
     handleDeleteExperimentRun = (item) => {
@@ -129,13 +139,13 @@ class RunExperimentScreen extends React.Component{
                                             <Table.Row>
                                                 <Table.HeaderCell colSpan='5'>
                                                 <Menu floated='right' pagination>
-                                                    <Menu.Item as='a' icon disabled> 
-                                                        <Icon name='chevron left' />
+                                                    <Menu.Item as='a' icon onClick={this.loadPreviousRowData} disabled={this.state.previousDisabled}> 
+                                                        <Icon name='chevron left'/>
                                                     </Menu.Item>
                                                     { Array(Math.ceil(this.props.runHistory.length / this.maxTableRows )).fill(0).map((_, ind)=>(
                                                         <Menu.Item as='a' onClick={()=>this.loadRowData(ind)} active={this.state.currentPage == ind} key={Math.random()+""}>{ind+1}</Menu.Item>
                                                     ))}
-                                                    <Menu.Item as='a' icon disabled>
+                                                    <Menu.Item as='a' icon onClick={this.loadNextRowData} disabled={this.state.nextDisabled}>
                                                         <Icon name='chevron right' />
                                                     </Menu.Item>
                                                 </Menu>

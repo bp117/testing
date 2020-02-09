@@ -1,6 +1,6 @@
 import React from "react";
 import { Icon } from "semantic-ui-react";
-import { UPLOAD_COMPONENT_ROUTE, UPLOAD_ENVIRONMENT_ROUTE, CREATE_EXPERIMENT_ROUTE, RUN_EXPERIMENT_ROUTE, RUN_HISTORY_ROUTE } from "./app_routes";
+import { UPLOAD_COMPONENT_ROUTE, UPLOAD_ENVIRONMENT_ROUTE, CREATE_EXPERIMENT_ROUTE, RUN_EXPERIMENT_ROUTE, RUN_HISTORY_ROUTE, SCHEDULES_ROUTE } from "./app_routes";
 
 export const menuItems = [
     {
@@ -56,6 +56,6 @@ export const menuItems = [
         name: "Schedules",
         icon: <Icon name="calendar check" size="large" style={{color:"#01579B"}}/>,
         icon2: <Icon.Group size="large"><Icon name="calendar check" /> </Icon.Group>,
-        route: "/home/schedules"
+        route: SCHEDULES_ROUTE
     }
 ]

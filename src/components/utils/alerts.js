@@ -13,7 +13,7 @@ export const confirmationAlert = (message, successCallback, options, cancelCallb
             return (
               <div className='confirm-alert-dialog'>
                 <h4 className="title">{title}</h4>
-                <p className="message">{message}</p>
+                <div className="message">{message}</div>
                 <div className="actions">
                     <Button onClick={()=>{
                       onClose(); cancelCallback();
@@ -46,7 +46,7 @@ export const errorAlert = (message, onOkClick)=>{
             return (
               <div className='confirm-alert-dialog'>
                 <h4 className="title" style={{color:"#b71c1c"}}>{title}</h4>
-                <p className="message" style={{color:"#d32f2f"}}>{message}</p>
+                <div className="message" style={{color:"#d32f2f"}}>{message}</div>
                 <div className="actions">
                     <Button onClick={()=>{
                       onClose();

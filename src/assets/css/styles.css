@@ -88,21 +88,16 @@ p {
 /* THE APP CONTENT (APP CONTAINER MINUS THE HEADER and BREADCRUMB NAVIGATION)*/
 .app-content {
 	position: absolute;
-	top: 8em; /* Since height is 4em */
+	top: 4em; /* Since height is 4em */
 	bottom: 0; left: 0; right: 0;
 	display: flex;
 }
 
 .mini-sidebar {
   width: 70px;
-  height: calc(100% - 4em);
+  height: 100%;
   background-color: rgb(17, 17, 17);
-  border-radius: 0 5px 5px 0;
   box-shadow: 0 0 3px rgba(0,0,0,0.5);
-}
-
-.mini-sidebar .item:first-child {
-	border-top-right-radius: 5px;
 }
 
 .mini-sidebar .item{
@@ -121,7 +116,7 @@ p {
 	transition: all .5s;
 }
 
-@media screen and(max-height:660px){
+@media screen and(max-height:690px){
 	.mini-sidebar .item {
 		height: 55px;
 		line-height: 55px;
