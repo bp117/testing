@@ -28,7 +28,7 @@ class BreadcrumbNav extends React.Component{
                         {paths.map((item,indx)=>{
                             let hasLink = indx !== paths.length - 1; 
                             return (
-                                <Fragment>
+                                <Fragment key={Math.random()+""}>
                                     { indx===paths.length-1 && paths.length>1 && <Breadcrumb.Divider icon='right arrow' /> }
                                     <Breadcrumb.Section active={indx===paths.length-1} onClick={hasLink? ()=>this.handleBreadcrumb(indx) : undefined}>{item}</Breadcrumb.Section>
                                     { indx!==paths.length-1 && indx!==paths.length-2 && <Breadcrumb.Divider icon='right chevron' /> }

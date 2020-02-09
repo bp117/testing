@@ -684,7 +684,6 @@ class CreateExperimentScreen extends React.Component{
         }
         this.setState({isSubmittingExpJson:true},()=>{
             let generatedExperimentJson = this._generateExperimentJSON();
-            console.log("GENERATED EXPERIMENT JSON ", generatedExperimentJson);
             this.props.submitExperimentJSON(generatedExperimentJson, (success, error)=>{
                 if(success){
                     showSuccessNotification("Experiment JSON data was successfully submitted");
