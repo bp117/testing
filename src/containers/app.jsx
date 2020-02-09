@@ -50,7 +50,7 @@ class App extends Component{
                     </Menu.Item>
                     {menuItems.map(item=>{
                         return (
-                            <Menu.Item as='a' style={{fontSize:16, textAlign:"left"}} onClick={()=>this.handleDispatchRoute(item.route)}>
+                            <Menu.Item as='a' style={{fontSize:16, textAlign:"left"}} onClick={()=>this.handleDispatchRoute(item.route)} key={Math.random()+""}>
                                 {item.icon2}<span style={{marginRight:10}} /> {item.name}
                             </Menu.Item>
                         )
@@ -74,7 +74,7 @@ class App extends Component{
                                 {menuItems.map(item=>{
                                     let isSelected = item.route === this.props.location.pathname;
                                     return (
-                                        <div className={`item ${isSelected?"active":""}`} onClick={()=>this.handleDispatchRoute(item.route)}>
+                                        <div className={`item ${isSelected?"active":""}`} onClick={()=>this.handleDispatchRoute(item.route)} key={Math.random()+""}>
                                             {item.icon2}
                                         </div>
                                     )}

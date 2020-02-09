@@ -16,6 +16,7 @@ export default class HomeScreen extends React.Component {
                     {
                         menuItems.map(item=>(
                             <NiceMenuCard 
+                                key={Math.random()+""}
                                 text={item.name} 
                                 icon={item.icon}
                                 onItemClick={()=>this.handleDispatchRoute(item.route)}/>

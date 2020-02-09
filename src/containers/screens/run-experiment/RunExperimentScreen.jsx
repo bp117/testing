@@ -53,7 +53,7 @@ const HostsCredentialsForm = (props)=>{
                 {hosts.map((_, indx)=>{
                     let hostname = Object.keys(mutableHosts[indx])[0]
                     return (
-                        <div style={{paddingTop:3, marginTop:10, borderTop:"1px solid #ddd"}}>
+                        <div style={{paddingTop:3, marginTop:10, borderTop:"1px solid #ddd"}} key={Math.random()+""}>
                             <div style={{display:"flex"}}>
                                 <span style={{marginRight:5}}>Credentials for: </span><span style={{color:"green"}}>{hostname.replace(/_/g, ".")}</span>
                             </div>
@@ -286,13 +286,6 @@ class RunExperimentScreen extends React.Component{
                     <div className="header"><Icon name="lab" /> Run the experiment</div>
                     <div className="body">
                         <div className="main-content">
-                            {this.state.currentStep !== "RUN_EXPERIMENT" &&
-                                <div className="stepper-container">
-                                    <Stepper 
-                                        steps={ [{title: 'Validate Experiment'}, {title: 'Run Experiment'}] } 
-                                        activeStep={ this.state.currentStep==="RUN_EXPERIMENT"?1:0 } />
-                                </div>
-                            }
                             {this.state.currentStep !== "RUN_EXPERIMENT" && 
                                 <div className="experiment-setup-form">
                                     <div className="item">
@@ -375,7 +368,7 @@ class RunExperimentScreen extends React.Component{
                                                     <Table.Body>
                                                         {this.state.finalExperiments.filter(item=>item.experimentStatus==="NOT_EXECUTED").map(item=>{
                                                             return (
-                                                                <Table.Row>
+                                                                <Table.Row key={Math.random()+""}>
                                                                     <Table.Cell>{(item.experiment||{}).description}</Table.Cell>
                                                                     <Table.Cell textAlign='right'>
                                                                         <Button size="large" color="blue" icon onClick={()=>this.setState({viewFinalEnvConfig:item})}><Icon name="eye" /></Button>
@@ -398,7 +391,7 @@ class RunExperimentScreen extends React.Component{
                                                                         <Icon name='chevron left' />
                                                                     </Menu.Item>
                                                                     { Array(Math.ceil(this.props.finalExperiments.length / this.maxTableRows )).fill(0).map((_, ind)=>(
-                                                                        <Menu.Item as='a' onClick={()=>this.loadRowData(ind)} active={this.state.currentPage == ind}>{ind+1}</Menu.Item>
+                                                                        <Menu.Item as='a' onClick={()=>this.loadRowData(ind)} active={this.state.currentPage == ind} key={Math.random()+""}>{ind+1}</Menu.Item>
                                                                     ))}
                                                                     <Menu.Item as='a' icon disabled>
                                                                         <Icon name='chevron right' />

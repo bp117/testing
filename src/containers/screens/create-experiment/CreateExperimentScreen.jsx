@@ -181,7 +181,7 @@ const ConfigureExperimentView = (props)=>(
             </div>
             <div className="kanban-boards-container">
                 {Object.keys(props.kanbanStates).map(stateName=>(
-                    <div className="kanban-board">
+                    <div className="kanban-board" key={stateName}>
                         <div className="header">{stateName}</div>
                         <div className="body">
                             <div className="absolute-content">

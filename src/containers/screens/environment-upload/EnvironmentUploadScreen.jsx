@@ -156,7 +156,7 @@ class EnvironmentUploadScreen extends React.Component{
                                                                 <div className="absolute-content" style={{paddingBottom:10}}>
                                                                     {
                                                                         this.state.envsToUpload.map((item, indx)=>(
-                                                                            <div style={{padding:"5px 10px"}}>
+                                                                            <div style={{padding:"5px 10px"}} key={Math.random()+""}>
                                                                                 <span style={{marginRight:20}}>{item.name}</span>
                                                                                 <Icon name="trash" style={{fontSize:16, cursor:"pointer"}} color="red" onClick={()=>this.removeFileFromUploadList(item)}/>
                                                                             </div>
@@ -207,7 +207,7 @@ class EnvironmentUploadScreen extends React.Component{
 
                                     <Table.Body>
                                         {this.props.environments.map(item=>(
-                                            <Table.Row>
+                                            <Table.Row key={Math.random()+""}>
                                                 <Table.Cell>{item.name}</Table.Cell>
                                                 <Table.Cell textAlign="right">
                                                     <Button size="large" primary onClick={()=>this.setEditData(item)}><Icon name="eye" />View </Button>

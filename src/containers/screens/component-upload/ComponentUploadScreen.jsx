@@ -144,7 +144,7 @@ class ComponentUploadScreen extends React.Component{
                                                                 <div className="absolute-content" style={{paddingBottom:10}}>
                                                                     {
                                                                         this.state.compsToUpload.map((item, indx)=>(
-                                                                            <div style={{padding:"5px 10px"}}>
+                                                                            <div style={{padding:"5px 10px"}} key={Math.random()+""}>
                                                                                 <span style={{marginRight:20}}>{item.name}</span>
                                                                                 <Icon name="trash" style={{fontSize:16, cursor:"pointer"}} color="red" onClick={()=>this.removeFileFromUploadList(item)}/>
                                                                             </div>
@@ -197,7 +197,7 @@ class ComponentUploadScreen extends React.Component{
 
                                         <Table.Body>
                                             {this.props.components.map(item=>(
-                                                <Table.Row>
+                                                <Table.Row key={Math.random()+""}>
                                                     <Table.Cell>{item.name}</Table.Cell>
                                                     <Table.Cell>{item.metadata && item.metadata.version||"N/A"}</Table.Cell>
                                                     <Table.Cell>{item.category||"N/A"}</Table.Cell>

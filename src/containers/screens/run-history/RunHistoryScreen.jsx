@@ -104,7 +104,7 @@ class RunExperimentScreen extends React.Component{
 
                                     <Table.Body>
                                         {this.state.runHistory.map(item=>(
-                                            <Table.Row>
+                                            <Table.Row key={Math.random()+""}>
                                                 <Table.Cell>{item.experimentId}</Table.Cell>
                                                 <Table.Cell textAlign="center">{((this.props.finalExperiments.find(item2=>item2._id === item.finalExpConfigId)||{}).experiment||{}).description || <span style={{color:"red"}}>[Not Found]</span>}</Table.Cell>
                                                 <Table.Cell textAlign="center">
@@ -133,7 +133,7 @@ class RunExperimentScreen extends React.Component{
                                                         <Icon name='chevron left' />
                                                     </Menu.Item>
                                                     { Array(Math.ceil(this.props.runHistory.length / this.maxTableRows )).fill(0).map((_, ind)=>(
-                                                        <Menu.Item as='a' onClick={()=>this.loadRowData(ind)} active={this.state.currentPage == ind}>{ind+1}</Menu.Item>
+                                                        <Menu.Item as='a' onClick={()=>this.loadRowData(ind)} active={this.state.currentPage == ind} key={Math.random()+""}>{ind+1}</Menu.Item>
                                                     ))}
                                                     <Menu.Item as='a' icon disabled>
                                                         <Icon name='chevron right' />
