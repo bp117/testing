@@ -286,51 +286,55 @@ class RunExperimentScreen extends React.Component{
                     <div className="header"><Icon name="lab" /> Run the experiment</div>
                     <div className="body">
                         <div className="main-content">
-                            <div className="stepper-container">
-                                <Stepper 
-                                    steps={ [{title: 'Validate Experiment'}, {title: 'Run Experiment'}] } 
-                                    activeStep={ this.state.currentStep==="RUN_EXPERIMENT"?1:0 } />
-                            </div>
-                            <div className="experiment-setup-form">
-                                <div className="item">
-                                    <Dropdown fluid selection
-                                        placeholder="Select Experiment..."
-                                        loading={this.props.isFetchingExperiment} 
-                                        options={this.props.experiments.map(item=>({
-                                            key: item._id,
-                                            value:item,
-                                            text: item.description,
-                                            style:{fontSize:16}
-                                        }))}
-                                        onChange={(_, data)=>{
-                                            this.setState({selectedExperiment:data.value})
-                                        }}/>
+                            {this.state.currentStep !== "RUN_EXPERIMENT" &&
+                                <div className="stepper-container">
+                                    <Stepper 
+                                        steps={ [{title: 'Validate Experiment'}, {title: 'Run Experiment'}] } 
+                                        activeStep={ this.state.currentStep==="RUN_EXPERIMENT"?1:0 } />
                                 </div>
-                                <div className="item">
-                                    <Dropdown selection fluid
-                                        placeholder="Select Environment..."
-                                        loading={this.props.isFetchingEnvironment} 
-                                        options={this.props.environments.map(item=>({
-                                            key: item._id,
-                                            value: item,
-                                            text: item.name,
-                                            style:{fontSize:16}
-                                        }))}
-                                        onChange={(_, data)=>{
-                                            this.setState({selectedEnvironment:data.value})
-                                        }}
-                                    />
+                            }
+                            {this.state.currentStep !== "RUN_EXPERIMENT" && 
+                                <div className="experiment-setup-form">
+                                    <div className="item">
+                                        <Dropdown fluid selection
+                                            placeholder="Select Experiment..."
+                                            loading={this.props.isFetchingExperiment} 
+                                            options={this.props.experiments.map(item=>({
+                                                key: item._id,
+                                                value:item,
+                                                text: item.description,
+                                                style:{fontSize:16}
+                                            }))}
+                                            onChange={(_, data)=>{
+                                                this.setState({selectedExperiment:data.value})
+                                            }}/>
+                                    </div>
+                                    <div className="item">
+                                        <Dropdown selection fluid
+                                            placeholder="Select Environment..."
+                                            loading={this.props.isFetchingEnvironment} 
+                                            options={this.props.environments.map(item=>({
+                                                key: item._id,
+                                                value: item,
+                                                text: item.name,
+                                                style:{fontSize:16}
+                                            }))}
+                                            onChange={(_, data)=>{
+                                                this.setState({selectedEnvironment:data.value})
+                                            }}
+                                        />
+                                    </div>
+                                    <div className="item">
+                                        <Button 
+                                            style={{height:"100%", fontSize:14}} 
+                                            color="teal" 
+                                            disabled={!this.state.selectedExperiment || !this.state.selectedEnvironment}
+                                            onClick={this.validateExperiment}>
+                                                <Icon name="check" /> VALIDATE EXPERIMENT
+                                        </Button>
+                                    </div>
                                 </div>
-                                <div className="item">
-                                    <Button 
-                                        style={{height:"100%", fontSize:14}} 
-                                        color="teal" 
-                                        disabled={!this.state.selectedExperiment || !this.state.selectedEnvironment}
-                                        onClick={this.validateExperiment}>
-                                            <Icon name="check" /> VALIDATE EXPERIMENT
-                                    </Button>
-                                </div>
-                            </div>
+                            }
                             {this.state.isExperimentValidated && this.state.currentStep === "CONFIGURE_ENV" &&
                                 <div className="experiment-setup-display">
                                     <div className="title">Configure the environment and experiment</div>

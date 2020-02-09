@@ -121,6 +121,20 @@ p {
 	transition: all .5s;
 }
 
+@media screen and(max-height:660px){
+	.mini-sidebar .item {
+		height: 55px;
+		line-height: 55px;
+	}
+}
+
+@media screen and(max-width:380px){
+	.mini-sidebar {
+		display: none;
+	}
+}
+
+
 .mini-sidebar .item.active {
 	background-color: rgba(25, 118, 210, 0.712);
 	cursor: pointer;
