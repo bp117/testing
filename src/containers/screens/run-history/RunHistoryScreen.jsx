@@ -7,6 +7,7 @@ import CustomAccordion from "../../../components/widgets/CustomAccordion";
 import * as experimentActions from "../../../actions/experimentActions";
 import * as environmentActions from "../../../actions/environmentActions";
 import { showErrorNotification, errorAlert, showSuccessNotification, confirmationAlert } from "../../../components/utils/alerts";
+import LogDataModal from "../../../components/modals/Modal";
 
 function mapStateToProps(state){
     return {
@@ -126,6 +127,11 @@ class RunExperimentScreen extends React.Component{
                                                     {item.completedTime? item.completedTime : "--"}
                                                 </Table.Cell>
                                                 <Table.Cell textAlign="right">
+                                                    <Button icon primary onClick={()=>this.setState({currentLogName:((this.props.finalExperiments.find(item2=>item2._id === item.finalExpConfigId)||{}).experiment||{}).description || "N/A", 
+                                                            currentLogData: item.logData
+                                                    })}>
+                                                        <Icon name="eye" style={{fontSize:12}}/>
+                                                    </Button>
                                                     <Button icon negative onClick={()=>this.handleDeleteExperimentRun(item)}>
                                                         <Icon name="trash" style={{fontSize:12}}/>
                                                     </Button>
@@ -158,6 +164,12 @@ class RunExperimentScreen extends React.Component{
                         </div>
                     </div>
                 </Segment>
+                <LogDataModal 
+                    open={!!this.state.currentLogData}
+                    onClose={()=>this.setState({currentLogData:null})}
+                    data={this.state.currentLogData}
+                    logName={this.state.currentLogName}
+                />
             </div>
         )
     }
