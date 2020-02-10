@@ -127,9 +127,7 @@ class RunExperimentScreen extends React.Component{
                                                     {item.completedTime? item.completedTime : "--"}
                                                 </Table.Cell>
                                                 <Table.Cell textAlign="right">
-                                                    <Button icon primary onClick={()=>this.setState({currentLogName:((this.props.finalExperiments.find(item2=>item2._id === item.finalExpConfigId)||{}).experiment||{}).description || "N/A", 
-                                                            currentLogData: item.logData
-                                                    })}>
+                                                    <Button icon primary onClick={()=>this.setState({currentLogName:((this.props.finalExperiments.find(item2=>item2._id === item.finalExpConfigId)||{}).experiment||{}).description || "N/A",  currentLogData: item.logData })}>
                                                         <Icon name="eye" style={{fontSize:12}}/>
                                                     </Button>
                                                     <Button icon negative onClick={()=>this.handleDeleteExperimentRun(item)}>
