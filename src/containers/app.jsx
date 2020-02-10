@@ -60,7 +60,7 @@ class App extends Component{
                 <Sidebar.Pusher dimmed={this.state.isSidebarVisible}>
                     <div className="match-parent">
                         <Header onToggleSidebar={this.handleToggleSidebar}>
-                            <div className="container">
+                            <div style={{marginLeft:20}}>
                                 <img src={logoImg} height={48}/>  
                             </div>    
                         </Header>

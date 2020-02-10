@@ -51,11 +51,20 @@ const HostsCredentialsForm = (props)=>{
         <div style={{maxHeight:400, overflowY:"auto", overflowX:"hidden"}}>
             <div style={{padding:10, width:"100%", height:"100%"}}>
                 {hosts.map((_, indx)=>{
-                    let hostname = Object.keys(mutableHosts[indx])[0]
+                    let hostname = Object.keys(mutableHosts[indx])[0];
+                    let component = props.hostComponents.find(item=>{
+                        let hosts = item[ Object.keys(item)[0] ];
+                        return !!hosts.find(item2=>{
+                            let hn = Object.keys(item2)[0];
+                            return hn === hostname
+                        });
+                    });
+                    let componentName = Object.keys( component||{} )[0]
                     return (
                         <div style={{paddingTop:3, marginTop:10, borderTop:"1px solid #ddd"}} key={indx+""}>
-                            <div style={{display:"flex"}}>
-                                <span style={{marginRight:5}}>Credentials for: </span><span style={{color:"green"}}>{hostname.replace(/_/g, ".")}</span>
+                            <div style={{display:"flex", justifyContent:"space-between"}}>
+                                <span style={{marginRight:5}}>Credentials for: <span style={{color:"green"}}>{hostname.replace(/_/g, ".")}</span></span>
+                                <span style={{marginRight:5, color:"blue"}}>{componentName}</span>
                             </div>
                             <div style={{display:"flex"}}>
                                 <div style={{display:"flex", alignItems:"center", marginRight:15, marginTop:2}}>
