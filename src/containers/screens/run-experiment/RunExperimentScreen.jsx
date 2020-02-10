@@ -376,7 +376,7 @@ class RunExperimentScreen extends React.Component{
                                                     <Table.Body>
                                                         {this.state.finalExperiments.filter(item=>item.experimentStatus==="NOT_EXECUTED").map(item=>{
                                                             return (
-                                                                <Table.Row key={Math.random()+""}>
+                                                                <Table.Row key={item._id}>
                                                                     <Table.Cell>{(item.experiment||{}).description}</Table.Cell>
                                                                     <Table.Cell textAlign='right'>
                                                                         <Button size="large" color="blue" icon onClick={()=>this.setState({viewFinalEnvConfig:item})}><Icon name="eye" /></Button>

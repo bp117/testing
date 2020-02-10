@@ -194,7 +194,7 @@ class RunExperimentStatus extends React.Component{
                         {state:"Chaos State", ref:this.chaosStateRef}, 
                         {state:"Rollback State", ref:this.rollbackStateRef}
                     ].map(item=>(
-                        <div className="lane" key={Math.random()+""}>
+                        <div className="lane" key={item.state}>
                             <div className="lane-title">{item.state}
                             {item.state === this.state.runningState &&
                                 <div className="pulse-effect-view">
