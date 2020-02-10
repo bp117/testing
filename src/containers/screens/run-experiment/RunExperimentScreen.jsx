@@ -53,7 +53,7 @@ const HostsCredentialsForm = (props)=>{
                 {hosts.map((_, indx)=>{
                     let hostname = Object.keys(mutableHosts[indx])[0]
                     return (
-                        <div style={{paddingTop:3, marginTop:10, borderTop:"1px solid #ddd"}} key={Math.random()+""}>
+                        <div style={{paddingTop:3, marginTop:10, borderTop:"1px solid #ddd"}} key={indx+""}>
                             <div style={{display:"flex"}}>
                                 <span style={{marginRight:5}}>Credentials for: </span><span style={{color:"green"}}>{hostname.replace(/_/g, ".")}</span>
                             </div>
@@ -73,7 +73,6 @@ const HostsCredentialsForm = (props)=>{
                                             props.onHostsChange && props.onHostsChange(mutableHosts);
                                         }} 
                                         error={!(((hosts[indx][hostname]||{}).sshCredentials || {}).user||"").trim()}
-                                        autoFocus 
                                     />
                                 </div>
                                 <div style={{display:"flex", alignItems:"center"}}>
