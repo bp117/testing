@@ -44,67 +44,80 @@ const AccordionContent = (props)=>{
     )
 }
 
-const HostsCredentialsForm = (props)=>{
-    const [hosts, setHosts] = useState(props.hosts);
-    let mutableHosts = JSON.parse( JSON.stringify(hosts) )
+const CredentialsInput = (props)=>{
+    const [userName, setUserName] = useState(props.username||"")
+    const [password, setPassword] = useState(props.password||"")
     return (
-        <div style={{maxHeight:400, overflowY:"auto", overflowX:"hidden"}}>
+        <div style={{paddingTop:15, marginTop:10, borderTop:"1px solid #ddd"}}>
+            <div style={{ paddingBottom:10}}>
+                <span style={{color:"green"}}>{props.hostname.replace(/_/g, ".")}</span>
+            </div>
+            <div style={{display:"flex"}}>
+                <div style={{display:"flex", alignItems:"center", marginRight:15, marginTop:2}}>
+                    <span style={{marginRight:10, fontSize:14, fontWeight:"bold"}}>Username*:</span>
+                    <Input 
+                        placeholder={`Username for ${props.hostname.replace(/_/g, ".")} ...`} 
+                        value={userName}
+                        onChange={(_, data)=>{ 
+                            setUserName(data.value)
+                            props.onUsernameChange(data.value)
+                        }} 
+                        error={!userName}
+                    />
+                </div>
+                <div style={{display:"flex", alignItems:"center"}}>
+                    <span style={{marginRight:10, fontSize:14, fontWeight:"bold"}}>Password*:</span> &nbsp;
+                    <Input 
+                        placeholder={`Password for ${props.hostname.replace(/_/g, ".")}...`} 
+                        value={password}
+                        onChange={(_, data)=>{ 
+                            setPassword(data.value)
+                            props.onPasswordChange(data.value)
+                        }} 
+                        type="password"
+                        error={!password}/>
+                </div>
+            </div>
+        </div>
+    )
+}
+
+const HostsCredentialsForm2 = (props)=>{
+    let mutableData = JSON.parse( JSON.stringify(props.hostComponents) );
+    return (
+        <div style={{height:400, maxHeight:400, minWidth:720, overflowY:"auto", overflowX:"hidden"}}>
             <div style={{padding:10, width:"100%", height:"100%"}}>
-                {hosts.map((_, indx)=>{
-                    let hostname = Object.keys(mutableHosts[indx])[0];
-                    let component = props.hostComponents.find(item=>{
-                        let hosts = item[ Object.keys(item)[0] ];
-                        return !!hosts.find(item2=>{
-                            let hn = Object.keys(item2)[0];
-                            return hn === hostname
-                        });
-                    });
-                    let componentName = Object.keys( component||{} )[0]
-                    return (
-                        <div style={{paddingTop:3, marginTop:10, borderTop:"1px solid #ddd"}} key={indx+""}>
-                            <div style={{display:"flex", justifyContent:"space-between"}}>
-                                <span style={{marginRight:5}}>Credentials for: <span style={{color:"green"}}>{hostname.replace(/_/g, ".")}</span></span>
-                                <span style={{marginRight:5, color:"blue"}}>{componentName}</span>
-                            </div>
-                            <div style={{display:"flex"}}>
-                                <div style={{display:"flex", alignItems:"center", marginRight:15, marginTop:2}}>
-                                    <span style={{marginRight:10, fontSize:14, fontWeight:"bold"}}>Username*:</span>
-                                    <Input 
-                                        placeholder="Username for the experiment..." 
-                                        value={((hosts[indx][hostname]||{}).sshCredentials || {}).user}
-                                        onChange={(_, data)=>{ 
-                                            let host = mutableHosts[indx];
-                                            let sshCredentials = {...((host[hostname]||{}).sshCredentials || {}) }
-                                            sshCredentials.user = data.value;
-                                            host[hostname].sshCredentials = sshCredentials
-                                            mutableHosts[indx] = host;
-                                            setHosts(mutableHosts);
-                                            props.onHostsChange && props.onHostsChange(mutableHosts);
-                                        }} 
-                                        error={!(((hosts[indx][hostname]||{}).sshCredentials || {}).user||"").trim()}
+                <CustomAccordion 
+                    onOpenStateChange = {(key, state)=>{
+                        props.onOpenStateChange(key, state)
+                    }}
+                    panels={props.hostComponents.map((component,indx)=>({
+                            key: Object.keys(component)[0]+" "+indx,
+                            header: Object.keys(component)[0],
+                            open: props.accOpenStates[Object.keys(component)[0]+" "+indx],
+                            headerStyle:{bold:true, fontFamily:"Josefin Sans"},
+                            content: component[Object.keys(component)[0]].map(host=>{
+                                return (
+                                    <CredentialsInput 
+                                        hostname = {Object.keys(host)[0]}
+                                        username = {((host[Object.keys(host)[0]]||{}).sshCredentials||{}).user||""}
+                                        password = {((host[Object.keys(host)[0]]||{}).sshCredentials||{}).password||""}
+                                        onUsernameChange={(username)=>{
+                                            let mComponent = mutableData.find(item=>Object.keys(item)[0]===Object.keys(component)[0]) || {}
+                                            let mHost = mComponent[Object.keys(mComponent)[0]].find(item=>Object.keys(item)[0] === Object.keys(host)[0]) || {};
+                                            (mHost[Object.keys(mHost)[0]].sshCredentials||{}).user = username;
+                                            props.onHostCompsChange(mutableData);
+                                        }}
+                                        onPasswordChange={(password)=>{
+                                            let mComponent = mutableData.find(item=>Object.keys(item)[0]===Object.keys(component)[0]) || {}
+                                            let mHost = mComponent[Object.keys(mComponent)[0]].find(item=>Object.keys(item)[0] === Object.keys(host)[0]) || {};
+                                            (mHost[Object.keys(mHost)[0]].sshCredentials||{}).password = password;
+                                            props.onHostCompsChange(mutableData);
+                                        }}
                                     />
-                                </div>
-                                <div style={{display:"flex", alignItems:"center"}}>
-                                    <span style={{marginRight:10, fontSize:14, fontWeight:"bold"}}>Password*:</span> &nbsp;
-                                    <Input 
-                                        placeholder="Password for the experiment..." 
-                                        value={((hosts[indx][hostname]||{}).sshCredentials || {}).password}
-                                        onChange={(_, data)=>{ 
-                                            let host = mutableHosts[indx];
-                                            let sshCredentials = {...((host[hostname]||{}).sshCredentials || {}) }
-                                            sshCredentials.password = data.value;
-                                            host[hostname].sshCredentials = sshCredentials
-                                            mutableHosts[indx] = host;
-                                            setHosts(mutableHosts);
-                                            props.onHostsChange && props.onHostsChange(mutableHosts);
-                                        }} 
-                                        type="password"
-                                        error={!((hosts[indx][hostname]||{}).sshCredentials || {}).password}/>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-                )}
+                                )
+                            })
+                }))} />
             </div>
         </div>
     )
@@ -214,28 +227,39 @@ class RunExperimentScreen extends React.Component{
             }
         }
     }
-    handleStartExperiment = (finalExpConfig, hosts)=>{
-        let thisHosts = [];
-        let hostComponents = []
-        finalExpConfig.environment.components.forEach(item=>{
-            thisHosts.push(...((item.environmentConfig||{}).hosts||[]));
-            hostComponents.push({[item.name]:((item.environmentConfig||{}).hosts||[])});
-        })
-        hosts = hosts || thisHosts
+    handleStartExperiment = (finalExpConfig, _hostComponents, _accOpenStates={})=>{
+        let hostComponents = _hostComponents
+        let accOpenStates = _accOpenStates;
+        if(!hostComponents){
+            hostComponents = [];
+            finalExpConfig.environment.components.forEach(item=>{
+                hostComponents.push({[item.name]:((item.environmentConfig||{}).hosts||[])});
+            });
+        }
         confirmationAlert(
-            <HostsCredentialsForm 
-                hosts={hosts}
+            <HostsCredentialsForm2 
                 hostComponents={hostComponents}
-                onHostsChange={(_hosts)=>{
-                    hosts = _hosts
+                onHostCompsChange={(_hostComps)=>{
+                    hostComponents = _hostComps
+                }}
+                accOpenStates={accOpenStates}
+                onOpenStateChange={(key, openState)=>{
+                    accOpenStates[key] = openState;
                 }}
             />,
             ()=>{
-                let canProceed = hosts.every((item,indx)=>{
-                    let cred = (hosts[indx][Object.keys(item)[0]]||{}).sshCredentials
-                    return ((cred||{}).user||"").trim() && (cred||{}).password
+                let canProceed = hostComponents.every((component,indx)=>{
+                    let compName = Object.keys(component)[0]
+                    return component[compName] && component[compName].length>0 && component[compName].every(host=>{
+                        let hostName = Object.keys(host)[0];
+                        return ((host[hostName]||{}).sshCredentials||{}).user && ((host[hostName]||{}).sshCredentials||{}).user
+                    })
                 });
                 if(canProceed){
+                    let hosts = [];
+                    hostComponents.forEach(component=>{
+                        hosts.push(...component[Object.keys(component)[0]])
+                    });
                     finalExpConfig.environment.hosts = (finalExpConfig.environment.hosts||[]).map(item=>{
                         let __host = hosts.find(item2=>Object.keys(item)[0] === Object.keys(item2)[0]) || item;
                         let k = Object.keys(__host)[0];
@@ -243,7 +267,9 @@ class RunExperimentScreen extends React.Component{
                     });
                     finalExpConfig.environment.components = (finalExpConfig.environment.components||[]).map(item=>{
                         item.environmentConfig.hosts = (item.environmentConfig.hosts||[]).map((item2)=>{
-                            let __host = hosts.find(item3=>Object.keys(item3)[0] === Object.keys(item2)[0]) || item2;
+                            let __comp = hostComponents.find(item3 => Object.keys(item3)[0] === item.name)
+                            let theseHosts = __comp[item.name];
+                            let __host = theseHosts.find(item3=>Object.keys(item3)[0] === Object.keys(item2)[0]) || item2;
                             let k = Object.keys(__host)[0];
                             return {[k.replace(/_/g, ".")]: __host[k]}
                         });
@@ -262,7 +288,7 @@ class RunExperimentScreen extends React.Component{
                 }else{
                     setTimeout(() => {
                         errorAlert("Please enter valid values to all fields", ()=>{
-                            this.handleStartExperiment(finalExpConfig, hosts)
+                            this.handleStartExperiment(finalExpConfig, hostComponents, accOpenStates)
                         });
                     }, 1);
                 }

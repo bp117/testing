@@ -660,7 +660,7 @@ class CreateExperimentScreen extends React.Component{
                     expectedOutputFunctionForRegex,
                     expectedOutcomeStatusCode,
                     dependencies,
-                    hostSelectionCriteria: hostSelectionCriteria && hostSelectionCriteria === "all"? "all" : "any("+hostSelectionCriteriaCount+")"
+                    hostSelectionCriteria: hostSelectionCriteria && hostSelectionCriteria === "all"? "all" : hostSelectionCriteriaCount!=undefined? "any("+hostSelectionCriteriaCount+")" : undefined
                 }
                 jsonData[formattedKey] = jsonData[formattedKey] || { executionSteps:[] };
                 jsonData[formattedKey].executionSteps.push( JSON.parse(JSON.stringify(compData))); //So that all `undefined` fields will be removed
