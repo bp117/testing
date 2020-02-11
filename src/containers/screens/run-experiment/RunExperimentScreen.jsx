@@ -233,8 +233,13 @@ class RunExperimentScreen extends React.Component{
         if(!hostComponents){
             hostComponents = [];
             finalExpConfig.environment.components.forEach(item=>{
-                hostComponents.push({[item.name]:((item.environmentConfig||{}).hosts||[])});
+                let cHosts = (item.environmentConfig||{}).hosts || []
+                if(cHosts && cHosts.length>0)
+                    hostComponents.push({[item.name]:cHosts});
             });
+        }
+        if(hostComponents.length==0){
+            return errorAlert("There are no hosts selected for this experiment.");
         }
         confirmationAlert(
             <HostsCredentialsForm2 
