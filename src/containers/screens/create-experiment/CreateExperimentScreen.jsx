@@ -443,31 +443,30 @@ class CreateExperimentScreen extends React.Component{
                 arrayMove(kStateDestArr, sourceIndx, destIndx, true)
                 this.setState({kanbanStates:mutableKanbanStates})
             }else{
-                const moveKanbanCards = (draggedComp)=>{
-                    kStateDestArr.splice(destIndx, 0, draggedComp);
-                    kStateSrcArr.splice(sourceIndx, 1);
-                    this.setState({kanbanStates:mutableKanbanStates})
-                }
-                if(kStateDestArr.find(item=>item.editedName===draggedComp.editedName)){
-                    let tempName = draggedComp.editedName;
-                    confirmationAlert(
-                        <div style={{display:"flex", alignItems:"center", marginTop:10}}>
-                            <span style={{marginRight:10}}>Name:</span>
-                            <Input defaultValue={tempName} onChange={(_, data)=>tempName = data.value} autoFocus/>
-                        </div>,
-                        ()=>{
-                            if(!kStateDestArr.find(item2=>item2.editedName===tempName)){
-                                moveKanbanCards({...draggedComp, editedName:tempName})
-                            }else{
-                                showWarningNotification("A component with the name `"+tempName+"` already exists in the `"+kStateDest+"`. So, operation cancelled")
-                            }
-                        },
-                        {isPositiveBtn:true, okBtnText:"Set Name", cancelBtnText:"Cancel", title:"Change name to avoid conflicts"}
-                    )
-                }
-                else moveKanbanCards(draggedComp);
-                
-                
+                // const moveKanbanCards = (draggedComp)=>{
+                //     kStateDestArr.splice(destIndx, 0, draggedComp);
+                //     kStateSrcArr.splice(sourceIndx, 1);
+                //     this.setState({kanbanStates:mutableKanbanStates})
+                // }
+                // if(kStateDestArr.find(item=>item.editedName===draggedComp.editedName)){
+                //     let tempName = draggedComp.editedName;
+                //     confirmationAlert(
+                //         <div style={{display:"flex", alignItems:"center", marginTop:10}}>
+                //             <span style={{marginRight:10}}>Name:</span>
+                //             <Input defaultValue={tempName} onChange={(_, data)=>tempName = data.value} autoFocus/>
+                //         </div>,
+                //         ()=>{
+                //             if(!kStateDestArr.find(item2=>item2.editedName===tempName)){
+                //                 moveKanbanCards({...draggedComp, editedName:tempName})
+                //             }else{
+                //                 showWarningNotification("A component with the name `"+tempName+"` already exists in the `"+kStateDest+"`. So, operation cancelled")
+                //             }
+                //         },
+                //         {isPositiveBtn:true, okBtnText:"Set Name", cancelBtnText:"Cancel", title:"Change name to avoid conflicts"}
+                //     )
+                // }
+                // else moveKanbanCards(draggedComp);
+                errorAlert("Cannot change the lane of `"+(draggedComp.editedName)+"` component")
             }
         }
     }
