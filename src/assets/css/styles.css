@@ -451,6 +451,13 @@ p {
 	transition: all .3s;
 }
 
+.kanban-card-container.edited .kanban-card{
+	background-color: #E0F2F1;
+	border: 1px solid #80CBC4;
+	border-left: 5px solid #26A69A;
+	color: #004D40;
+}
+
 .kanban-board .kanban-card-container:hover{
 	background-color: rgba(0, 0, 0, 0.1);
 	transition: all .3s;

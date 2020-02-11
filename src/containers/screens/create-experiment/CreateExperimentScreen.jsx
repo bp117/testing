@@ -133,7 +133,7 @@ const StepperComponent = (props)=>(
 )
 
 const KanbanCardItem = (props)=>(
-    <div className="kanban-card-container">
+    <div className={`kanban-card-container ${props.isEdited?"edited":""}`}>
         <div className="kanban-card">
             <h4> {props.editedName} </h4>
         </div>
@@ -197,6 +197,7 @@ const ConfigureExperimentView = (props)=>(
                                                     onRemoveKanbanItem={()=>props.onRemoveKanbanItem(item, stateName)}
                                                     onEditKanbanItem={()=>props.onEditKanbanItem(item, stateName)}
                                                     onCloneKanbanItem={()=>props.onCloneKanbanItem(item, stateName)}
+                                                    isEdited={props.checkComponentEdited(item)}
                                                 /> 
                                             ))}
                                             {provided.placeholder}
@@ -557,10 +558,25 @@ class CreateExperimentScreen extends React.Component{
         }
         return null
     }
-    _checkIfExperimentConfigCompIsEdited = (actionType, compData)=>{
+    _checkIfExperimentConfigCompActionIsEdited = (actionType, compData)=>{
         let originalItem = this.state.componentNodes.find(item=>item._id === compData._id);
         let actionsModified = compData.actions, actions = originalItem.actions; 
         return actionType && (actionsModified[ actionType ].command||"").trim() !== (actions[ actionType ].command||"").trim()
+    }
+    _checkIfExperimentConfigCompIsEdited = (compData)=>{
+        let originalItem = this.state.componentNodes.find(item=>item._id === compData._id);
+        let actionsModified = compData.actions, actions = originalItem.actions; 
+        let isActionEdited = Object.keys(actionsModified).some(actionType=>{
+            return ((actionsModified[ actionType ].command||"").trim() !== (actions[ actionType ].command||"").trim() || 
+                    actionsModified[ actionType ].timeout !== actions[ actionType ].timeout)
+        });
+        return (isActionEdited || 
+                compData.actionArguments || 
+                compData.waitTimeInMillsAfterAction || 
+                compData.expectedOutputFunctionForRegex ||
+                compData.expectedOutcomeStatusCode ||
+                compData.hostSelectionCriteria ||
+                compData.hostSelectionCriteriaCount)
     }
     handleEditKanbanItem = (component, stateName)=>{
         this.setState({editCompHasErrors:false})
@@ -569,7 +585,7 @@ class CreateExperimentScreen extends React.Component{
             <KanbanComponentEditView 
                 data={mutableEditData}
                 stateName={stateName} 
-                checkEdited={this._checkIfExperimentConfigCompIsEdited}
+                checkEdited={this._checkIfExperimentConfigCompActionIsEdited}
             />,
             (onClosCb, setExtraView)=>{
                 let valResult = this._validateExperimentConfigComp(mutableEditData)
@@ -782,6 +798,7 @@ class CreateExperimentScreen extends React.Component{
                                     onCloneKanbanItem={this.handleCloneKanbanItem}
                                     onEditExperimentName={(experimentName)=>this.setState({experimentName})}
                                     onCreateExperiment={this.handleCreateExperiment}
+                                    checkComponentEdited={(component)=>this._checkIfExperimentConfigCompIsEdited(component)}
                                     isSubmitting = {this.state.isSubmittingExpJson}
                                 />
                             </div>
