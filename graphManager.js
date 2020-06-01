@@ -73,6 +73,7 @@ export default class D3GraphManager {
     };
 
     getSimpleSVGNode = (item)=>{
+        let traces = [...new Set(item.traces||[])];
         let nodeContainer = document.createElementNS("http://www.w3.org/2000/svg", "g");
 
         let compNameNode = document.createElementNS("http://www.w3.org/2000/svg", "text");
@@ -88,7 +89,7 @@ export default class D3GraphManager {
         traceCountNode.setAttribute("x", 4.75*item["name-length-max"] - 5*item["name-diff-length"]);
         traceCountNode.setAttribute("y", 65);
         traceCountNode.style = "fill:whitesmoke !important; font-size:30px;";
-        traceCountNode.textContent = (" ".repeat(name.length/2))+(item.traces||[]).length+(" ".repeat(name.length/2))//+ "\u2003".repeat(2);
+        traceCountNode.textContent = (" ".repeat(name.length/2))+(traces).length+(" ".repeat(name.length/2))//+ "\u2003".repeat(2);
 
         
         nodeContainer.append(compNameNode, traceCountNode);
