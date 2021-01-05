@@ -6,7 +6,7 @@
     "build": "webpack --mode production --config webpack/prod.config.js --env.PLATFORM=production --env.VERSION=stag --progress"
   },
   "dependencies": {
-    "axios": "^0.19.0",
+    "axios": "^0.21.1",
     "bootstrap": "3.4.1",
     "d3": "^5.15.0",
     "jsplumb": "^2.12.9",
