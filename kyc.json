@@ -1,0 +1,111 @@
+[{
+  "_id": {
+    "$oid": "6305d7fd6317a317600415f1"
+  },
+  "userType": "client",
+  "login": "user01",
+  "password": "$2a$10$XRB9c.mRizKFUO9I9Zo/nejAIlsiphyePBBOyx1deFpEanfTtZbjq",
+  "ledgerId": "CLIENT1",
+  "whoRegistered": "a2e9e9f2e3121c86f22b8c16b5cfac86:57ebeb1458b58221e65c4a475f6f8af5aee7191d4fc3be1766dbd7291f55ce",
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "6305d7fd6317a317600415f2"
+  },
+  "userType": "client",
+  "login": "user02",
+  "password": "$2a$10$Q0XcEc7Pu4zjeoUla2RFGewyQj4Z1RIJT1PdMRxJGb5g4YaIemtb6",
+  "ledgerId": "CLIENT2",
+  "whoRegistered": "e9dd53ec21ab063723116452d402f151:4d13e6563877352c7199e36bedfb53ed5b8f16300453b72a4df20f076d7489",
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "6305d7fd6317a317600415f3"
+  },
+  "userType": "client",
+  "login": "JonasKahnwald",
+  "password": "$2a$10$YkkEmXqiWNY466ly99TAhu.LUKc5ITaX4VxwKs3PPPZ.anMOprm52",
+  "ledgerId": "CLIENT3",
+  "whoRegistered": "b55b88d34e9a763461be92471eb35399:441308381677caadb176b025b65c19eecd2f49a5174e3cac9ccbeb8094470e",
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "6305d7fd6317a317600415f5"
+  },
+  "userType": "client",
+  "login": "ClaudiaTiedemann",
+  "password": "$2a$10$gVjqmwGrdOAIvDpFBbUSz.eAp.LKMhedq/cY0WmTy2T9U5t51QhBK",
+  "ledgerId": "CLIENT5",
+  "whoRegistered": "7b8d099e38e33b2d05ae9dc74b1437c8:24cc1c13929bb2bdea774b99c669408f75f9c1d674498afc98ae6d4464beef",
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "6305d7fd6317a317600415f7"
+  },
+  "userType": "client",
+  "login": "H.G.Tannhaus",
+  "password": "$2a$10$4gTmf8ffEkAMk01jAQsiKu.ZPf83s0YVkybITDqWhosiw8qI6NkMG",
+  "ledgerId": "CLIENT7",
+  "whoRegistered": "aba72b44cc8853110a706eff9cda7fad:988bf3988139ac654862479d16025f9e20a27af651cb972041ada339e1d7b4",
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "6305d7fd6317a317600415f6"
+  },
+  "userType": "client",
+  "login": "ElisabethDoppler",
+  "password": "$2a$10$fit8MxmIOjhRGDWOckCENepYcnQH4Filn/CfAxOV5FhH5MQWonIAW",
+  "ledgerId": "CLIENT6",
+  "whoRegistered": "9dde312b32447d71f079534277c52b88:bbb219e5e871330eb0ea83f7e65e5a77dbc939bafa788791452617c81dfbea",
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "6305d7fd6317a317600415f9"
+  },
+  "userType": "fi",
+  "login": "JPMorgan_1",
+  "password": "$2a$10$ENqY/0BCrEC2IpuXQoNFX.8Kn723J/EXtH9V8jnZnrloGgKcOPziO",
+  "ledgerId": "FI2",
+  "orgCredentials": "f965b6130dade655bfaf5abd001020c7:c8fae15b3af4c15d04c4b12755de2aa7c5cc2ad76427d9d545e5b459c227e5",
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "6305d7fd6317a317600415f8"
+  },
+  "userType": "fi",
+  "login": "FI1",
+  "password": "$2a$10$xUmvzCfesk9MI2EeTsWr/OLMxfIREa5DeLrZRIRb53KoiiLgCez8i",
+  "ledgerId": "FI1",
+  "orgCredentials": "61decc88234d2e3f17530bac7a99d778:7b1af4cf254694d6dc371548a7fee953c2c93f16f0f41a5522546ad41b96fd",
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "6305d7fd6317a317600415f4"
+  },
+  "userType": "client",
+  "login": "MarthaNielsen",
+  "password": "$2a$10$gWkxY3kZ.UfBOxu5lGeABeUdiFc0Hn..cHpyJa5E4iMPVnIKaIYfa",
+  "ledgerId": "CLIENT4",
+  "whoRegistered": "fe133f70f3afb65485befb0260e1b662:c34a0eb22b3581ad5b023c2df87be2558ff08f5d24cd7d752a1189d653cc7b",
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "6305ef3c7bab5b2dea1d5693"
+  },
+  "userType": "client",
+  "login": "bindu",
+  "password": "$2a$10$03tDXZWrX32q8uvME1gIj.5WSsKtyRtqq/DGeTEToLaW3T0Om38dq",
+  "ledgerId": "CLIENT8",
+  "whoRegistered": "6330dc8f79b125dc6a7baa73ce69ca71:e59d3d2baa3114799fdc107f3de0e4fef177d1891014573162f80157df75bb",
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "6311927810dde508a4a0c5a4"
+  },
+  "userType": "client",
+  "login": "Robert",
+  "password": "$2a$10$YYnIboH06TfimfVfotVXkOgHxqdbWjDF1zwsINZyY/Yf5HuXAE1fq",
+  "ledgerId": "ROBERT",
+  "whoRegistered": "83c9db4d7bb31ac261d9f29439dd805a:a0ab7e2ea89a46ce48a6af53641c3da0296125cc44c190b048376df1699e6c",
+  "__v": 0
+}]
