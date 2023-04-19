@@ -1,0 +1,86 @@
+SS: Sentence segmentation is the process of splitting a text into individual sentences
+-----
+
+in: "This is the first sentence. Here's the second sentence! And finally, this is the third sentence?"
+out: Sentence 1: This is the first sentence.
+Sentence 2: Here's the second sentence!
+Sentence 3: And finally, this is the third sentence?
+
+
+WT: Tokenization is the process of splitting a text into individual words or tokens
+
+out:Sentence 1: This is the first sentence.
+Tokens: ['This', 'is', 'the', 'first', 'sentence', '.']
+
+Sentence 2: Here's the second sentence!
+Tokens: ['Here', "'s", 'the', 'second', 'sentence', '!']
+
+Sentence 3: And finally, this is the third sentence?
+Tokens: ['And', 'finally', ',', 'this', 'is', 'the', 'third', 'sentence', '?']
+
+Stemming: Stemming is the process of reducing words to their root or base form.
+Out: Sentence 1: This is the first sentence.
+Stemmed Tokens: ['thi', 'is', 'the', 'first', 'sentenc', '.']
+
+Sentence 2: Here's the second sentence!
+Stemmed Tokens: ['here', "'s", 'the', 'second', 'sentenc', '!']
+
+Sentence 3: And finally, this is the third sentence?
+Stemmed Tokens: ['and', 'final', ',', 'thi', 'is', 'the', 'third', 'sentenc', '?']
+
+Another important computational process for text normalization is eliminating inflectional affixes, such as the -ed and -s suffixes in English. Stemming is the process of finding the same underlying concept for several words, so they should be grouped into a single feature by eliminating affixes.
+
+The stemming process may lead to incorrect results (e.g., it won’t give good effects for ‘goose’ and ‘geese’). To overcome such problems, we make use of lemmatization.
+Lemmatization is the process of extracting the root form of a word. It converts words to their base grammatical form, as in “making” to “make,” rather than just randomly eliminating affixes.
+ An additional check is made by looking through a dictionary to extract the root form of a word in this process.
+ 
+ Lemmatization
+ out: Sentence 1: This is the first sentence.
+Lemmatized Tokens: ['This', 'is', 'the', 'first', 'sentence', '.']
+
+Sentence 2: Here's the second sentence!
+Lemmatized Tokens: ['Here', "'s", 'the', 'second', 'sentence', '!']
+
+Sentence 3: And finally, this is the third sentence?
+Lemmatized Tokens: ['And', 'finally', ',', 'this', 'is', 'the', 'third', 'sentence', '?']
+
+Stop words: Stop word analysis involves identifying and removing common words (such as "a," "an," "the," "and") that do not carry much meaning 
+and are often filtered out before or during text processing. 
+
+ourr: Sentence 1: This is the first sentence.
+Filtered Tokens: ['first', 'sentence', '.']
+
+Sentence 2: Here's the second sentence!
+Filtered Tokens: ["Here's", 'second', 'sentence', '!']
+
+Sentence 3: And finally, this is the third sentence?
+Filtered Tokens: ['finally', ',', 'third', 'sentence', '?']
+
+pos:
+
+Text: This is the first sentence. Here's the second sentence! And finally, this is the third sentence?
+
+POS Tags:
+This: DET
+is: AUX
+the: DET
+first: ADJ
+sentence: NOUN
+.: PUNCT
+Here: ADV
+'s: AUX
+the: DET
+second: ADJ
+sentence: NOUN
+!: PUNCT
+And: CCONJ
+finally: ADV
+,: PUNCT
+this: DET
+is: AUX
+the: DET
+third: ADJ
+sentence: NOUN
+?: PUNCT
+
+
