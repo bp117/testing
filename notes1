@@ -1,0 +1,14 @@
+ABS Creation Workflow:
+The issuer creates an SPV and ABS contract on the Corda network.
+The issuer adds the underlying assets to the SPV contract.
+The ABS contract contains the details of the underlying assets, the cash flows they generate, and the rules for the distribution of the cash flows to the tranches.
+Tranching Workflow:
+The issuer creates separate tranches by dividing the cash flows into different levels of risk.
+The tranches are represented as separate contracts on the Corda network and contain the details of the cash flows, the interest rate, and the repayment priority.
+The tranches are typically divided into senior, mezzanine, and subordinated tranches.
+ABS Issuance Workflow:
+The issuer lists the tranches on the Corda network.
+Investors can view the tranches and place bids for the tranches they are interested in buying.
+The issuer accepts the bids that match their requirements.
+Once the bids are accepted, the investors transfer the funds to the issuer in exchange for the tranches.
+The issuer transfers the tranches to the investors and sets up the cash flow distribution according to the rules outlined in the ABS contract.
