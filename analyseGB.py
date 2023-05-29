@@ -3,7 +3,8 @@ from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score
-import json
+from sklearn.ensemble import IsolationForest
+import seaborn as sns
 
 # Load the glassbox data from a JSON file
 with open('glassbox_data.json') as f:
@@ -11,6 +12,15 @@ with open('glassbox_data.json') as f:
 
 # Convert the JSON data to a pandas DataFrame
 glassbox_df = pd.DataFrame.from_records(glassbox_data)
+
+# Perform profiling of the glassbox data
+profiling_summary = glassbox_df.describe(include='all')
+print("Profiling Summary:")
+print(profiling_summary)
+
+# Exploratory Data Analysis using seaborn
+sns.pairplot(glassbox_df)
+plt.show()
 
 # Separate the features (X) and the target variable (y)
 X = glassbox_df.drop('target_variable', axis=1)
@@ -40,3 +50,15 @@ y_pred_logistic_regression = logistic_regression.predict(X_test)
 # Calculate the accuracy of the logistic regression model
 logistic_regression_accuracy = accuracy_score(y_test, y_pred_logistic_regression)
 print("Logistic Regression Accuracy:", logistic_regression_accuracy)
+
+# Anomaly Detection using Isolation Forest
+anomaly_detector = IsolationForest(contamination=0.05)
+anomaly_detector.fit(X_train)
+
+# Predict anomalies in the glassbox data
+anomalies = anomaly_detector.predict(X)
+anomaly_df = glassbox_df[anomalies == -1]
+
+# Print the detected anomalies
+print("\nDetected Anomalies:")
+print(anomaly_df)
