@@ -1,0 +1,110 @@
+LWC:::
+
+//html
+
+<template>
+    <table class="slds-table slds-table_bordered slds-table_cell-buffer">
+        <thead>
+            <tr class="slds-line-height_reset">
+                <th onclick={sortGrid} data-name="pod">POD</th>
+                <th onclick={sortGrid} data-name="watershed">Watershed</th>
+                <th onclick={sortGrid} data-name="waterCourseName">Water Course Name</th>
+                <th onclick={sortGrid} data-name="tributaryTo">Tributary To</th>
+            </tr>
+        </thead>
+        <tbody>
+            <template for:each={gridData} for:item="item" for:index="index">
+                <tr key={item.id}>
+                    <td>{item.pod}</td>
+                    <td>{item.watershed}</td>
+                    <td>{item.waterCourseName}</td>
+                    <td>{item.tributaryTo}</td>
+                    <td>
+                        <lightning-button-icon icon-name="utility:chevronright" alternative-text="Expand" 
+                        size="x-small" onclick={handleRowClick} data-id={item.id}>
+                        </lightning-button-icon>
+                    </td>
+                </tr>
+                <template if:true={item.isExpanded}>
+                    <tr key={item.id}>
+                        <td colspan="5">
+                            <div class="slds-m-around_medium">
+                                <div class="slds-grid slds-wrap">
+                                    <div class="slds-col slds-size_1-of-2">
+                                        <lightning-input label="Input 1" value={item.input1} onchange={handleInputChange}></lightning-input>
+                                    </div>
+                                    <div class="slds-col slds-size_1-of-2">
+                                        <lightning-input label="Input 2" value={item.input2} onchange={handleInputChange}></lightning-input>
+                                    </div>
+                                    <div class="slds-col slds-size_1-of-2">
+                                        <lightning-combobox name="Dropdown 1" label="Dropdown 1" options={dropdown1Options} value={item.dropdown1} onchange={handleComboboxChange}></lightning-combobox>
+                                    </div>
+                                    <div class="slds-col slds-size_1-of-2">
+                                        <lightning-combobox name="Dropdown 2" label="Dropdown 2" options={dropdown2Options} value={item.dropdown2} onchange={handleComboboxChange}></lightning-combobox>
+                                    </div>
+                                </div>
+                                <div class="slds-m-top_medium">
+                                    <lightning-button variant="brand" label="Save" onclick={handleSave} data-id={item.id}></lightning-button>
+                                    <lightning-button variant="destructive" label="Cancel" onclick={handleCancel} data-id={item.id}></lightning-button>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                </template>
+            </template>
+        </tbody>
+    </table>
+</template>
+//js
+
+import { LightningElement, track } from 'lwc';
+
+export default class MyTreeGrid extends LightningElement {
+    @track gridData = [
+        // Define your data here
+    ];
+    @track dropdown1Options = [
+        // Define your options here
+    ];
+    @track dropdown2Options = [
+        // Define your options here
+    ];
+
+    handleInputChange(event) {
+        // Handle input change
+    }
+    
+    handleComboboxChange(event) {
+        // Handle combobox change
+    }
+
+    handleRowClick(event) {
+        const rowId = event.currentTarget.dataset.id;
+        const rowIndex = this.gridData.findIndex(row => row.id === rowId);
+        this.gridData[rowIndex].isExpanded = !this.gridData[rowIndex].isExpanded;
+    }
+
+    handleSave(event) {
+        // Handle save
+    }
+
+    handleCancel(event) {
+        // Handle cancel
+    }
+
+    sortGrid(event) {
+        // Handle grid sorting
+    }
+}
+//xml
+
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>52.0</apiVersion>
+    <isExposed>true</isExposed>
+    <targets>
+        <target>lightning__AppPage</target>
+        <target>lightning__RecordPage</target>
+        <target>lightning__HomePage</target>
+    </targets>
+</LightningComponentBundle>
