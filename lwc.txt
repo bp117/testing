@@ -239,3 +239,44 @@ export default class MyTreeGrid extends LightningElement {
         return `slds-icon_container slds-icon-utility-arrow${this.sortDirection} slds-m-left_xx-small slds-is-sortable__icon ${this.sortDirection === 'asc' ? 'slds-is-sortable__icon-up' : 'slds-is-sortable__icon-down'}`;
     }
 }
+
+
+//sample data
+export default class MyTreeGrid extends LightningElement {
+    @track gridData = [
+        {
+            id: 1,
+            pod: 'Pod 1',
+            watershed: 'Watershed 1',
+            waterCourseName: 'Water Course Name 1',
+            tributaryTo: 'Tributary To 1',
+            dropdown1: 'Option 1',
+            dropdown2: 'Option 2',
+            isExpanded: false
+        },
+        {
+            id: 2,
+            pod: 'Pod 2',
+            watershed: 'Watershed 2',
+            waterCourseName: 'Water Course Name 2',
+            tributaryTo: 'Tributary To 2',
+            dropdown1: 'Option 1',
+            dropdown2: 'Option 2',
+            isExpanded: false
+        },
+        // more data...
+    ];
+    @track dropdown1Options = [
+        { label: 'Option 1', value: 'Option 1' },
+        { label: 'Option 2', value: 'Option 2' },
+        { label: 'Option 3', value: 'Option 3' },
+        // more options...
+    ];
+    @track dropdown2Options = [
+        { label: 'Option A', value: 'Option A' },
+        { label: 'Option B', value: 'Option B' },
+        { label: 'Option C', value: 'Option C' },
+        // more options...
+    ];
+    // rest of your code...
+}
