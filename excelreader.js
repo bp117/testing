@@ -154,39 +154,41 @@ const ExcelReader = ({ selectedHeaders, setSelectedHeaders }) => {
             </AccordionDetails>
           </Accordion>
         ))}
-
-        <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
-          <DialogTitle>Select Header Rows</DialogTitle>
-          <DialogContent>
-            <Grid container spacing={2}>
-              {Object.keys(headerOptions).map(sheetName => (
-                <Grid item xs={12} sm={6} md={4} key={sheetName}>
-                  <Typography variant="h6">{sheetName}</Typography>
-                  <List>
-                    {headerOptions[sheetName].map((row, rowIndex) => (
-                      <ListItem key={rowIndex} dense button onClick={() => handlePotentialHeaderSelection(sheetName, rowIndex)}>
-                        <Checkbox
-                          checked={potentialHeaders[sheetName]?.includes(rowIndex) || false}
-                          tabIndex={-1}
-                          disableRipple
-                        />
-                        <ListItemText primary={row.join(' - ')} />
-                      </ListItem>
-                    ))}
-                  </List>
-                </Grid>
-              ))}
-            </Grid>
-          </DialogContent>
-          <DialogActions>
-            {Object.keys(potentialHeaders).map(sheetName => (
-              potentialHeaders[sheetName]?.map(rowIndex => (
-                <Button key={rowIndex} onClick={() => handleHeaderSelection(sheetName, rowIndex)}>Use row {rowIndex + 1} in {sheetName} as header</Button>
-              ))
+<Dialog open={openDialog} onClose={() => setOpenDialog(false)} maxWidth="md" fullWidth>
+  <DialogTitle>Select Header Rows</DialogTitle>
+  <DialogContent style={{ maxHeight: '70vh', overflowY: 'auto' }}>
+    {Object.keys(headerOptions).map(sheetName => (
+      <Accordion key={sheetName}>
+        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+          <Typography variant="h6">{sheetName}</Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          <List>
+            {headerOptions[sheetName].map((row, rowIndex) => (
+              <ListItem key={rowIndex} dense button onClick={() => handlePotentialHeaderSelection(sheetName, rowIndex)}>
+                <Checkbox
+                  checked={potentialHeaders[sheetName]?.includes(rowIndex) || false}
+                  tabIndex={-1}
+                  disableRipple
+                />
+                <ListItemText primary={row.join(' - ')} />
+              </ListItem>
             ))}
-            <Button onClick={() => setOpenDialog(false)}>Close</Button>
-          </DialogActions>
-        </Dialog>
+          </List>
+        </AccordionDetails>
+      </Accordion>
+    ))}
+  </DialogContent>
+  <DialogActions>
+    {Object.keys(potentialHeaders).map(sheetName => (
+      potentialHeaders[sheetName]?.map(rowIndex => (
+        <Button key={rowIndex} onClick={() => handleHeaderSelection(sheetName, rowIndex)}>Use row {rowIndex + 1} in {sheetName} as header</Button>
+      ))
+    ))}
+    <Button onClick={() => setOpenDialog(false)}>Close</Button>
+  </DialogActions>
+</Dialog>
+
       </div>
     );
 };
