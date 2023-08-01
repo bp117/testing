@@ -1,130 +1,52 @@
-https://www.figma.com/file/cjPZgtqZPvOgQt04v65k3g/WellsLocker?node-id=0%3A1
-import React, { useState } from 'react';
-
-function Chat() {
-  const [message, setMessage] = useState('');
-  const [conversation, setConversation] = useState([]);
-
-  const sendMessage = () => {
-    setConversation([...conversation, message]);
-    setMessage('');
-  };
-
-  return (
-    <div className="flex flex-col h-full">
-      <div className="overflow-y-auto p-4 space-y-4">
-        {conversation.map((msg, index) => (
-          <div key={index} className="bg-gray-200 rounded p-2">{msg}</div>
-        ))}
-      </div>
-      <div className="border-t p-4 flex items-center">
-        <input
-          type="text"
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          className="flex-1 border rounded p-2"
-          placeholder="Type a message..."
-        />
-        <button onClick={sendMessage} className="ml-2 p-2 bg-blue-500 text-white rounded">
-          <i className="fa fa-send" />
-        </button>
-      </div>
-    </div>
-  );
-}
-
-export default Chat;
-
-import React, { useState } from 'react';
-import TreeView from './TreeView';
-import Accordion from './Accordion';
-import Chat from './Chat';
-import { IconArrowBarLeft, IconArrowBarRight } from '@tabler/icons';
-
-// Tree data and accordion data remain the same
-
 function App() {
   const [leftOpen, setLeftOpen] = useState(false);
   const [rightOpen, setRightOpen] = useState(false);
 
   return (
-    <div className="flex flex-col h-screen">
-      <div className="flex justify-between p-4">
-        <button onClick={() => setLeftOpen(!leftOpen)}>
-          {leftOpen ? <IconArrowBarRight size={32} /> : <IconArrowBarLeft size={32} />}
-        </button>
-        <button onClick={() => setRightOpen(!rightOpen)}>
-          {rightOpen ? <IconArrowBarLeft size={32} /> : <IconArrowBarRight size={32} />}
-        </button>
-      </div>
-      <div className="flex flex-row flex-grow">
-        {leftOpen && (
-          <div className="w-64 bg-gray-100 p-4">
+    <div className="flex flex-row h-screen">
+      {leftOpen ? (
+        <ResizableBox
+          width={300}
+          height={Infinity}
+          minConstraints={[150, Infinity]}
+          maxConstraints={[500, Infinity]}
+        >
+          <div className="bg-gray-100 p-4 h-full">
+            <button onClick={() => setLeftOpen(false)} className="mb-4">
+              <IconArrowBarRight size={32} />
+            </button>
             <TreeView data={treeData} />
           </div>
-        )}
-        <div className="flex-1 p-4 flex flex-col">
-          <Chat />
-        </div>
-        {rightOpen && (
-          <div className="w-64 bg-gray-100 p-4">
+        </ResizableBox>
+      ) : (
+        <button onClick={() => setLeftOpen(true)}>
+          <IconArrowBarLeft size={32} />
+        </button>
+      )}
+      <div className="flex-1 p-4 flex flex-col">
+        <Chat />
+      </div>
+      {rightOpen ? (
+        <ResizableBox
+          width={300}
+          height={Infinity}
+          minConstraints={[150, Infinity]}
+          maxConstraints={[500, Infinity]}
+        >
+          <div className="bg-gray-100 p-4 h-full">
+            <button onClick={() => setRightOpen(false)} className="mb-4">
+              <IconArrowBarLeft size={32} />
+            </button>
             {accordionData.map((accordion, index) => (
               <Accordion key={index} title={accordion.title} content={accordion.content} />
             ))}
           </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
-export default App;
-function App() {
-  const [leftOpen, setLeftOpen] = useState(false);
-  const [rightOpen, setRightOpen] = useState(false);
-  const [leftWidth, setLeftWidth] = useState(200);
-  const [rightWidth, setRightWidth] = useState(200);
-
-  return (
-    <div className="flex flex-col h-screen relative">
-      <div className="flex justify-between p-4">
-        {/* ... Icon Buttons ... */}
-      </div>
-      <div className="flex flex-row flex-grow relative">
-        {leftOpen && (
-          <Resizable
-            width={leftWidth}
-            height={0}
-            onResize={(event, { size }) => setLeftWidth(size.width)}
-          >
-            <div
-              style={{ width: leftWidth }}
-              className="bg-gray-100 p-4 absolute top-0 left-0 h-full z-10"
-            >
-              <TreeView data={treeData} />
-            </div>
-          </Resizable>
-        )}
-        <div className="flex-1 p-4 flex flex-col">
-          <Chat />
-        </div>
-        {rightOpen && (
-          <Resizable
-            width={rightWidth}
-            height={0}
-            onResize={(event, { size }) => setRightWidth(size.width)}
-          >
-            <div
-              style={{ width: rightWidth }}
-              className="bg-gray-100 p-4 absolute top-0 right-0 h-full z-10"
-            >
-              {accordionData.map((accordion, index) => (
-                <Accordion key={index} title={accordion.title} content={accordion.content} />
-              ))}
-            </div>
-          </Resizable>
-        )}
-      </div>
+        </ResizableBox>
+      ) : (
+        <button onClick={() => setRightOpen(true)}>
+          <IconArrowBarRight size={32} />
+        </button>
+      )}
     </div>
   );
 }
