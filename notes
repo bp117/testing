@@ -1,25 +1,21 @@
 function App() {
   const [leftOpen, setLeftOpen] = useState(false);
   const [rightOpen, setRightOpen] = useState(false);
+  const sidebarWidth = 300; // Width of the sidebars
 
   return (
     <div className="flex flex-row h-screen">
       {leftOpen ? (
-        <ResizableBox
-          width={300}
-          height={Infinity}
-          minConstraints={[150, Infinity]}
-          maxConstraints={[500, Infinity]}
-        >
-          <div className="bg-gray-100 p-4 h-full">
-            <button onClick={() => setLeftOpen(false)} className="mb-4">
-              <IconArrowBarRight size={32} />
-            </button>
+        <>
+          <div style={{ width: sidebarWidth }} className="bg-gray-100 p-4 h-full">
             <TreeView data={treeData} />
           </div>
-        </ResizableBox>
+          <button onClick={() => setLeftOpen(false)} className="bg-white p-2">
+            <IconArrowBarRight size={32} />
+          </button>
+        </>
       ) : (
-        <button onClick={() => setLeftOpen(true)}>
+        <button onClick={() => setLeftOpen(true)} className="bg-white p-2">
           <IconArrowBarLeft size={32} />
         </button>
       )}
@@ -27,23 +23,18 @@ function App() {
         <Chat />
       </div>
       {rightOpen ? (
-        <ResizableBox
-          width={300}
-          height={Infinity}
-          minConstraints={[150, Infinity]}
-          maxConstraints={[500, Infinity]}
-        >
-          <div className="bg-gray-100 p-4 h-full">
-            <button onClick={() => setRightOpen(false)} className="mb-4">
-              <IconArrowBarLeft size={32} />
-            </button>
+        <>
+          <button onClick={() => setRightOpen(false)} className="bg-white p-2">
+            <IconArrowBarLeft size={32} />
+          </button>
+          <div style={{ width: sidebarWidth }} className="bg-gray-100 p-4 h-full">
             {accordionData.map((accordion, index) => (
               <Accordion key={index} title={accordion.title} content={accordion.content} />
             ))}
           </div>
-        </ResizableBox>
+        </>
       ) : (
-        <button onClick={() => setRightOpen(true)}>
+        <button onClick={() => setRightOpen(true)} className="bg-white p-2">
           <IconArrowBarRight size={32} />
         </button>
       )}
