@@ -34,3 +34,48 @@ function Chat() {
 }
 
 export default Chat;
+
+import React, { useState } from 'react';
+import TreeView from './TreeView';
+import Accordion from './Accordion';
+import Chat from './Chat';
+import { IconArrowBarLeft, IconArrowBarRight } from '@tabler/icons';
+
+// Tree data and accordion data remain the same
+
+function App() {
+  const [leftOpen, setLeftOpen] = useState(false);
+  const [rightOpen, setRightOpen] = useState(false);
+
+  return (
+    <div className="flex flex-col h-screen">
+      <div className="flex justify-between p-4">
+        <button onClick={() => setLeftOpen(!leftOpen)}>
+          {leftOpen ? <IconArrowBarRight size={32} /> : <IconArrowBarLeft size={32} />}
+        </button>
+        <button onClick={() => setRightOpen(!rightOpen)}>
+          {rightOpen ? <IconArrowBarLeft size={32} /> : <IconArrowBarRight size={32} />}
+        </button>
+      </div>
+      <div className="flex flex-row flex-grow">
+        {leftOpen && (
+          <div className="w-64 bg-gray-100 p-4">
+            <TreeView data={treeData} />
+          </div>
+        )}
+        <div className="flex-1 p-4 flex flex-col">
+          <Chat />
+        </div>
+        {rightOpen && (
+          <div className="w-64 bg-gray-100 p-4">
+            {accordionData.map((accordion, index) => (
+              <Accordion key={index} title={accordion.title} content={accordion.content} />
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+export default App;
