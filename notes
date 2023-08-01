@@ -79,3 +79,54 @@ function App() {
 }
 
 export default App;
+function App() {
+  const [leftOpen, setLeftOpen] = useState(false);
+  const [rightOpen, setRightOpen] = useState(false);
+  const [leftWidth, setLeftWidth] = useState(200);
+  const [rightWidth, setRightWidth] = useState(200);
+
+  return (
+    <div className="flex flex-col h-screen relative">
+      <div className="flex justify-between p-4">
+        {/* ... Icon Buttons ... */}
+      </div>
+      <div className="flex flex-row flex-grow relative">
+        {leftOpen && (
+          <Resizable
+            width={leftWidth}
+            height={0}
+            onResize={(event, { size }) => setLeftWidth(size.width)}
+          >
+            <div
+              style={{ width: leftWidth }}
+              className="bg-gray-100 p-4 absolute top-0 left-0 h-full z-10"
+            >
+              <TreeView data={treeData} />
+            </div>
+          </Resizable>
+        )}
+        <div className="flex-1 p-4 flex flex-col">
+          <Chat />
+        </div>
+        {rightOpen && (
+          <Resizable
+            width={rightWidth}
+            height={0}
+            onResize={(event, { size }) => setRightWidth(size.width)}
+          >
+            <div
+              style={{ width: rightWidth }}
+              className="bg-gray-100 p-4 absolute top-0 right-0 h-full z-10"
+            >
+              {accordionData.map((accordion, index) => (
+                <Accordion key={index} title={accordion.title} content={accordion.content} />
+              ))}
+            </div>
+          </Resizable>
+        )}
+      </div>
+    </div>
+  );
+}
+
+export default App;
