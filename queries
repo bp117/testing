@@ -1,0 +1,13 @@
+ SELECT 
+        rau_info.rau_name AS folderName, 
+        GROUP_CONCAT(DISTINCT file_meta_data.file_name) AS files
+    FROM 
+        rau_info 
+    JOIN 
+        rau_field_values ON rau_info.rau_id = rau_field_values.rau_id
+    JOIN 
+        sheet_meta_data ON rau_field_values.sheet_id = sheet_meta_data.sheet_id
+    JOIN 
+        file_meta_data ON sheet_meta_data.file_id = file_meta_data.file_id
+    GROUP BY 
+        rau_info.rau_name;
